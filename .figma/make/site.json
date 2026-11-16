@@ -1,0 +1,10 @@
+{
+  "description": "Helps logistics teams manage orders, verify warehouse inventory, create carrier shipments, track deliveries, and resolve integration issues in one portal.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
