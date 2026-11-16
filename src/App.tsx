@@ -1,8 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from "react"
-import { applyTheme, getPreferredTheme, saveThemePreference } from "./theme"
+import {
+  applyTheme,
+  getPreferredTheme,
+  saveThemePreference,
+  type Theme,
+} from "./theme"
+import type { Role } from "./types"
+import PublicSite from "./PublicSite"
+import ThemeToggle from "./components/ThemeToggle"
 
 type Page = "dashboard" | "orders" | "create-order" | "order-detail" | "warehouse" | "preparation" | "create-shipment" | "shipments" | "shipment-detail" | "tracking" | "integration" | "activity" | "settings" | "help" | "access-denied"
-type Role = "Operations staff" | "Warehouse staff" | "Administrator"
 
 interface IconProps {
   name: string
@@ -3595,11 +3602,21 @@ function Help() {
   )
 }
 
-export default function App() {
-  const [theme, setTheme] = useState(getPreferredTheme)
-  useEffect(() => applyTheme(theme), [theme])
+interface WorkspaceProps {
+  initialRole: Role
+  theme: Theme
+  onToggleTheme: () => void
+  onSignOut: () => void
+}
+
+function Workspace({
+  initialRole,
+  theme,
+  onToggleTheme,
+  onSignOut,
+}: WorkspaceProps) {
   const [page, setPage] = useState<Page>("dashboard")
-  const [role, setRole] = useState<Role>("Administrator")
+  const [role, setRole] = useState<Role>(initialRole)
   const [mobileNav, setMobileNav] = useState(false)
   const [compactNav, setCompactNav] = useState(
     () => window.matchMedia("(max-width: 820px)").matches,
@@ -3856,21 +3873,7 @@ export default function App() {
             </button>
           </form>
           <div className="top-actions">
-            <button
-              type="button"
-              className="theme-toggle"
-              aria-label="Dark theme"
-              aria-pressed={theme === "dark"}
-              title={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
-              onClick={() => {
-                const nextTheme = theme === "dark" ? "light" : "dark"
-                setTheme(nextTheme)
-                saveThemePreference(nextTheme)
-              }}
-            >
-              <Icon name={theme === "dark" ? "moon" : "sun"} size={18} />
-              <span>{theme === "dark" ? "Dark" : "Light"}</span>
-            </button>
+            <ThemeToggle theme={theme} onToggle={onToggleTheme} />
             <span className="environment">
               <i />
               Demo environment
@@ -3980,12 +3983,9 @@ export default function App() {
                 <Icon name="settings" />
                 Account settings
               </button>
-              <button
-                disabled
-                title="This prototype has no authentication session"
-              >
+              <button onClick={onSignOut}>
                 <Icon name="logout" />
-                Sign out <small>Demo only</small>
+                Leave demo <small>Return to homepage</small>
               </button>
               <div className="demo-role">
                 <span>
@@ -4026,5 +4026,50 @@ export default function App() {
         </main>
       </div>
     </div>
+  )
+}
+
+export default function App() {
+  const [theme, setTheme] = useState(getPreferredTheme)
+  const [view, setView] = useState<"home" | "login" | "workspace">("home")
+  const [demoRole, setDemoRole] = useState<Role>("Operations staff")
+  useEffect(() => applyTheme(theme), [theme])
+  const toggleTheme = () => {
+    const nextTheme = theme === "dark" ? "light" : "dark"
+    setTheme(nextTheme)
+    saveThemePreference(nextTheme)
+  }
+  const navigate = (nextView: "home" | "login" | "workspace") => {
+    setView(nextView)
+    window.scrollTo({ top: 0, behavior: "instant" })
+    window.history.replaceState(
+      null,
+      "",
+      window.location.pathname + window.location.search,
+    )
+    requestAnimationFrame(() =>
+      document.querySelector<HTMLElement>("main h1")?.focus(),
+    )
+  }
+  if (view === "workspace")
+    return (
+      <Workspace
+        initialRole={demoRole}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+        onSignOut={() => navigate("home")}
+      />
+    )
+  return (
+    <PublicSite
+      view={view}
+      onNavigate={navigate}
+      theme={theme}
+      onToggleTheme={toggleTheme}
+      onLogin={(role) => {
+        setDemoRole(role)
+        navigate("workspace")
+      }}
+    />
   )
 }

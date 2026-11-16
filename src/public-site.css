@@ -1,0 +1,194 @@
+@layer components {
+  .public-site { min-height: 100vh; background: var(--bg); }
+  .public-header { position: sticky; top: 0; z-index: 25; background: var(--header-bg); border-bottom: 1px solid var(--border); }
+  .public-header-inner { max-width: 1320px; margin: 0 auto; padding: 18px 40px; display: flex; align-items: center; justify-content: space-between; gap: 28px; }
+  .public-brand { display: flex; align-items: center; gap: 11px; background: transparent; border: 0; text-align: left; padding: 0; min-height: 44px; color: var(--accent); flex-shrink: 0; }
+  .public-brand strong { display: block; font-size: 21px; font-weight: 700; letter-spacing: -.7px; }
+  .public-brand small { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; }
+  .public-nav { display: flex; align-items: center; gap: 30px; }
+  .public-nav a { display: inline-flex; align-items: center; min-height: 44px; font-size: 13px; color: var(--muted); text-decoration: none; }
+  .public-nav a:hover { color: var(--accent); }
+  .public-header-actions { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+  .public-main { width: 100%; max-width: 1320px; margin: 0 auto; padding: 0 40px; }
+  .public-hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.04fr); align-items: center; gap: 60px; padding: 64px 0 42px; }
+  .public-eyebrow { display: block; font-size: 11px; font-weight: 600; letter-spacing: 1.5px; color: var(--accent); margin-bottom: 16px; line-height: 1.7; }
+  .public-hero-eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 10px; letter-spacing: 1px; padding: 7px 10px; border: 1px solid var(--border); background: var(--surface-sage); border-radius: 6px; }
+  .public-hero h1 { font-size: clamp(40px, 4.1vw, 58px); font-weight: 600; line-height: 1.12; letter-spacing: -2.5px; margin: 8px 0 24px; color: var(--heading); }
+  .public-hero h1 span { color: var(--accent); }
+  .public-hero-copy > p { max-width: 500px; font-size: 16px; color: var(--muted); line-height: 1.8; margin: 0 0 28px; }
+  .public-hero-actions { display: flex; align-items: stretch; gap: 12px; flex-wrap: wrap; }
+  .public-hero-actions .button { min-height: 48px; padding-inline: 18px; text-decoration: none; }
+  .public-hero-note { display: flex; flex-wrap: wrap; gap: 10px 17px; margin-top: 24px; color: var(--muted); font-size: 11px; }
+  .public-hero-note > span { display: inline-flex; align-items: center; gap: 5px; }
+  .public-hero-note svg { color: var(--accent); }
+  .public-visual { min-width: 0; border: 1px solid var(--border); border-radius: 18px; background: var(--surface); overflow: hidden; }
+  .public-photo { position: relative; aspect-ratio: 1.3; overflow: hidden; margin: 0; background: var(--green); }
+  .public-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .public-photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, #05231000 35%, #052310e8 100%); pointer-events: none; }
+  .public-photo figcaption { position: absolute; bottom: 26px; left: 26px; right: 26px; z-index: 1; color: #fff; }
+  .public-photo figcaption > span { font-size: 10px; font-weight: 500; letter-spacing: 1.8px; }
+  .public-photo h2 { color: #fff; font-size: 25px; font-weight: 500; letter-spacing: -.7px; margin: 10px 0 7px; line-height: 1.3; }
+  .public-photo p { margin: 0; color: #e4ece3; font-size: 13px; line-height: 1.6; }
+  .public-photo-credit { display: flex; justify-content: space-between; flex-wrap: wrap; align-items: center; gap: 8px; padding: 15px 18px; font-size: 10px; color: var(--muted); }
+  .public-photo-credit a { color: var(--muted); text-underline-offset: 3px; }
+  .public-systems { padding: 24px 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; border-block: 1px dashed var(--border-strong); }
+  .public-systems > span { font-size: 10px; letter-spacing: 1.1px; color: var(--muted); max-width: 100px; line-height: 1.7; }
+  .public-systems > div { display: grid; grid-template-columns: auto auto; column-gap: 9px; align-items: center; color: var(--accent); }
+  .public-systems > div svg { grid-row: span 2; }
+  .public-systems strong { font-size: 12px; font-weight: 500; }
+  .public-systems small { font-size: 10px; color: var(--muted); margin-top: 3px; }
+  .public-systems > svg { color: var(--subtle); }
+  .public-section { padding-block: 64px; scroll-margin-top: 105px; }
+  .public-section-heading { display: flex; justify-content: space-between; align-items: flex-end; gap: 40px; margin-bottom: 28px; }
+  .public-section h2 { font-size: 31px; line-height: 1.25; letter-spacing: -1.1px; font-weight: 500; color: var(--heading); margin: 0; }
+  .public-section-heading > p { max-width: 330px; font-size: 14px; color: var(--muted); margin: 0; line-height: 1.7; }
+  .public-feature-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+  .public-feature-card { border: 1px solid var(--border); border-radius: 14px; background: var(--surface); padding: 26px; display: flex; flex-direction: column; align-items: flex-start; }
+  .public-feature-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; margin-bottom: 25px; }
+  .public-icon-tile { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 11px; background: var(--pale); color: var(--accent); flex-shrink: 0; }
+  .public-feature-top small { color: var(--muted); font-size: 10px; letter-spacing: 1px; }
+  .public-feature-card h3 { font-size: 18px; font-weight: 500; color: var(--heading); letter-spacing: -.4px; margin-bottom: 12px; line-height: 1.5; }
+  .public-feature-card > p { font-size: 13px; color: var(--muted); line-height: 1.8; margin-bottom: 20px; }
+  .public-feature-card .text-button { margin-top: auto; font-size: 12px; gap: 8px; white-space: normal; text-align: left; }
+  .public-workflow-banner { border: 1px solid var(--border); border-radius: 18px; background: var(--surface-sage); padding: 40px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 64px; }
+  .public-workflow-banner > div > p { max-width: 450px; color: var(--muted); font-size: 14px; margin: 20px 0 0; }
+  .public-workflow-banner ol { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; justify-content: center; gap: 24px; }
+  .public-workflow-banner li { display: flex; align-items: flex-start; gap: 18px; }
+  .public-workflow-banner li > span { width: 35px; height: 35px; display: grid; place-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: 9px; font-size: 12px; color: var(--accent); flex-shrink: 0; }
+  .public-workflow-banner strong { font-weight: 500; font-size: 15px; color: var(--heading); }
+  .public-workflow-banner li p { color: var(--muted); font-size: 12px; margin: 5px 0 0; }
+  .public-team-section { display: flex; justify-content: space-between; align-items: center; gap: 40px; }
+  .public-team-section p { max-width: 720px; font-size: 14px; line-height: 1.8; color: var(--muted); margin: 18px 0 0; }
+  .public-team-section > .button { flex-shrink: 0; }
+  .public-footer { max-width: 1240px; margin: 0 auto; border-top: 1px solid var(--border); padding: 26px 0; display: flex; align-items: center; justify-content: space-between; gap: 20px; color: var(--muted); font-size: 11px; }
+  .public-footer strong, .public-footer > div span { display: block; }
+  .public-footer strong { color: var(--accent); font-size: 16px; margin-bottom: 6px; }
+  .public-footer > div span { font-size: 10px; }
+  .public-footer p { margin: 0; }
+  .login-main { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: stretch; gap: 72px; padding-block: 64px; }
+  .login-story { background: var(--green); color: #fff; border-radius: 20px; padding: 48px; display: flex; flex-direction: column; justify-content: center; }
+  .login-story .public-eyebrow { color: #b9d5b6; }
+  .login-story h2 { font-size: 43px; line-height: 1.2; letter-spacing: -1.5px; font-weight: 500; margin: 8px 0 22px; }
+  .login-story > p { font-size: 15px; color: #d3e2cf; line-height: 1.8; }
+  .login-story-list { display: flex; flex-direction: column; gap: 20px; padding-block: 28px; }
+  .login-story-list > div { display: flex; align-items: flex-start; gap: 12px; font-size: 13px; line-height: 1.7; }
+  .login-story-list > div span { width: 24px; height: 24px; display: grid; place-items: center; flex-shrink: 0; background: #ffffff15; border-radius: 50%; }
+  .login-story-note { display: flex; gap: 15px; align-items: flex-start; border-top: 1px solid #ffffff30; padding-top: 26px; margin-top: 20px; }
+  .login-story-note strong { display: block; font-weight: 500; font-size: 14px; }
+  .login-story-note p { font-size: 12px; color: #d3e2cf; margin: 7px 0 0; }
+  .login-panel { width: 100%; max-width: 440px; align-self: center; justify-self: center; padding: 25px 0; }
+  .login-panel > .public-icon-tile { width: 52px; height: 52px; margin-bottom: 28px; }
+  .login-panel > .public-eyebrow { margin-bottom: 10px; }
+  .login-panel h1 { font-size: 33px; letter-spacing: -1px; color: var(--heading); font-weight: 500; margin: 0 0 12px; }
+  .login-panel > p { color: var(--muted); font-size: 14px; margin-bottom: 26px; }
+  .login-account { display: flex; align-items: center; gap: 12px; padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); margin-bottom: 26px; }
+  .login-account strong, .login-account small { display: block; }
+  .login-account strong { font-size: 14px; font-weight: 500; color: var(--heading); }
+  .login-account small { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .public-tag { margin-left: auto; display: inline-block; background: var(--pale); color: var(--accent); padding: 4px 7px; border-radius: 5px; font-size: 11px; }
+  .login-panel label { display: block; color: var(--text); font-size: 13px; font-weight: 500; margin-bottom: 10px; }
+  .login-panel select { width: 100%; min-height: 48px; padding: 0 12px; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--surface); color: var(--text); font-size: 15px; }
+  .login-role-help { min-height: 44px; margin: 10px 0 22px; font-size: 12px; line-height: 1.7; color: var(--muted); }
+  .public-login-submit { width: 100%; min-height: 48px; justify-content: space-between; padding-inline: 18px; }
+  .login-demo-note { display: flex; align-items: flex-start; gap: 9px; color: var(--muted); margin-top: 24px; padding-top: 22px; border-top: 1px dashed var(--border); }
+  .login-demo-note p { font-size: 12px; margin: 0; line-height: 1.7; }
+  .login-demo-note strong { display: block; color: var(--text); font-weight: 500; margin-bottom: 5px; }
+
+  @media (max-width: 1320px) {
+    .public-footer { margin-inline: 40px; }
+    .public-hero { gap: 36px; }
+    .public-nav { gap: 22px; }
+    .public-systems { gap: 13px; }
+  }
+  @media (max-width: 1050px) {
+    .public-header-inner, .public-main { padding-inline: 28px; }
+    .public-hero { gap: 28px; padding-top: 48px; }
+    .public-hero h1 { font-size: 44px; letter-spacing: -1.8px; }
+    .public-photo { aspect-ratio: 1; }
+    .public-photo-credit { padding: 14px; }
+    .public-nav { gap: 18px; }
+    .public-systems > span { flex-basis: 100%; max-width: none; }
+    .public-systems { gap: 15px; }
+    .public-systems strong { font-size: 11px; }
+    .public-section { padding-block: 48px; }
+    .public-section-heading { gap: 24px; }
+    .public-section h2 { font-size: 28px; }
+    .public-feature-card { padding: 22px; }
+    .public-feature-top { align-items: flex-start; gap: 8px; }
+    .public-workflow-banner { gap: 36px; padding: 32px; }
+    .public-footer { margin-inline: 28px; }
+    .login-main { gap: 40px; padding-block: 48px; }
+    .login-story { padding: 32px; }
+    .login-story h2 { font-size: 36px; }
+  }
+  @media (max-width: 800px) {
+    .public-header-inner { flex-wrap: wrap; gap: 8px 18px; padding-block: 12px; }
+    .public-nav { order: 3; width: 100%; justify-content: center; gap: 32px; }
+    .public-hero { grid-template-columns: minmax(0, 1fr); gap: 32px; padding-top: 36px; }
+    .public-hero h1 { font-size: 50px; }
+    .public-hero-copy { max-width: 620px; }
+    .public-photo { aspect-ratio: 1.6; }
+    .public-photo-credit { padding-inline: 20px; }
+    .public-hero-copy > p { max-width: 580px; }
+    .public-section { scroll-margin-top: 145px; }
+    .public-section-heading { align-items: flex-start; flex-direction: column; gap: 14px; }
+    .public-section-heading > p { max-width: 570px; }
+    .public-feature-grid { gap: 14px; }
+    .public-feature-top { flex-direction: column; gap: 18px; }
+    .public-feature-card { padding: 20px; }
+    .public-team-section { align-items: flex-start; flex-direction: column; gap: 24px; }
+    .public-footer { flex-wrap: wrap; gap: 16px 24px; }
+    .login-main { grid-template-columns: 1fr; gap: 28px; padding-block: 32px; }
+    .login-panel { grid-row: 1; max-width: 540px; }
+    .login-story { max-width: 650px; justify-self: center; width: 100%; }
+    .login-story h2 { font-size: 32px; }
+  }
+  @media (max-width: 600px) {
+    .public-header-inner, .public-main { padding-inline: 20px; }
+    .public-header-inner { gap: 8px 10px; }
+    .public-brand { gap: 9px; }
+    .public-brand strong { font-size: 19px; }
+    .public-brand small { font-size: 10px; }
+    .public-header-actions { gap: 8px; }
+    .public-header-actions > .button { padding-inline: 12px; font-size: 13px; }
+    .public-header-actions .button svg { display: none; }
+    .public-nav { gap: 28px; }
+    .public-nav a { font-size: 12px; }
+    .public-hero { padding-top: 32px; padding-bottom: 30px; }
+    .public-hero h1 { font-size: 41px; letter-spacing: -1.8px; margin-top: 12px; }
+    .public-hero-copy > p { font-size: 14px; line-height: 1.8; }
+    .public-hero-eyebrow { font-size: 8px; letter-spacing: .7px; gap: 5px; padding-inline: 8px; }
+    .public-hero-actions { flex-direction: column; gap: 12px; }
+    .public-hero-actions .button { width: 100%; }
+    .public-hero-note { gap: 9px 12px; font-size: 10px; margin-top: 20px; }
+    .public-photo { aspect-ratio: 1.08; }
+    .public-photo figcaption { left: 20px; right: 20px; bottom: 23px; }
+    .public-photo h2 { font-size: 23px; }
+    .public-photo p { font-size: 12px; }
+    .public-photo-credit { padding: 14px 16px; }
+    .public-systems { display: grid; grid-template-columns: 1fr 1fr; gap: 24px 16px; padding-block: 24px; }
+    .public-systems > span { grid-column: 1 / -1; }
+    .public-systems > svg { display: none; }
+    .public-systems strong { font-size: 11px; }
+    .public-systems small { font-size: 10px; }
+    .public-systems > div { justify-content: start; }
+    .public-systems > div svg { width: 20px; }
+    .public-section { padding-block: 38px; }
+    .public-section h2 { font-size: 28px; }
+    .public-eyebrow { font-size: 10px; letter-spacing: 1px; }
+    .public-hero-eyebrow { font-size: 8px; }
+    .public-feature-grid { grid-template-columns: 1fr; gap: 16px; }
+    .public-feature-top { flex-direction: row; align-items: center; margin-bottom: 20px; }
+    .public-feature-card { padding: 24px; }
+    .public-feature-card h3 { font-size: 19px; }
+    .public-feature-card > p { font-size: 14px; }
+    .public-workflow-banner { grid-template-columns: minmax(0, 1fr); padding: 26px; gap: 32px; }
+    .public-team-section > .button { width: 100%; }
+    .public-footer { margin-inline: 20px; padding-block: 24px; flex-direction: column; align-items: flex-start; gap: 16px; line-height: 1.7; }
+    .login-main { padding-block: 24px; }
+    .login-panel { padding-block: 18px; }
+    .login-panel h1 { font-size: 30px; }
+    .login-panel select { font-size: 16px; }
+    .login-story { padding: 28px; }
+  }
+}
