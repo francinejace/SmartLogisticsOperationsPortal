@@ -1,7 +1,20 @@
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 
 type Page = "dashboard" | "orders" | "create-order" | "order-detail" | "warehouse" | "preparation" | "create-shipment" | "shipments" | "shipment-detail" | "tracking" | "integration" | "activity" | "settings" | "help" | "access-denied"
 type Role = "Operations staff" | "Warehouse staff" | "Administrator"
+
+interface IconProps {
+  name: string
+  size?: number
+}
+interface EmptyStateProps {
+  title: string
+  text: string
+}
+interface RolePageProps {
+  go: (p: Page) => void
+  role: Role
+}
 
 const orders = [
   {
@@ -136,7 +149,70 @@ const nav = [
   ["settings", "Settings", "settings"],
 ] as const
 
-function Icon({ name, size = 20 }: { name: string size?: number }) {
+// These layers manage presentation only; the role selector is not authentication.
+function useFocusLayer(open: boolean, close: () => void, modal = false) {
+  const ref = useRef<HTMLElement | null>(null)
+  const closeRef = useRef(close)
+  closeRef.current = close
+  useEffect(() => {
+    if (!open) return
+    const previous = document.activeElement as HTMLElement | null
+    const previousOverflow = document.body.style.overflow
+    if (modal) document.body.style.overflow = "hidden"
+    const getControls = () =>
+      Array.from(
+        ref.current?.querySelectorAll<HTMLElement>(
+          'button:not(:disabled), input:not(:disabled), select:not(:disabled), [href], [tabindex="0"]',
+        ) || [],
+      ).filter((el) => el.getClientRects().length > 0)
+    const frame = requestAnimationFrame(() => getControls()[0]?.focus())
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault()
+        closeRef.current()
+        return
+      }
+      if (event.key !== "Tab") return
+      const controls = getControls()
+      const first = controls[0],
+        last = controls[controls.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last?.focus()
+      }
+      if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first?.focus()
+      }
+    }
+    const onOutside = (event: PointerEvent) => {
+      const target = event.target as HTMLElement
+      if (
+        !modal &&
+        !ref.current?.contains(target) &&
+        !target.closest("[data-layer-trigger]")
+      )
+        closeRef.current()
+    }
+    document.addEventListener("keydown", onKey)
+    document.addEventListener("pointerdown", onOutside)
+    return () => {
+      cancelAnimationFrame(frame)
+      document.removeEventListener("keydown", onKey)
+      document.removeEventListener("pointerdown", onOutside)
+      if (modal) document.body.style.overflow = previousOverflow
+      if (previous?.isConnected && !previous.closest("[inert]"))
+        previous.focus({ preventScroll: true })
+      else
+        document
+          .querySelector<HTMLButtonElement>(".menu-button")
+          ?.focus({ preventScroll: true })
+    }
+  }, [open, modal])
+  return ref
+}
+
+function Icon({ name, size = 20 }: IconProps) {
   const common = {
     width: size,
     height: size,
@@ -294,7 +370,17 @@ function Button({
   disabled?: boolean
 }) {
   return (
-    <button className={`button ${kind}`} onClick={onClick} disabled={disabled}>
+    <button
+      type="button"
+      className={`button ${kind}`}
+      onClick={onClick}
+      disabled={disabled || !onClick}
+      title={
+        !onClick
+          ? "Preview control — not connected in this prototype"
+          : undefined
+      }
+    >
       {icon && <Icon name={icon} size={17} />}
       {children}
     </button>
@@ -330,7 +416,8 @@ function PageHead({
             ← Back to previous
           </button>
         )}
-        <h1>{title}</h1>
+        <span className="page-eyebrow">TRANSLOGIX / OPERATIONS WORKSPACE</span>
+        <h1 tabIndex={-1}>{title}</h1>
         <p>{description}</p>
       </div>
       {children && <div className="page-actions">{children}</div>}
@@ -374,7 +461,30 @@ function StatCard({
   )
 }
 
-function EmptyState({ title, text }: { title: string text: string }) {
+function SamplePagination({
+  count,
+  label = "records",
+}: {
+  count: number
+  label?: string
+}) {
+  return (
+    <div className="pagination">
+      <span>
+        {count ? `Showing 1–${count}` : "0 results"} · {count} sample {label}
+      </span>
+      <div aria-label="Pagination">
+        <button disabled>Previous</button>
+        <button className="active" aria-current="page">
+          1
+        </button>
+        <button disabled>Next</button>
+      </div>
+    </div>
+  )
+}
+
+function EmptyState({ title, text }: EmptyStateProps) {
   return (
     <div className="empty-state">
       <span>
@@ -391,9 +501,9 @@ function Dashboard({ go }: { go: (p: Page) => void }) {
     <>
       <PageHead
         title="Operations overview"
-        description="Monitor today’s orders, shipments, and integration health."
+        description="Your orders, shipments, and exceptions. One connected workspace."
       >
-        <div className="updated">Updated 18 Jun, 11:30 PHT</div>
+        <div className="updated">Snapshot · 18 Jun 2025, 11:30 PHT</div>
         <Button icon="plus" onClick={() => go("create-order")}>
           Create order
         </Button>
@@ -401,19 +511,22 @@ function Dashboard({ go }: { go: (p: Page) => void }) {
       <div className="demo-strip">
         <Icon name="info" size={17} />
         <strong>Demonstration data</strong>
-        <span>Reporting period: 12–18 June 2025 · Asia/Manila</span>
+        <span>
+          Weekly summary: 12–18 June 2025 · Sample records below are a subset ·
+          Asia/Manila
+        </span>
       </div>
       <div className="stats-grid">
         <StatCard
           label="Awaiting processing"
           value={6}
-          note="2 added today"
+          note="Weekly operations summary"
           onClick={() => go("orders")}
         />
         <StatCard
           label="Awaiting inventory"
           value={4}
-          note="Oldest: 3h 12m"
+          note="Across the weekly summary"
           tone="warning"
           onClick={() => go("orders")}
         />
@@ -433,11 +546,14 @@ function Dashboard({ go }: { go: (p: Page) => void }) {
         />
       </div>
       <div className="dashboard-grid">
-        <Card className="span-2">
+        <Card className="recent-orders">
           <div className="card-head">
             <div>
               <h2>Recent orders</h2>
-              <p>Latest order activity across connected systems</p>
+              <p>
+                Four latest sample orders · Select a row to open the sample
+                detail
+              </p>
             </div>
             <button className="text-button" onClick={() => go("orders")}>
               View all <Icon name="arrow" size={16} />
@@ -449,21 +565,34 @@ function Dashboard({ go }: { go: (p: Page) => void }) {
                 <tr>
                   <th>Order</th>
                   <th>Customer</th>
-                  <th>Destination</th>
                   <th>Inventory</th>
                   <th>Shipment</th>
-                  <th></th>
+                  <th>
+                    <span className="sr-only">Open details</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {orders.slice(0, 4).map((o) => (
-                  <tr key={o.id} onClick={() => go("order-detail")}>
+                  <tr
+                    key={o.id}
+                    tabIndex={0}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault()
+                        event.currentTarget.click()
+                      }
+                    }}
+                    onClick={() => go("order-detail")}
+                  >
                     <td>
                       <strong>{o.id}</strong>
                       <small>{o.date}</small>
                     </td>
-                    <td>{o.customer}</td>
-                    <td>{o.destination}</td>
+                    <td className="customer-cell">
+                      {o.customer}
+                      <small>{o.destination}</small>
+                    </td>
                     <td>
                       <Badge
                         tone={
@@ -501,13 +630,13 @@ function Dashboard({ go }: { go: (p: Page) => void }) {
             </table>
           </div>
         </Card>
-        <Card>
+        <Card className="attention-card">
           <div className="card-head">
             <div>
               <h2>Needs attention</h2>
-              <p>Prioritized operational work</p>
+              <p>Resolve these exceptions first</p>
             </div>
-            <Badge tone="danger">5 open</Badge>
+            <Badge tone="danger">5 total</Badge>
           </div>
           <div className="attention-list">
             <button onClick={() => go("integration")}>
@@ -576,7 +705,7 @@ function Dashboard({ go }: { go: (p: Page) => void }) {
             </div>
           </div>
         </Card>
-        <Card className="span-2">
+        <Card className="connection-panel">
           <div className="card-head">
             <div>
               <h2>Connection status</h2>
@@ -642,8 +771,14 @@ function Dashboard({ go }: { go: (p: Page) => void }) {
   )
 }
 
-function Orders({ go }: { go: (p: Page) => void }) {
-  const [search, setSearch] = useState("")
+function Orders({
+  go,
+  initialSearch = "",
+}: {
+  go: (p: Page) => void
+  initialSearch?: string
+}) {
+  const [search, setSearch] = useState(initialSearch)
   const filtered = orders.filter((o) =>
     `${o.id} ${o.customer} ${o.destination}`
       .toLowerCase()
@@ -664,31 +799,30 @@ function Orders({ go }: { go: (p: Page) => void }) {
           <label className="search-field">
             <Icon name="search" size={18} />
             <input
+              aria-label="Search orders"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search order, customer, or destination"
             />
           </label>
           <Button kind="secondary" icon="filter">
-            Filters <span className="filter-count">2</span>
+            Filters
           </Button>
           <label className="select-label">
             Sort by{" "}
-            <select>
+            <select disabled title="Sorting is a preview control">
               <option>Newest first</option>
               <option>Oldest first</option>
             </select>
           </label>
         </div>
-        <div className="filter-chips">
+        <div className="list-context">
           <span>
-            Status: Accepted{" "}
-            <button aria-label="Remove status filter">×</button>
+            <i /> {filtered.length} sample orders
           </span>
-          <span>
-            Date: Last 7 days <button aria-label="Remove date filter">×</button>
-          </span>
-          <button>Clear filters</button>
+          <small>
+            Search is interactive · Filters and sort are preview controls
+          </small>
         </div>
         {filtered.length ? (
           <div className="table-wrap">
@@ -703,12 +837,24 @@ function Orders({ go }: { go: (p: Page) => void }) {
                   <th>Inventory</th>
                   <th>Shipment</th>
                   <th>Created</th>
-                  <th></th>
+                  <th>
+                    <span className="sr-only">Open details</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((o) => (
-                  <tr key={o.id} onClick={() => go("order-detail")}>
+                  <tr
+                    key={o.id}
+                    tabIndex={0}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault()
+                        event.currentTarget.click()
+                      }
+                    }}
+                    onClick={() => go("order-detail")}
+                  >
                     <td>
                       <strong>{o.id}</strong>
                     </td>
@@ -774,17 +920,11 @@ function Orders({ go }: { go: (p: Page) => void }) {
             text="Try changing or clearing your search and filters."
           />
         )}
-        <div className="pagination">
-          <span>
-            Showing 1–{filtered.length} of {filtered.length} results
-          </span>
-          <div>
-            <button disabled>Previous</button>
-            <button className="active">1</button>
-            <button>2</button>
-            <button>Next</button>
-          </div>
-        </div>
+        <SamplePagination count={filtered.length} label="orders" />
+        <p className="demo-disclosure">
+          All detail links open the fixed ORD-1001 example. Submitted demo
+          orders are not added to these fixtures.
+        </p>
       </Card>
     </>
   )
@@ -800,13 +940,14 @@ function CreateOrder({ go }: { go: (p: Page) => void }) {
   const [qty, setQty] = useState("2")
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [duplicate, setDuplicate] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
   const next = () => {
     const e: Record<string, string> = {}
     if (step === 1) {
-      if (!orderId) e.orderId = "Enter a unique order ID."
-      if (!customerId) e.customerId = "Customer ID is required."
-      if (!destination) e.destination = "Destination is required."
-      if (orderId === "ORD-1001") setDuplicate(true)
+      if (!orderId.trim()) e.orderId = "Enter a unique order ID."
+      if (!customerId.trim()) e.customerId = "Customer ID is required."
+      if (!destination.trim()) e.destination = "Destination is required."
+      setDuplicate(orders.some((order) => order.id === orderId.trim()))
     }
     if (step === 2) {
       if (!/^[A-Za-z0-9_-]{1,64}$/.test(sku))
@@ -815,9 +956,66 @@ function CreateOrder({ go }: { go: (p: Page) => void }) {
         e.qty = "Quantity must be a positive whole number."
     }
     setErrors(e)
-    if (!Object.keys(e).length && !(step === 1 && orderId === "ORD-1001"))
+    const firstError = Object.keys(e)[0]
+    if (firstError)
+      requestAnimationFrame(() =>
+        document.getElementById(`order-${firstError}`)?.focus(),
+      )
+    if (
+      !Object.keys(e).length &&
+      !(step === 1 && orders.some((order) => order.id === orderId.trim()))
+    )
       setStep((s) => Math.min(3, s + 1))
   }
+  if (submitted)
+    return (
+      <>
+        <PageHead
+          title="Order reviewed"
+          description="Order creation demonstration · No API request has been sent."
+        />
+        <Card className="success-panel">
+          <span className="success-mark">
+            <Icon name="check" size={28} />
+          </span>
+          <h2>{orderId} passed frontend validation</h2>
+          <p>
+            Your entries are shown below. This prototype does not persist or
+            submit orders to OMS.
+          </p>
+          <div className="review-block">
+            <div>
+              <small>Customer</small>
+              <strong>{customer || customerId}</strong>
+              <span>{customerId}</span>
+            </div>
+            <div>
+              <small>Destination</small>
+              <strong>{destination}</strong>
+            </div>
+            <div>
+              <small>Order item</small>
+              <strong>
+                {sku} × {qty}
+              </strong>
+            </div>
+          </div>
+          <div className="hint">
+            The documented valid order creation response is HTTP 201. Invalid
+            input: HTTP 400. Duplicate order: HTTP 409.
+          </div>
+          <div className="card-actions">
+            <Button kind="secondary" onClick={() => setSubmitted(false)}>
+              Review entries
+            </Button>
+            <Button onClick={() => go("orders")}>Return to orders</Button>
+            <Button kind="secondary" onClick={() => go("order-detail")}>
+              Open sample order
+            </Button>
+          </div>
+        </Card>
+      </>
+    )
   return (
     <>
       <PageHead
@@ -828,7 +1026,11 @@ function CreateOrder({ go }: { go: (p: Page) => void }) {
       <div className="stepper">
         {["Customer and destination", "Order items", "Review and submit"].map(
           (x, i) => (
-            <div className={step > i ? "active" : ""} key={x}>
+            <div
+              className={step > i ? "active" : ""}
+              aria-current={step === i + 1 ? "step" : undefined}
+              key={x}
+            >
               <span>
                 {step > i + 1 ? <Icon name="check" size={16} /> : i + 1}
               </span>
@@ -840,17 +1042,18 @@ function CreateOrder({ go }: { go: (p: Page) => void }) {
       <div className="form-layout">
         <Card className="form-card">
           {duplicate && (
-            <div className="alert danger">
+            <div className="alert danger" id="duplicate-order" role="alert">
               <Icon name="alert" />
               <div>
                 <strong>Order ID already exists</strong>
                 <p>
-                  ORD-1001 was accepted on 18 June 2025. Your entries are
-                  preserved.
+                  {orderId} already exists in the sample data (HTTP 409
+                  scenario). Your entries are preserved. The detail preview
+                  shows ORD-1001.
                 </p>
               </div>
               <Button kind="secondary" onClick={() => go("order-detail")}>
-                Open existing order
+                Open sample order
               </Button>
             </div>
           )}
@@ -869,6 +1072,15 @@ function CreateOrder({ go }: { go: (p: Page) => void }) {
                     Order ID <b>*</b>
                   </span>
                   <input
+                    id="order-orderId"
+                    aria-invalid={Boolean(errors.orderId) || duplicate}
+                    aria-describedby={
+                      errors.orderId
+                        ? "error-orderId"
+                        : duplicate
+                          ? "duplicate-order"
+                          : undefined
+                    }
                     value={orderId}
                     onChange={(e) => {
                       setOrderId(e.target.value.toUpperCase())
@@ -876,7 +1088,11 @@ function CreateOrder({ go }: { go: (p: Page) => void }) {
                     }}
                     placeholder="e.g. ORD-1010"
                   />
-                  {errors.orderId && <em>{errors.orderId}</em>}
+                  {errors.orderId && (
+                    <em id="error-orderId" role="alert">
+                      {errors.orderId}
+                    </em>
+                  )}
                   <small>Must be unique across OMS orders.</small>
                 </label>
                 <label className={errors.customerId ? "has-error" : ""}>
@@ -884,10 +1100,19 @@ function CreateOrder({ go }: { go: (p: Page) => void }) {
                     Customer ID <b>*</b>
                   </span>
                   <input
+                    id="order-customerId"
+                    aria-invalid={Boolean(errors.customerId)}
+                    aria-describedby={
+                      errors.customerId ? "error-customerId" : undefined
+                    }
                     value={customerId}
                     onChange={(e) => setCustomerId(e.target.value)}
                   />
-                  {errors.customerId && <em>{errors.customerId}</em>}
+                  {errors.customerId && (
+                    <em id="error-customerId" role="alert">
+                      {errors.customerId}
+                    </em>
+                  )}
                 </label>
                 <label>
                   <span>Customer display name</span>
@@ -902,15 +1127,25 @@ function CreateOrder({ go }: { go: (p: Page) => void }) {
                     Destination <b>*</b>
                   </span>
                   <select
+                    id="order-destination"
+                    aria-invalid={Boolean(errors.destination)}
+                    aria-describedby={
+                      errors.destination ? "error-destination" : undefined
+                    }
                     value={destination}
                     onChange={(e) => setDestination(e.target.value)}
                   >
+                    <option value="">Select destination</option>
                     <option>Tarlac</option>
                     <option>Makati</option>
                     <option>Baguio</option>
                     <option>Cebu City</option>
                   </select>
-                  {errors.destination && <em>{errors.destination}</em>}
+                  {errors.destination && (
+                    <em id="error-destination" role="alert">
+                      {errors.destination}
+                    </em>
+                  )}
                 </label>
               </div>
             </>
@@ -926,7 +1161,13 @@ function CreateOrder({ go }: { go: (p: Page) => void }) {
               </div>
               <div className="item-header">
                 <strong>Item 1</strong>
-                <button className="text-button danger-text">Remove</button>
+                <button
+                  className="text-button danger-text"
+                  disabled
+                  title="At least one item is required; multiple item editing is not implemented"
+                >
+                  Remove
+                </button>
               </div>
               <div className="form-grid">
                 <label className={errors.sku ? "has-error wide" : "wide"}>
@@ -936,11 +1177,18 @@ function CreateOrder({ go }: { go: (p: Page) => void }) {
                   <div className="input-icon">
                     <Icon name="search" size={17} />
                     <input
+                      id="order-sku"
+                      aria-invalid={Boolean(errors.sku)}
+                      aria-describedby={errors.sku ? "error-sku" : undefined}
                       value={sku}
                       onChange={(e) => setSku(e.target.value.toUpperCase())}
                     />
                   </div>
-                  {errors.sku && <em>{errors.sku}</em>}
+                  {errors.sku && (
+                    <em id="error-sku" role="alert">
+                      {errors.sku}
+                    </em>
+                  )}
                   <small>
                     {sku === "BOX-001" && "Heavy-duty storage box · WMS item"}
                   </small>
@@ -950,16 +1198,27 @@ function CreateOrder({ go }: { go: (p: Page) => void }) {
                     Quantity <b>*</b>
                   </span>
                   <input
+                    id="order-qty"
+                    aria-invalid={Boolean(errors.qty)}
+                    aria-describedby={errors.qty ? "error-qty" : undefined}
                     value={qty}
                     onChange={(e) => setQty(e.target.value)}
                     inputMode="numeric"
                   />
-                  {errors.qty && <em>{errors.qty}</em>}
+                  {errors.qty && (
+                    <em id="error-qty" role="alert">
+                      {errors.qty}
+                    </em>
+                  )}
                 </label>
               </div>
               <Button kind="secondary" icon="plus">
                 Add item
               </Button>
+              <p className="demo-disclosure">
+                This sample editor supports one item. Add and remove item
+                controls are previews.
+              </p>
               <div className="hint">
                 <Icon name="info" size={17} />
                 Inventory is checked after order acceptance. Availability does
@@ -1026,13 +1285,32 @@ function CreateOrder({ go }: { go: (p: Page) => void }) {
             {step < 3 ? (
               <Button onClick={next}>Continue</Button>
             ) : (
-              <Button onClick={() => go("order-detail")}>Submit order</Button>
+              <Button onClick={() => setSubmitted(true)}>
+                Submit demo order
+              </Button>
             )}
           </div>
         </Card>
         <aside className="side-note">
-          <Icon name="info" />
-          <h3>Order submission</h3>
+          <span className="aside-label">ORDER SUMMARY</span>
+          <h3>{orderId || "New customer order"}</h3>
+          <dl>
+            <div>
+              <dt>Customer</dt>
+              <dd>{customerId || "—"}</dd>
+            </div>
+            <div>
+              <dt>Destination</dt>
+              <dd>{destination || "—"}</dd>
+            </div>
+            <div>
+              <dt>Items</dt>
+              <dd>
+                {sku || "—"} × {qty || "—"}
+              </dd>
+            </div>
+          </dl>
+          <h3>Before you submit</h3>
           <p>Orders are validated by middleware before OMS acceptance.</p>
           <ul>
             <li>Order ID must be unique</li>
@@ -1283,8 +1561,15 @@ function OrderDetail({ go }: { go: (p: Page) => void }) {
   )
 }
 
-function Warehouse({ go }: { go: (p: Page) => void }) {
+function Warehouse({
+  go,
+  initialSearch = "",
+}: {
+  go: (p: Page) => void
+  initialSearch?: string
+}) {
   const [tab, setTab] = useState("Inventory")
+  const [query, setQuery] = useState(initialSearch)
   return (
     <>
       <PageHead
@@ -1308,6 +1593,9 @@ function Warehouse({ go }: { go: (p: Page) => void }) {
           <label className="search-field">
             <Icon name="search" size={18} />
             <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              aria-label="Search warehouse records"
               placeholder={
                 tab === "Inventory"
                   ? "Search SKU, product, or location"
@@ -1334,7 +1622,9 @@ function Warehouse({ go }: { go: (p: Page) => void }) {
                   <th>Availability</th>
                   <th>Last synchronized</th>
                   <th>Freshness</th>
-                  <th></th>
+                  <th>
+                    <span className="sr-only">Open details</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -1371,29 +1661,47 @@ function Warehouse({ go }: { go: (p: Page) => void }) {
                     "18 Jun, 09:02",
                     "Stale",
                   ],
-                ].map((r) => (
-                  <tr key={r[0]} onClick={() => go("preparation")}>
-                    <td>
-                      <strong>{r[0]}</strong>
-                    </td>
-                    <td>{r[1]}</td>
-                    <td>{r[2]}</td>
-                    <td>
-                      <Badge tone={r[3] === "Available" ? "success" : "danger"}>
-                        {r[3]}
-                      </Badge>
-                    </td>
-                    <td>{r[4]} PHT</td>
-                    <td>
-                      <Badge tone={r[5] === "Current" ? "success" : "warning"}>
-                        {r[5]}
-                      </Badge>
-                    </td>
-                    <td>
-                      <Icon name="arrow" size={16} />
-                    </td>
-                  </tr>
-                ))}
+                ]
+                  .filter((r) =>
+                    r.join(" ").toLowerCase().includes(query.toLowerCase()),
+                  )
+                  .map((r) => (
+                    <tr
+                      key={r[0]}
+                      tabIndex={0}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault()
+                          event.currentTarget.click()
+                        }
+                      }}
+                      onClick={() => go("preparation")}
+                    >
+                      <td>
+                        <strong>{r[0]}</strong>
+                      </td>
+                      <td>{r[1]}</td>
+                      <td>{r[2]}</td>
+                      <td>
+                        <Badge
+                          tone={r[3] === "Available" ? "success" : "danger"}
+                        >
+                          {r[3]}
+                        </Badge>
+                      </td>
+                      <td>{r[4]} PHT</td>
+                      <td>
+                        <Badge
+                          tone={r[5] === "Current" ? "success" : "warning"}
+                        >
+                          {r[5]}
+                        </Badge>
+                      </td>
+                      <td>
+                        <Icon name="arrow" size={16} />
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
@@ -1409,74 +1717,91 @@ function Warehouse({ go }: { go: (p: Page) => void }) {
                   <th>Preparation</th>
                   <th>Weight</th>
                   <th>Next action</th>
-                  <th></th>
+                  <th>
+                    <span className="sr-only">Open details</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {orders.slice(0, 4).map((o, i) => (
-                  <tr key={o.id} onClick={() => go("preparation")}>
-                    <td>
-                      <strong>{o.id}</strong>
-                    </td>
-                    <td>{o.destination}</td>
-                    <td>
-                      {o.items[0].sku} × {o.items[0].qty}
-                    </td>
-                    <td>
-                      <Badge
-                        tone={
-                          i === 0
-                            ? "success"
-                            : i === 2
-                              ? "danger"
-                              : i === 3
-                                ? "warning"
-                                : "neutral"
+                {orders
+                  .slice(0, 4)
+                  .filter((o) =>
+                    `${o.id} ${o.destination}`
+                      .toLowerCase()
+                      .includes(query.toLowerCase()),
+                  )
+                  .map((o, i) => (
+                    <tr
+                      key={o.id}
+                      tabIndex={0}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault()
+                          event.currentTarget.click()
                         }
-                      >
-                        {o.inventory}
-                      </Badge>
-                    </td>
-                    <td>{i === 0 ? "Packed" : "Not started"}</td>
-                    <td>{i === 0 ? "2.5 kg" : "—"}</td>
-                    <td>
-                      <button className="text-button">
-                        {i === 0
-                          ? "Review"
-                          : i === 2
-                            ? "Resolve shortage"
-                            : "Start preparation"}
-                      </button>
-                    </td>
-                    <td>
-                      <Icon name="arrow" size={16} />
-                    </td>
-                  </tr>
-                ))}
+                      }}
+                      onClick={() => go("preparation")}
+                    >
+                      <td>
+                        <strong>{o.id}</strong>
+                      </td>
+                      <td>{o.destination}</td>
+                      <td>
+                        {o.items[0].sku} × {o.items[0].qty}
+                      </td>
+                      <td>
+                        <Badge
+                          tone={
+                            i === 0
+                              ? "success"
+                              : i === 2
+                                ? "danger"
+                                : i === 3
+                                  ? "warning"
+                                  : "neutral"
+                          }
+                        >
+                          {o.inventory}
+                        </Badge>
+                      </td>
+                      <td>{i === 0 ? "Packed" : "Not started"}</td>
+                      <td>{i === 0 ? "2.5 kg" : "—"}</td>
+                      <td>
+                        <button className="text-button">
+                          {i === 0
+                            ? "Review"
+                            : i === 2
+                              ? "Resolve shortage"
+                              : "Start preparation"}
+                        </button>
+                      </td>
+                      <td>
+                        <Icon name="arrow" size={16} />
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
         )}
-        <div className="pagination">
-          <span>Showing 1–4 of 18 records</span>
-          <div>
-            <button disabled>Previous</button>
-            <button className="active">1</button>
-            <button>2</button>
-            <button>Next</button>
-          </div>
-        </div>
+        <p className="demo-disclosure">
+          Four sample records per view. Search is interactive; filters are a
+          preview. All detail links open the ORD-1001 preparation example.
+        </p>
       </Card>
     </>
   )
 }
 
-function Preparation({ go, role }: { go: (p: Page) => void role: Role }) {
+function Preparation({ go, role }: RolePageProps) {
   const [picked, setPicked] = useState(true),
     [packed, setPacked] = useState(true),
     [weight, setWeight] = useState("2.5"),
-    [saved, setSaved] = useState(false)
-  const valid = picked && packed && Number(weight) > 0
+    [saved, setSaved] = useState(false),
+    [shortage, setShortage] = useState(false)
+  const weightValid = Number.isFinite(Number(weight)) && Number(weight) > 0
+  const completed = Number(picked) + Number(packed) + Number(weightValid)
+  const valid = picked && packed && weightValid && !shortage
   return (
     <>
       <div className="breadcrumbs">
@@ -1501,7 +1826,7 @@ function Preparation({ go, role }: { go: (p: Page) => void role: Role }) {
       {saved && (
         <div className="toast-inline">
           <Icon name="check" />
-          Preparation progress saved
+          Preparation progress saved for this view only
         </div>
       )}
       <div className="detail-grid">
@@ -1592,14 +1917,19 @@ function Preparation({ go, role }: { go: (p: Page) => void role: Role }) {
                 </span>
                 <div className="input-suffix">
                   <input
+                    id="package-weight"
+                    aria-invalid={!weightValid}
+                    aria-describedby={!weightValid ? "weight-error" : undefined}
                     value={weight}
                     onChange={(e) => setWeight(e.target.value)}
                     inputMode="decimal"
                   />
                   <span>kg</span>
                 </div>
-                {Number(weight) <= 0 && (
-                  <em>Enter a positive package weight.</em>
+                {!weightValid && (
+                  <em id="weight-error" role="alert">
+                    Enter a positive package weight.
+                  </em>
                 )}
               </label>
               <label>
@@ -1608,11 +1938,15 @@ function Preparation({ go, role }: { go: (p: Page) => void role: Role }) {
               </label>
             </div>
             <label className="shortage-check">
-              <input type="checkbox" />
+              <input
+                type="checkbox"
+                checked={shortage}
+                onChange={(e) => setShortage(e.target.checked)}
+              />
               <span>
                 <strong>Flag an inventory shortage</strong>
                 <small>
-                  This blocks shipment creation and notifies operations.
+                  Blocks continuation in this demo. No notification is sent.
                 </small>
               </span>
             </label>
@@ -1633,8 +1967,10 @@ function Preparation({ go, role }: { go: (p: Page) => void role: Role }) {
           <Card>
             <h2>Preparation status</h2>
             <div className="completion">
-              <div style={{ width: valid ? "100%" : "66%" }} />
-              <span>{valid ? "3 of 3 complete" : "2 of 3 complete"}</span>
+              <div style={{ width: `${(completed / 3) * 100}%` }} />
+              <span>
+                {completed} of 3 complete{shortage ? " · Shortage flagged" : ""}
+              </span>
             </div>
             <div className="task-list">
               <span className={picked ? "done" : ""}>
@@ -1645,8 +1981,8 @@ function Preparation({ go, role }: { go: (p: Page) => void role: Role }) {
                 <Icon name={packed ? "check" : "clock"} size={15} />
                 Package packed
               </span>
-              <span className={Number(weight) > 0 ? "done" : ""}>
-                <Icon name={Number(weight) > 0 ? "check" : "clock"} size={15} />
+              <span className={weightValid ? "done" : ""}>
+                <Icon name={weightValid ? "check" : "clock"} size={15} />
                 Weight recorded
               </span>
             </div>
@@ -1684,14 +2020,17 @@ function CreateShipment({ go }: { go: (p: Page) => void }) {
       <>
         <PageHead
           title="Shipment created"
-          description="Carrier confirmation received and linked to ORD-1001."
+          description="Simulated carrier confirmation linked to sample order ORD-1001."
         />
         <Card className="success-panel">
           <span className="success-mark">
             <Icon name="check" size={28} />
           </span>
-          <h2>Shipment created</h2>
-          <p>LBC Express confirmed the shipment at 18 Jun 2025, 10:51 PHT.</p>
+          <h2>Carrier shipment confirmed</h2>
+          <p>
+            Demo carrier confirmation · 18 Jun 2025, 10:51 PHT. Confirmation
+            does not mean dispatch.
+          </p>
           <div className="success-details">
             <div>
               <small>Shipment reference</small>
@@ -1728,7 +2067,7 @@ function CreateShipment({ go }: { go: (p: Page) => void }) {
       </div>
       <PageHead
         title="Create shipment"
-        description="Review the carrier request for order ORD-1001."
+        description="Sample creation scenario for ORD-1001, before carrier confirmation. No network request is sent."
         back={() => go("order-detail")}
       />
       <div className="form-layout">
@@ -1760,7 +2099,7 @@ function CreateShipment({ go }: { go: (p: Page) => void }) {
                 <Icon name="check" />
                 <span>
                   <strong>No existing shipment</strong>
-                  <small>Duplicate protection active</small>
+                  <small>Demonstration prerequisite</small>
                 </span>
               </div>
               <div>
@@ -1803,8 +2142,10 @@ function CreateShipment({ go }: { go: (p: Page) => void }) {
             <div>
               <strong>Duplicate shipment protection</strong>
               <p>
-                A unique idempotency key is included. If the outcome is unknown,
-                SLSIS will verify status before allowing another request.
+                The proposed integration uses a unique idempotency reference. If
+                the carrier outcome is unknown, check that reference before
+                retrying. These safeguards are demonstrated in the UI; no
+                carrier request is sent.
               </p>
             </div>
           </div>
@@ -1822,7 +2163,7 @@ function CreateShipment({ go }: { go: (p: Page) => void }) {
               <span className="system-logo s2">L</span>
               <span>
                 <strong>LBC Express</strong>
-                <small>Production demo connection</small>
+                <small>Demonstration connection</small>
               </span>
             </div>
             <div className="status-stack">
@@ -1850,7 +2191,20 @@ function CreateShipment({ go }: { go: (p: Page) => void }) {
   )
 }
 
-function Shipments({ go }: { go: (p: Page) => void }) {
+function Shipments({
+  go,
+  initialSearch = "",
+}: {
+  go: (p: Page) => void
+  initialSearch?: string
+}) {
+  const [query, setQuery] = useState(initialSearch)
+  const filtered = shipments.filter((shipment) =>
+    Object.values(shipment)
+      .join(" ")
+      .toLowerCase()
+      .includes(query.toLowerCase()),
+  )
   return (
     <>
       <PageHead
@@ -1861,14 +2215,19 @@ function Shipments({ go }: { go: (p: Page) => void }) {
         <div className="toolbar">
           <label className="search-field">
             <Icon name="search" size={18} />
-            <input placeholder="Search shipment, order, or tracking number" />
+            <input
+              aria-label="Search shipments"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search shipment, order, or tracking number"
+            />
           </label>
           <Button kind="secondary" icon="filter">
             Filters
           </Button>
           <label className="select-label">
             Sort by{" "}
-            <select>
+            <select disabled title="Sorting is a preview control">
               <option>Last updated</option>
             </select>
           </label>
@@ -1886,12 +2245,24 @@ function Shipments({ go }: { go: (p: Page) => void }) {
                 <th>Status</th>
                 <th>OMS sync</th>
                 <th>Last update</th>
-                <th></th>
+                <th>
+                  <span className="sr-only">Open details</span>
+                </th>
               </tr>
             </thead>
             <tbody>
-              {shipments.map((s) => (
-                <tr key={s.id} onClick={() => go("shipment-detail")}>
+              {filtered.map((s) => (
+                <tr
+                  key={s.id}
+                  tabIndex={0}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault()
+                      event.currentTarget.click()
+                    }
+                  }}
+                  onClick={() => go("shipment-detail")}
+                >
                   <td>
                     <strong>{s.id}</strong>
                   </td>
@@ -1931,15 +2302,18 @@ function Shipments({ go }: { go: (p: Page) => void }) {
             </tbody>
           </table>
         </div>
-        <div className="pagination">
-          <span>Showing 1–4 of 24 shipments</span>
-          <div>
-            <button disabled>Previous</button>
-            <button className="active">1</button>
-            <button>2</button>
-            <button>Next</button>
-          </div>
-        </div>
+        {!filtered.length && (
+          <EmptyState
+            title="No matching shipments"
+            text="Try a shipment ID, order, or tracking number from the sample data."
+          />
+        )}
+        <SamplePagination count={filtered.length} label="shipments" />
+        <p className="demo-disclosure">
+          Search is interactive. Filters and sort are preview controls. Detail
+          links open the SHP-5012 example, including a separate OMS recovery
+          scenario.
+        </p>
       </Card>
     </>
   )
@@ -1957,7 +2331,7 @@ function ShipmentDetail({ go }: { go: (p: Page) => void }) {
       </div>
       <PageHead
         title="Shipment SHP-5012"
-        description="Created 18 June 2025 at 10:51 PHT · Demonstration data"
+        description="Created 18 June 2025 at 10:51 PHT · Demonstration of OMS synchronization recovery"
         back={() => go("shipments")}
       >
         <Button kind="secondary" onClick={() => go("order-detail")}>
@@ -1968,7 +2342,7 @@ function ShipmentDetail({ go }: { go: (p: Page) => void }) {
       {synced && (
         <div className="toast-inline">
           <Icon name="check" />
-          Shipment information synchronized to OMS
+          Demo synchronization completed · Confirmed shipment retained
         </div>
       )}
       <div className="detail-grid">
@@ -2147,10 +2521,21 @@ function Timeline({ compact = false }: { compact?: boolean }) {
   )
 }
 
-function Tracking({ go }: { go: (p: Page) => void }) {
-  const [query, setQuery] = useState("TRK-123456"),
-    [searched, setSearched] = useState(true),
+function Tracking({
+  go,
+  initialQuery = "TRK-123456",
+}: {
+  go: (p: Page) => void
+  initialQuery?: string
+}) {
+  const [query, setQuery] = useState(initialQuery),
+    [reference, setReference] = useState(initialQuery.toUpperCase()),
     [refreshed, setRefreshed] = useState(false)
+  const found = ["TRK-123456", "SHP-5012", "ORD-1001"].includes(reference)
+  const search = () => {
+    setReference(query.trim().toUpperCase())
+    setRefreshed(false)
+  }
   return (
     <>
       <PageHead
@@ -2158,23 +2543,30 @@ function Tracking({ go }: { go: (p: Page) => void }) {
         description="Look up carrier status by tracking number, shipment ID, or order ID."
       />
       <Card className="lookup-card">
-        <label>
-          <span>Tracking reference</span>
-          <div>
+        <form
+          onSubmit={(event) => {
+            event.preventDefault()
+            search()
+          }}
+        >
+          <label htmlFor="tracking-reference">Tracking reference</label>
+          <div className="tracking-lookup-field">
             <Icon name="search" />
             <input
+              id="tracking-reference"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="e.g. TRK-123456, SHP-5012, or ORD-1001"
             />
-            <Button onClick={() => setSearched(true)}>Search</Button>
+            <Button onClick={search}>Search</Button>
           </div>
-        </label>
+        </form>
         <small>
-          Carrier updates are demonstration data and use Asia/Manila timestamps.
+          Available sample: TRK-123456, SHP-5012, or ORD-1001. Refresh rechecks
+          the sample; no live carrier connection.
         </small>
       </Card>
-      {searched && (
+      {found ? (
         <div className="tracking-layout">
           <div className="detail-main">
             <Card className="tracking-hero">
@@ -2263,14 +2655,24 @@ function Tracking({ go }: { go: (p: Page) => void }) {
             </Card>
           </aside>
         </div>
+      ) : (
+        <Card className="lookup-empty">
+          <EmptyState
+            title="No matching tracking record"
+            text="Check the reference or try the available sample TRK-123456."
+          />
+        </Card>
       )}
     </>
   )
 }
 
-function Integration({ role, go }: { role: Role go: (p: Page) => void }) {
-  const [drawer, setDrawer] = useState(false),
-    [technical, setTechnical] = useState(false)
+function Integration({ role, go }: RolePageProps) {
+  const [selected, setSelected] = useState<number | null>(null)
+  const [technical, setTechnical] = useState(false)
+  const [query, setQuery] = useState("")
+  const drawer = selected !== null
+  const drawerRef = useFocusLayer(drawer, () => setSelected(null), true)
   if (role !== "Administrator") return <AccessDenied go={go} />
   const events = [
     [
@@ -2309,7 +2711,7 @@ function Integration({ role, go }: { role: Role go: (p: Page) => void }) {
       "ORD-1001",
       "SLSIS → Carrier",
       "Create shipment",
-      "201 Created",
+      "Confirmed",
       "340 ms",
       "1",
     ],
@@ -2323,7 +2725,63 @@ function Integration({ role, go }: { role: Role go: (p: Page) => void }) {
       "211 ms",
       "1",
     ],
+    [
+      "18 Jun, 10:31:10",
+      "cor_b7510e",
+      "ORD-1005",
+      "SLSIS → Carrier",
+      "Create shipment",
+      "503 Unavailable",
+      "5.0 s",
+      "1",
+    ],
   ]
+  const guidance = [
+    {
+      title: "Inventory confirmed",
+      text: "WMS confirmed availability for the requested items. This does not reserve or deduct inventory.",
+      next: "Review warehouse preparation before requesting a shipment.",
+      tone: "success",
+      stage: "WMS confirmed",
+    },
+    {
+      title: "Carrier outcome unknown",
+      text: "The carrier request timed out. The order and package details are preserved. A shipment may already exist.",
+      next: "Check carrier status using the idempotency reference. Only retry if no shipment exists.",
+      tone: "warning",
+      stage: "Confirmation unknown",
+    },
+    {
+      title: "WMS unavailable",
+      text: "The inventory service could not be reached after the sample retry attempts. Availability is unknown; no shipment should be requested.",
+      next: "Restore the WMS connection, then recheck inventory. A service failure does not mean inventory is unavailable.",
+      tone: "warning",
+      stage: "WMS unavailable",
+    },
+    {
+      title: "Carrier shipment confirmed",
+      text: "The carrier returned shipment SHP-5012 and tracking TRK-123456. Confirmation does not mean dispatch or delivery.",
+      next: "Retain the confirmed shipment. If OMS synchronization fails, retry synchronization without creating another shipment.",
+      tone: "success",
+      stage: "Carrier confirmed",
+    },
+    {
+      title: "Inventory unavailable",
+      text: "WMS responded successfully, but the requested stock is unavailable. The accepted order is retained and shipment creation is blocked.",
+      next: "Resolve the shortage with the warehouse, then repeat the inventory check before preparation.",
+      tone: "danger",
+      stage: "Stock unavailable",
+    },
+    {
+      title: "Carrier unavailable",
+      text: "The sample carrier service returned an unavailable response. The order and prepared package are retained.",
+      next: "Restore the connection and inspect the request outcome and idempotency reference before deciding whether a retry is safe.",
+      tone: "danger",
+      stage: "Carrier unavailable",
+    },
+  ]
+  const event = events[selected ?? 0]
+  const detail = guidance[selected ?? 0]
   return (
     <>
       <PageHead
@@ -2387,7 +2845,12 @@ function Integration({ role, go }: { role: Role go: (p: Page) => void }) {
         <div className="toolbar">
           <label className="search-field">
             <Icon name="search" size={18} />
-            <input placeholder="Search correlation ID, order, or operation" />
+            <input
+              aria-label="Search integration events"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search correlation ID, order, or operation"
+            />
           </label>
           <Button kind="secondary" icon="filter">
             Filters
@@ -2405,85 +2868,123 @@ function Integration({ role, go }: { role: Role go: (p: Page) => void }) {
                 <th>Outcome</th>
                 <th>Duration</th>
                 <th>Attempts</th>
-                <th></th>
+                <th>
+                  <span className="sr-only">Open details</span>
+                </th>
               </tr>
             </thead>
             <tbody>
-              {events.map((e, i) => (
-                <tr key={e[1]} onClick={() => setDrawer(true)}>
-                  <td>
-                    {e[0]}
-                    <small>PHT</small>
-                  </td>
-                  <td>
-                    <code>{e[1]}</code>
-                  </td>
-                  <td>
-                    <strong>{e[2]}</strong>
-                  </td>
-                  <td>{e[3]}</td>
-                  <td>{e[4]}</td>
-                  <td>
-                    <Badge
-                      tone={
-                        e[5].includes("Success") ||
-                        e[5].includes("Created") ||
-                        (e[5].includes("Unavailable") && i === 4)
-                          ? "success"
-                          : e[5].includes("Timeout")
-                            ? "warning"
-                            : "danger"
+              {events
+                .map((e, i) => ({ e, i }))
+                .filter(({ e }) =>
+                  e.join(" ").toLowerCase().includes(query.toLowerCase()),
+                )
+                .map(({ e, i }) => (
+                  <tr
+                    key={e[1]}
+                    tabIndex={0}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault()
+                        event.currentTarget.click()
                       }
-                    >
-                      {e[5]}
-                    </Badge>
-                  </td>
-                  <td>{e[6]}</td>
-                  <td>{e[7]}</td>
-                  <td>
-                    <Icon name="arrow" size={16} />
-                  </td>
-                </tr>
-              ))}
+                    }}
+                    onClick={() => {
+                      setSelected(i)
+                      setTechnical(false)
+                    }}
+                  >
+                    <td>
+                      {e[0]}
+                      <small>PHT</small>
+                    </td>
+                    <td>
+                      <code>{e[1]}</code>
+                    </td>
+                    <td>
+                      <strong>{e[2]}</strong>
+                    </td>
+                    <td>{e[3]}</td>
+                    <td>{e[4]}</td>
+                    <td>
+                      <Badge
+                        tone={
+                          e[5].includes("Success") || e[5] === "Confirmed"
+                            ? "success"
+                            : e[5].includes("Timeout") || i === 2
+                              ? "warning"
+                              : "danger"
+                        }
+                      >
+                        {e[5]}
+                      </Badge>
+                    </td>
+                    <td>{e[6]}</td>
+                    <td>{e[7]}</td>
+                    <td>
+                      <Icon name="arrow" size={16} />
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
+        {!events.some((event) =>
+          event.join(" ").toLowerCase().includes(query.toLowerCase()),
+        ) && (
+          <EmptyState
+            title="No matching events"
+            text="Try a sample order, correlation ID, or operation."
+          />
+        )}
+        <p className="demo-disclosure">
+          Filter and refresh controls are previews. Open an event for
+          operational context and recovery guidance.
+        </p>
       </Card>
       {drawer && (
-        <div className="overlay" onMouseDown={() => setDrawer(false)}>
-          <aside className="drawer" onMouseDown={(e) => e.stopPropagation()}>
+        <div className="overlay" onMouseDown={() => setSelected(null)}>
+          <aside
+            ref={drawerRef}
+            className="drawer"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="event-title"
+            onMouseDown={(e) => e.stopPropagation()}
+          >
             <div className="drawer-head">
               <div>
                 <small>Integration event</small>
-                <h2>Carrier outcome unknown</h2>
+                <h2 id="event-title">{detail.title}</h2>
               </div>
               <button
                 className="icon-button"
                 aria-label="Close diagnostics"
-                onClick={() => setDrawer(false)}
+                onClick={() => setSelected(null)}
               >
                 <Icon name="close" />
               </button>
             </div>
-            <div className="alert warning">
+            <div className={`alert ${detail.tone}`}>
               <Icon name="alert" />
               <div>
-                <strong>Confirmation is required before retrying</strong>
-                <p>
-                  The carrier request timed out. The order and package details
-                  are preserved.
-                </p>
+                <strong>{detail.stage}</strong>
+                <p>{detail.text}</p>
               </div>
             </div>
             <section>
               <h3>Affected record</h3>
+              <p>
+                {event[2]} · {event[0]} PHT · Detail navigation opens the fixed
+                ORD-1001 example.
+              </p>
               <button
                 className="record-link"
                 onClick={() => go("order-detail")}
               >
                 <span>
                   <small>Order</small>
-                  <strong>ORD-1006</strong>
+                  <strong>{event[2]}</strong>
                 </span>
                 <Icon name="arrow" />
               </button>
@@ -2499,44 +3000,67 @@ function Integration({ role, go }: { role: Role go: (p: Page) => void }) {
                   <Icon name="check" />
                 </span>
                 <i />
-                <span className="warning">
+                <span className={detail.tone}>
                   <Icon name="alert" />
                 </span>
               </div>
               <div className="stage-labels">
                 <span>Validated</span>
-                <span>Carrier request</span>
-                <span>Confirmation</span>
+                <span>{event[4]}</span>
+                <span>{detail.stage}</span>
               </div>
             </section>
             <section>
               <h3>Safe next action</h3>
-              <p>
-                Check carrier status using the idempotency reference. Only retry
-                if no shipment exists.
-              </p>
-              <Button icon="refresh">Check carrier status</Button>
+              <p>{detail.next}</p>
+              {(selected === 1 || selected === 5) && (
+                <>
+                  <div className="hint">
+                    Idempotency reference: <code>demo-shipment-{event[2]}</code>
+                  </div>
+                  <Button icon="refresh">Check carrier status</Button>
+                  <p className="demo-disclosure">
+                    Carrier verification is not connected. The outcome remains
+                    unknown; do not submit another shipment request.
+                  </p>
+                </>
+              )}
+              {selected === 3 && (
+                <Button onClick={() => go("shipment-detail")}>
+                  Open synchronization recovery
+                </Button>
+              )}
             </section>
             <section>
               <button
                 className="expand-button"
+                aria-expanded={technical}
+                aria-controls="event-technical"
                 onClick={() => setTechnical(!technical)}
               >
                 Technical details <Icon name="down" />
               </button>
               {technical && (
-                <div className="technical">
+                <div className="technical" id="event-technical">
                   <div>
                     <small>Operation</small>
-                    <code>POST /api/v1/shipments</code>
+                    <code>
+                      {event[4] === "Inventory check"
+                        ? "POST /api/v1/inventory/check"
+                        : "POST /api/v1/shipments"}
+                    </code>
                   </div>
                   <div>
                     <small>Correlation ID</small>
-                    <code>cor_5be101</code>
+                    <code>{event[1]}</code>
                   </div>
                   <div>
                     <small>Response</small>
-                    <code>Gateway timeout after 30,000 ms</code>
+                    <code>
+                      {selected === 1
+                        ? "Gateway timeout after 30,000 ms"
+                        : event[5]}
+                    </code>
                   </div>
                   <p>
                     Authorization headers and sensitive payload values are
@@ -2552,7 +3076,8 @@ function Integration({ role, go }: { role: Role go: (p: Page) => void }) {
   )
 }
 
-function Activity() {
+function Activity({ go }: { go: (p: Page) => void }) {
+  const [query, setQuery] = useState("")
   const rows = [
     [
       "18 Jun, 11:32",
@@ -2604,30 +3129,38 @@ function Activity() {
       "ORD-1001",
     ],
   ]
+  const filtered = rows.filter((row) =>
+    row.join(" ").toLowerCase().includes(query.toLowerCase()),
+  )
   return (
     <>
       <PageHead
         title="Activity log"
-        description="Immutable history of operational and integration actions."
+        description="Sample history of operational and integration actions. This prototype has no persistent audit log."
       />
       <Card>
         <div className="toolbar">
           <label className="search-field">
             <Icon name="search" size={18} />
-            <input placeholder="Search record, actor, or action" />
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              aria-label="Search activity"
+              placeholder="Search record, actor, or action"
+            />
           </label>
           <Button kind="secondary" icon="filter">
             Filters
           </Button>
           <label className="select-label">
             Date{" "}
-            <select>
+            <select disabled title="Date filtering is a preview control">
               <option>Last 7 days</option>
             </select>
           </label>
         </div>
         <div className="activity-list">
-          {rows.map((r, i) => (
+          {filtered.map((r, i) => (
             <div key={i}>
               <span
                 className={`activity-dot ${r[3] === "Failed" ? "error" : ""}`}
@@ -2653,25 +3186,37 @@ function Activity() {
               >
                 {r[3]}
               </Badge>
-              <button className="text-button">{r[4]}</button>
+              <button
+                className="text-button"
+                title="Open the sample record detail"
+                onClick={() =>
+                  go(
+                    r[4].startsWith("SHP") ? "shipment-detail" : "order-detail",
+                  )
+                }
+              >
+                {r[4]}
+              </button>
             </div>
           ))}
         </div>
-        <div className="pagination">
-          <span>Showing 7 of 48 events</span>
-          <div>
-            <button disabled>Previous</button>
-            <button className="active">1</button>
-            <button>2</button>
-            <button>Next</button>
-          </div>
-        </div>
+        {!filtered.length && (
+          <EmptyState
+            title="No matching activity"
+            text="Try another record, actor, or action."
+          />
+        )}
+        <SamplePagination count={filtered.length} label="events" />
+        <p className="demo-disclosure">
+          Filters and date selection are preview controls. Related links open
+          the fixed sample detail views.
+        </p>
       </Card>
     </>
   )
 }
 
-function Settings({ role, go }: { role: Role go: (p: Page) => void }) {
+function Settings({ role, go }: RolePageProps) {
   const [tab, setTab] = useState("Profile"),
     [saved, setSaved] = useState(false),
     [tested, setTested] = useState(false)
@@ -2686,8 +3231,8 @@ function Settings({ role, go }: { role: Role go: (p: Page) => void }) {
       {saved && (
         <div className="toast-inline">
           <Icon name="check" />
-          Changes saved. Authentication must still be confirmed with a
-          connection test.
+          Demo changes acknowledged for this view only. No settings are
+          persisted and no authentication is performed.
         </div>
       )}
       <div className="tabs">
@@ -2761,7 +3306,9 @@ function Settings({ role, go }: { role: Role go: (p: Page) => void }) {
                   <th>Role</th>
                   <th>Status</th>
                   <th>Last active</th>
-                  <th></th>
+                  <th>
+                    <span className="sr-only">Open details</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -2809,8 +3356,8 @@ function Settings({ role, go }: { role: Role go: (p: Page) => void }) {
             <div>
               <strong>Proposed configuration controls</strong>
               <p>
-                Saving values does not confirm authentication. Existing secrets
-                are always masked.
+                Save and connection test actions are simulated. Credentials are
+                illustrative masked values; no authentication is performed.
               </p>
             </div>
           </div>
@@ -2835,10 +3382,14 @@ function Settings({ role, go }: { role: Role go: (p: Page) => void }) {
               <div className="card-head">
                 <div>
                   <h2>{x[0]}</h2>
-                  <p>Production demo connection</p>
+                  <p>Demonstration connection</p>
                 </div>
                 <Badge tone={i === 1 ? "warning" : "success"}>
-                  {tested && i === 1 ? "Test failed" : x[2]}
+                  {tested
+                    ? i === 1
+                      ? "Demo test failed"
+                      : "Demo test passed"
+                    : x[2]}
                 </Badge>
               </div>
               <div className="form-grid integration-form">
@@ -2933,12 +3484,91 @@ function Help() {
             </span>
             <h2>{x[0]}</h2>
             <p>{x[1]}</p>
-            <button className="text-button">
+            <button
+              className="text-button"
+              disabled
+              title="Additional documentation is not connected"
+            >
               Learn more <Icon name="arrow" size={15} />
             </button>
           </Card>
         ))}
       </div>
+      <Card className="contract-card">
+        <div className="card-head">
+          <div>
+            <h2>How the systems connect</h2>
+            <p>
+              Documented integration flow · Implementation in this app is a
+              frontend demonstration
+            </p>
+          </div>
+        </div>
+        <ol className="contract-flow">
+          {[
+            "Customer order created",
+            "OMS sends order",
+            "Middleware validates order",
+            "Middleware checks WMS",
+            "WMS confirms inventory",
+            "Middleware contacts Carrier API",
+            "Carrier generates shipment",
+            "Tracking number returned",
+            "OMS receives shipment information",
+          ].map((stage) => (
+            <li key={stage}>{stage}</li>
+          ))}
+        </ol>
+        <div className="endpoint-list">
+          <div>
+            <code>POST /api/v1/orders</code>
+            <p>
+              <strong>Order creation</strong>Required: unique orderId,
+              customerId, destination, and at least one item with quantity
+              greater than zero. Valid creation: HTTP 201. Invalid request: HTTP
+              400. Duplicate order: HTTP 409.
+            </p>
+          </div>
+          <div>
+            <code>POST /api/v1/inventory/check</code>
+            <p>
+              <strong>Inventory confirmation</strong>Distinguish unavailable
+              stock from an unavailable WMS service. Neither permits shipment
+              creation.
+            </p>
+          </div>
+          <div>
+            <code>POST /api/v1/shipments</code>
+            <p>
+              <strong>Carrier request</strong>Retain confirmed shipments when
+              OMS synchronization fails. Check unknown carrier outcomes by
+              idempotency reference before retrying.
+            </p>
+          </div>
+        </div>
+        <details>
+          <summary>Order request example and data mapping</summary>
+          <p>
+            Content-Type: application/json. The UI fixtures use qty internally;
+            the documented API request uses quantity. No request is sent by this
+            prototype.
+          </p>
+          <pre>
+            <code>
+              {JSON.stringify(
+                {
+                  orderId: "ORD-1010",
+                  customerId: "CUS-001",
+                  items: [{ sku: "BOX-001", quantity: 2 }],
+                  destination: "Tarlac",
+                },
+                null,
+                2,
+              )}
+            </code>
+          </pre>
+        </details>
+      </Card>
     </>
   )
 }
@@ -2947,39 +3577,116 @@ export default function App() {
   const [page, setPage] = useState<Page>("dashboard")
   const [role, setRole] = useState<Role>("Administrator")
   const [mobileNav, setMobileNav] = useState(false)
+  const [compactNav, setCompactNav] = useState(
+    () => window.matchMedia("(max-width: 820px)").matches,
+  )
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 820px)")
+    const sync = () => {
+      setCompactNav(media.matches)
+      if (!media.matches) setMobileNav(false)
+    }
+    media.addEventListener("change", sync)
+    return () => media.removeEventListener("change", sync)
+  }, [])
   const [notifications, setNotifications] = useState(false)
   const [profile, setProfile] = useState(false)
+  const [globalQuery, setGlobalQuery] = useState("")
+  const [searchRequest, setSearchRequest] = useState<{
+    page: Page
+    query: string
+  } | null>(null)
+  const [readNotifications, setReadNotifications] = useState(false)
+  const profileRef = useFocusLayer(profile, () => setProfile(false))
+  const notificationRef = useFocusLayer(notifications, () =>
+    setNotifications(false),
+  )
+  const navRef = useFocusLayer(mobileNav, () => setMobileNav(false), true)
+  const activeSection =
+    page === "create-order" || page === "order-detail"
+      ? "orders"
+      : page === "preparation"
+        ? "warehouse"
+        : page === "create-shipment" || page === "shipment-detail"
+          ? "shipments"
+          : page
   const title = useMemo(
-    () => nav.find((n) => n[0] === page)?.[1] || "SLSIS",
-    [page],
+    () => nav.find((n) => n[0] === activeSection)?.[1] || "Workspace",
+    [activeSection],
   )
   const go = (p: Page) => {
     setPage(p)
+    setSearchRequest(null)
     setMobileNav(false)
     setNotifications(false)
     setProfile(false)
-    window.scrollTo({ top: 0, behavior: "smooth" })
+    window.scrollTo({ top: 0, behavior: "instant" })
+    requestAnimationFrame(() =>
+      document.querySelector<HTMLElement>("main h1")?.focus(),
+    )
   }
   const render = () => {
     if (page === "dashboard") return <Dashboard go={go} />
-    if (page === "orders") return <Orders go={go} />
+    if (page === "orders")
+      return (
+        <Orders
+          go={go}
+          initialSearch={
+            searchRequest?.page === "orders" ? searchRequest.query : ""
+          }
+        />
+      )
     if (page === "create-order") return <CreateOrder go={go} />
     if (page === "order-detail") return <OrderDetail go={go} />
-    if (page === "warehouse") return <Warehouse go={go} />
+    if (page === "warehouse")
+      return (
+        <Warehouse
+          go={go}
+          initialSearch={
+            searchRequest?.page === "warehouse" ? searchRequest.query : ""
+          }
+        />
+      )
     if (page === "preparation") return <Preparation go={go} role={role} />
     if (page === "create-shipment") return <CreateShipment go={go} />
-    if (page === "shipments") return <Shipments go={go} />
+    if (page === "shipments")
+      return (
+        <Shipments
+          go={go}
+          initialSearch={
+            searchRequest?.page === "shipments" ? searchRequest.query : ""
+          }
+        />
+      )
     if (page === "shipment-detail") return <ShipmentDetail go={go} />
-    if (page === "tracking") return <Tracking go={go} />
+    if (page === "tracking")
+      return (
+        <Tracking
+          go={go}
+          initialQuery={
+            searchRequest?.page === "tracking" ? searchRequest.query : undefined
+          }
+        />
+      )
     if (page === "integration") return <Integration role={role} go={go} />
-    if (page === "activity") return <Activity />
+    if (page === "activity") return <Activity go={go} />
     if (page === "settings") return <Settings role={role} go={go} />
     if (page === "help") return <Help />
     return <AccessDenied go={go} />
   }
   return (
     <div className="app">
-      <aside className={`sidebar ${mobileNav ? "open" : ""}`}>
+      <a className="skip-link" href="#workspace-content">
+        Skip to workspace
+      </a>
+      <aside
+        ref={navRef}
+        inert={compactNav && !mobileNav}
+        className={`sidebar ${mobileNav ? "open" : ""}`}
+        aria-label="Workspace navigation"
+        role={mobileNav ? "dialog" : undefined}
+        aria-modal={mobileNav || undefined}
+      >
         <div className="brand">
           <div className="brand-mark">
             <span>T</span>
@@ -2998,26 +3705,41 @@ export default function App() {
           </button>
         </div>
         <div className="product-name">
-          <small>Smart logistics</small>
-          <strong>SLSIS</strong>
-          <span>Shipment integration system</span>
+          <span className="workspace-symbol">
+            <Icon name="box" size={18} />
+          </span>
+          <div>
+            <strong>Operations portal</strong>
+            <span>Shipment integration system</span>
+          </div>
+          <span className="workspace-version">v1</span>
         </div>
-        <nav>
+        <nav aria-label="Main navigation">
+          <div className="nav-section-label">WORKSPACE</div>
           {nav.map(([id, label, icon]) => {
-            const restricted =
-              role === "Warehouse staff" && id === "integration"
+            const restricted = role !== "Administrator" && id === "integration"
             return (
-              <button
-                key={id}
-                className={page === id ? "active" : ""}
-                onClick={() =>
-                  restricted ? go("access-denied") : go(id as Page)
-                }
-              >
-                <Icon name={icon} />
-                <span>{label}</span>
-                {restricted && <small>Restricted</small>}
-              </button>
+              <div className="nav-entry" key={id}>
+                {id === "integration" && (
+                  <div className="nav-section-label">SYSTEM MANAGEMENT</div>
+                )}
+                <button
+                  aria-current={activeSection === id ? "page" : undefined}
+                  className={activeSection === id ? "active" : ""}
+                  onClick={() =>
+                    restricted ? go("access-denied") : go(id as Page)
+                  }
+                >
+                  <Icon name={icon} />
+                  <span>{label}</span>
+                  {restricted && (
+                    <small aria-label="Administrator only">Admin</small>
+                  )}
+                  {!restricted && activeSection === id && (
+                    <span className="active-nav-dot" />
+                  )}
+                </button>
+              </div>
             )
           })}
         </nav>
@@ -3029,7 +3751,22 @@ export default function App() {
             <Icon name="help" />
             <span>Help center</span>
           </button>
-          <button onClick={() => setProfile(!profile)}>
+          <div className="sidebar-demo">
+            <Icon name="info" size={16} />
+            <span>
+              Demo workspace<small>Sample data · No live connections</small>
+            </span>
+          </div>
+          <button
+            data-layer-trigger
+            onClick={() => {
+              setMobileNav(false)
+              setProfile(!profile)
+              setNotifications(false)
+            }}
+            aria-expanded={profile}
+            aria-label="Open profile menu"
+          >
             <div className="avatar">MS</div>
             <span>
               <strong>Maria Santos</strong>
@@ -3048,14 +3785,52 @@ export default function App() {
             className="menu-button"
             onClick={() => setMobileNav(true)}
             aria-label="Open navigation"
+            aria-expanded={mobileNav}
           >
             <Icon name="menu" />
           </button>
-          <label className="global-search">
+          <div className="workspace-breadcrumb">
+            <Icon name="grid" size={16} />
+            <span>Workspace</span>
+            <Icon name="arrow" size={13} />
+            <strong>{title}</strong>
+          </div>
+          <form
+            className="global-search"
+            onSubmit={(event) => {
+              event.preventDefault()
+              const query = globalQuery.trim()
+              if (!query) return
+              const target: Page = /^TRK-/i.test(query)
+                ? "tracking"
+                : /^(SHP-|JTX-|2GO-)/i.test(query)
+                  ? "shipments"
+                  : /^(BOX|TAPE|WRAP|LABEL|POUCH)-/i.test(query)
+                    ? "warehouse"
+                    : "orders"
+              go(target)
+              setSearchRequest({ page: target, query })
+              setGlobalQuery("")
+            }}
+          >
+            <label className="sr-only" htmlFor="global-search">
+              Search sample records
+            </label>
             <Icon name="search" />
-            <input placeholder="Search order, shipment, tracking, or SKU" />
-            <kbd>⌘ K</kbd>
-          </label>
+            <input
+              id="global-search"
+              value={globalQuery}
+              onChange={(event) => setGlobalQuery(event.target.value)}
+              placeholder="Search sample records…"
+            />
+            <button
+              className="search-submit"
+              aria-label="Search records"
+              type="submit"
+            >
+              ↵
+            </button>
+          </form>
           <div className="top-actions">
             <span className="environment">
               <i />
@@ -3063,13 +3838,27 @@ export default function App() {
             </span>
             <button
               className="icon-button notification-button"
-              onClick={() => setNotifications(!notifications)}
+              data-layer-trigger
+              onClick={() => {
+                setNotifications(!notifications)
+                setProfile(false)
+              }}
               aria-label="Notifications"
+              aria-expanded={notifications}
             >
               <Icon name="bell" />
-              <i>4</i>
+              {!readNotifications && <i>3</i>}
             </button>
-            <button className="top-user" onClick={() => setProfile(!profile)}>
+            <button
+              className="top-user"
+              data-layer-trigger
+              aria-expanded={profile}
+              aria-label="Open profile menu"
+              onClick={() => {
+                setProfile(!profile)
+                setNotifications(false)
+              }}
+            >
               <div className="avatar">MS</div>
               <span>
                 <strong>Maria Santos</strong>
@@ -3079,10 +3868,17 @@ export default function App() {
             </button>
           </div>
           {notifications && (
-            <div className="popover notifications">
+            <section
+              ref={notificationRef}
+              className="popover notifications"
+              role="dialog"
+              aria-label="Notifications"
+            >
               <div className="popover-head">
                 <h3>Notifications</h3>
-                <button>Mark all as read</button>
+                <button onClick={() => setReadNotifications(true)}>
+                  {readNotifications ? "All read" : "Mark all as read"}
+                </button>
               </div>
               {[
                 [
@@ -3112,7 +3908,7 @@ export default function App() {
               ].map((n, i) => (
                 <button
                   key={n[0]}
-                  className={i < 3 ? "unread" : ""}
+                  className={!readNotifications && i < 3 ? "unread" : ""}
                   onClick={() => go(n[3] as Page)}
                 >
                   <span className={`notice-icon ${n[2]}`}>
@@ -3125,10 +3921,15 @@ export default function App() {
                   <Icon name="arrow" size={15} />
                 </button>
               ))}
-            </div>
+            </section>
           )}
           {profile && (
-            <div className="popover profile-menu">
+            <section
+              ref={profileRef}
+              className="popover profile-menu"
+              role="dialog"
+              aria-label="Profile and demo role"
+            >
               <div className="profile-summary">
                 <div className="avatar large">MS</div>
                 <span>
@@ -3140,9 +3941,12 @@ export default function App() {
                 <Icon name="settings" />
                 Account settings
               </button>
-              <button>
+              <button
+                disabled
+                title="This prototype has no authentication session"
+              >
                 <Icon name="logout" />
-                Sign out
+                Sign out <small>Demo only</small>
               </button>
               <div className="demo-role">
                 <span>
@@ -3150,6 +3954,7 @@ export default function App() {
                   <small>Switch role to preview permissions</small>
                 </span>
                 <select
+                  aria-label="Demo role"
                   value={role}
                   onChange={(e) => {
                     setRole(e.target.value as Role)
@@ -3162,15 +3967,22 @@ export default function App() {
                   <option>Warehouse staff</option>
                 </select>
               </div>
-            </div>
+            </section>
           )}
         </header>
-        <main aria-label={title}>
-          <div className="page-transition" key={`${page}-${role}`}>
+        <main id="workspace-content" aria-label={title}>
+          <div
+            className="page-transition"
+            key={`${page}-${role}-${searchRequest?.query ?? ""}`}
+          >
             {render()}
           </div>
           <footer>
-            TransLogix SLSIS · Developed by Team Sync · Demonstration prototype
+            TransLogix SLSIS · Team Sync
+            <span>
+              Demonstration prototype · Local state resets between views · No
+              live APIs
+            </span>
           </footer>
         </main>
       </div>
