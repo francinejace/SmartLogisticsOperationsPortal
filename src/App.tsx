@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react"
+import { applyTheme, getPreferredTheme, saveThemePreference } from "./theme"
 
 type Page = "dashboard" | "orders" | "create-order" | "order-detail" | "warehouse" | "preparation" | "create-shipment" | "shipments" | "shipment-detail" | "tracking" | "integration" | "activity" | "settings" | "help" | "access-denied"
 type Role = "Operations staff" | "Warehouse staff" | "Administrator"
@@ -289,6 +290,13 @@ function Icon({ name, size = 20 }: IconProps) {
         <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" />
       </>
     ),
+    sun: (
+      <>
+        <circle cx="12" cy="12" r="4" />
+        <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+      </>
+    ),
+    moon: <path d="M20.5 14a8.8 8.8 0 0 1-10.5-10.5A9 9 0 1 0 20.5 14Z" />,
     plus: <path d="M12 5v14M5 12h14" />,
     arrow: <path d="m9 18 6-6-6-6" />,
     down: <path d="m6 9 6 6 6-6" />,
@@ -362,17 +370,19 @@ function Button({
   icon,
   onClick,
   disabled = false,
+  className = "",
 }: {
   children: React.ReactNode
   kind?: string
   icon?: string
   onClick?: () => void
   disabled?: boolean
+  className?: string
 }) {
   return (
     <button
       type="button"
-      className={`button ${kind}`}
+      className={`button ${kind} ${className}`}
       onClick={onClick}
       disabled={disabled || !onClick}
       title={
@@ -1008,10 +1018,10 @@ function CreateOrder({ go }: { go: (p: Page) => void }) {
             <Button kind="secondary" onClick={() => setSubmitted(false)}>
               Review entries
             </Button>
-            <Button onClick={() => go("orders")}>Return to orders</Button>
             <Button kind="secondary" onClick={() => go("order-detail")}>
               Open sample order
             </Button>
+            <Button onClick={() => go("orders")}>Return to orders</Button>
           </div>
         </Card>
       </>
@@ -1952,7 +1962,11 @@ function Preparation({ go, role }: RolePageProps) {
             </label>
           </Card>
           <div className="footer-actions">
-            <Button kind="secondary" onClick={() => go("warehouse")}>
+            <Button
+              kind="secondary"
+              className="action-cancel"
+              onClick={() => go("warehouse")}
+            >
               Cancel
             </Button>
             <Button kind="secondary" onClick={() => setSaved(true)}>
@@ -2049,7 +2063,7 @@ function CreateShipment({ go }: { go: (p: Page) => void }) {
               <Badge tone="success">Synchronized</Badge>
             </div>
           </div>
-          <div>
+          <div className="card-actions">
             <Button kind="secondary" onClick={() => go("order-detail")}>
               Return to order
             </Button>
@@ -2150,7 +2164,11 @@ function CreateShipment({ go }: { go: (p: Page) => void }) {
             </div>
           </div>
           <div className="footer-actions">
-            <Button kind="secondary" onClick={() => go("preparation")}>
+            <Button
+              kind="secondary"
+              className="action-cancel"
+              onClick={() => go("preparation")}
+            >
               Back to preparation
             </Button>
             <Button onClick={() => setCreated(true)}>Create shipment</Button>
@@ -2570,18 +2588,20 @@ function Tracking({
         <div className="tracking-layout">
           <div className="detail-main">
             <Card className="tracking-hero">
-              <div>
-                <Badge tone="neutral">In transit</Badge>
-                <h2>Shipment is on the way</h2>
-                <p>Last carrier update: 18 Jun 2025, 11:26 PHT</p>
+              <div className="tracking-status-head">
+                <div>
+                  <Badge tone="neutral">In transit</Badge>
+                  <h2>Shipment is on the way</h2>
+                  <p>Last carrier update: 18 Jun 2025, 11:26 PHT</p>
+                </div>
+                <Button
+                  kind="secondary"
+                  icon="refresh"
+                  onClick={() => setRefreshed(true)}
+                >
+                  {refreshed ? "Up to date" : "Refresh status"}
+                </Button>
               </div>
-              <Button
-                kind="secondary"
-                icon="refresh"
-                onClick={() => setRefreshed(true)}
-              >
-                {refreshed ? "Up to date" : "Refresh status"}
-              </Button>
               <div className="route-line">
                 <div>
                   <i className="done" />
@@ -3284,7 +3304,9 @@ function Settings({ role, go }: RolePageProps) {
                   </select>
                 </label>
               </div>
-              <Button onClick={() => setSaved(true)}>Save profile</Button>
+              <div className="card-actions">
+                <Button onClick={() => setSaved(true)}>Save profile</Button>
+              </div>
             </div>
           </div>
         </Card>
@@ -3574,6 +3596,8 @@ function Help() {
 }
 
 export default function App() {
+  const [theme, setTheme] = useState(getPreferredTheme)
+  useEffect(() => applyTheme(theme), [theme])
   const [page, setPage] = useState<Page>("dashboard")
   const [role, setRole] = useState<Role>("Administrator")
   const [mobileNav, setMobileNav] = useState(false)
@@ -3832,6 +3856,21 @@ export default function App() {
             </button>
           </form>
           <div className="top-actions">
+            <button
+              type="button"
+              className="theme-toggle"
+              aria-label="Dark theme"
+              aria-pressed={theme === "dark"}
+              title={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
+              onClick={() => {
+                const nextTheme = theme === "dark" ? "light" : "dark"
+                setTheme(nextTheme)
+                saveThemePreference(nextTheme)
+              }}
+            >
+              <Icon name={theme === "dark" ? "moon" : "sun"} size={18} />
+              <span>{theme === "dark" ? "Dark" : "Light"}</span>
+            </button>
             <span className="environment">
               <i />
               Demo environment
