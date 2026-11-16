@@ -276,27 +276,31 @@ export default function PublicSite({
           </section>
           <section
             className="public-systems"
-            aria-label="Connected system workflow"
+            aria-label="Systems coordinated by integration middleware"
           >
-            <span>ONE SHARED WORKFLOW</span>
+            <span>
+              CONNECTED
+              <br />
+              SYSTEMS
+            </span>
             <div>
               <PublicIcon name="box" />
               <strong>Order management</strong>
               <small>OMS</small>
             </div>
-            <PublicIcon name="arrow" size={18} />
+
             <div>
               <PublicIcon name="link" />
               <strong>Integration middleware</strong>
               <small>SLSIS</small>
             </div>
-            <PublicIcon name="arrow" size={18} />
+
             <div>
               <PublicIcon name="warehouse" />
               <strong>Warehouse</strong>
               <small>WMS</small>
             </div>
-            <PublicIcon name="arrow" size={18} />
+
             <div>
               <PublicIcon name="truck" />
               <strong>Carrier</strong>
@@ -306,7 +310,7 @@ export default function PublicSite({
           <section className="public-section" id="platform">
             <div className="public-section-heading">
               <div>
-                <span className="public-eyebrow">A MORE CONNECTED WORKDAY</span>
+                <span className="public-eyebrow">01 / THE PLATFORM</span>
                 <h2>Less searching. More moving forward.</h2>
               </div>
               <p>
@@ -362,7 +366,7 @@ export default function PublicSite({
             id="how-it-works"
           >
             <div>
-              <span className="public-eyebrow">FROM ORDER TO SHIPMENT</span>
+              <span className="public-eyebrow">02 / HOW IT WORKS</span>
               <h2>
                 Different systems.
                 <br />
@@ -403,7 +407,7 @@ export default function PublicSite({
             id="your-team"
           >
             <div>
-              <span className="public-eyebrow">BUILT AROUND YOUR TEAM</span>
+              <span className="public-eyebrow">03 / FOR YOUR TEAM</span>
               <h2>A shared view. A clear responsibility.</h2>
               <p>
                 Operations staff follow orders and shipments. Warehouse staff

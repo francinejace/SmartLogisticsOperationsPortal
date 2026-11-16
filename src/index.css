@@ -181,8 +181,8 @@ main > footer { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space
 .stat-card strong { color: var(--accent); font-size: 36px; font-weight: 500; line-height: 1; letter-spacing: -1.5px; }
 .stat-card em { color: var(--muted); font-size: 12px; font-style: normal; margin-top: 9px; line-height: 1.5; padding-right: 10px; }
 .dashboard-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 20px; align-items: stretch; }
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: 13px; padding: 20px; min-width: 0; overflow-wrap: anywhere; }
-.card-head { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 18px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; min-width: 0; overflow-wrap: anywhere; }
+.card-head { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding-bottom: 16px; margin-bottom: 18px; border-bottom: 1px dashed var(--border); }
 .card h2, .card-head h2 { font-size: 16px; font-weight: 600; color: var(--heading); margin: 0 0 5px; letter-spacing: -.3px; }
 .card-head p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
 .text-button { border: 0; background: none; color: var(--accent); font-weight: 500; font-size: 13px; display: inline-flex; align-items: center; gap: 5px; padding: 4px 0; white-space: nowrap; }
@@ -304,6 +304,8 @@ td small { display: block; color: var(--muted); font-size: 12px; margin-top: 5px
 .review-item > span:nth-child(2) { flex: 1; }.review-item strong, .review-item small { display: block; font-size: 13px; }.review-item small { color: var(--muted); margin-top: 3px; }.review-item b { font-size: 13px; }
 .product-icon { width: 34px; height: 34px; display: grid; place-items: center; flex: 0 0 auto; color: var(--accent); background: var(--pale); border-radius: 6px; }
 .detail-grid { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 24px; align-items: start; }
+.detail-side > .card:not(.next-action) { background: var(--surface-soft); }
+.detail-side > .card > h2:first-child { border-bottom: 1px dashed var(--border); padding-bottom: 14px; margin-bottom: 16px; }
 .detail-main, .detail-side, .settings-stack { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
 .summary-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 28px; }
 .summary-grid small, .summary-grid strong, .summary-grid span { display: block; }
@@ -394,7 +396,7 @@ dl div:last-child { border: 0; } dt { color: var(--muted); } dd { margin: 0; fon
 code { font-size: 12px; color: var(--text); background: var(--surface-soft); padding: 2px 4px; border-radius: 3px; }
 .overlay { position: fixed; inset: 0; z-index: 50; background: var(--scrim); display: flex; justify-content: flex-end; }
 .drawer { width: min(560px, 100%); height: 100%; background: var(--header-bg); overflow-y: auto; overscroll-behavior: contain; box-shadow: -6px 0 20px #002c1312; padding: 28px; }
-.drawer-head { display: flex; justify-content: space-between; margin-bottom: 20px; }
+.drawer-head { display: flex; justify-content: space-between; padding-bottom: 18px; margin-bottom: 20px; border-bottom: 1px dashed var(--border); }
 .drawer-head small { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .7px; }.drawer-head h2 { font-size: 18px; color: var(--accent); margin: 5px 0; }
 .drawer section { border-top: 1px dashed var(--border); padding: 22px 0; }.drawer section h3 { font-size: 14px; font-weight: 600; margin-bottom: 12px; }.drawer section p { color: var(--muted); font-size: 12px; line-height: 1.6; }
 .stage-row { display: grid; grid-template-columns: auto 1fr auto 1fr auto; align-items: center; }.stage-row span { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; color: var(--on-brand); background: var(--green); }.stage-row i { height: 1px; background: var(--border); }.stage-row span.warning { background: #ac730e; }.stage-row span.danger { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
@@ -448,6 +450,7 @@ code { font-size: 12px; color: var(--text); background: var(--surface-soft); pad
 .dashboard-grid > .card { grid-column: span 4; }
 .dashboard-grid > .recent-orders { grid-column: span 8; }
 .dashboard-grid > .attention-card { background: var(--surface-sage); }
+.dashboard-grid > .connection-panel { background: var(--surface-soft); }
 .dashboard-grid .card-head { min-height: 48px; }
 .recent-orders table { min-width: 640px; font-size: 12px; }
 .recent-orders th, .recent-orders td { padding: 14px 12px; }
