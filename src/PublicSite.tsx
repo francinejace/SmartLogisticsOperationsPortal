@@ -2,6 +2,7 @@ import { useState } from "react"
 import type { Theme } from "./theme"
 import type { Role } from "./types"
 import ThemeToggle from "./components/ThemeToggle"
+import PhotoCarousel from "./components/PhotoCarousel"
 
 interface PublicSiteProps {
   view: "home" | "login"
@@ -271,32 +272,7 @@ export default function PublicSite({
                 </span>
               </div>
             </div>
-            <div className="public-visual">
-              <figure className="public-photo">
-                <img
-                  src={`${import.meta.env.BASE_URL}images/logistics/warehouse.webp`}
-                  alt="Organized warehouse aisles with shelves of boxed inventory"
-                  width="1400"
-                  height="1000"
-                  fetchPriority="high"
-                />
-                <figcaption>
-                  <span>WAREHOUSE COORDINATION</span>
-                  <h2>Ready for the next handoff.</h2>
-                  <p>From inventory confirmation to a prepared package.</p>
-                </figcaption>
-              </figure>
-              <div className="public-photo-credit">
-                <span>Real logistics. Connected operations.</span>
-                <a
-                  href="https://unsplash.com/photos/a-warehouse-is-filled-with-shelves-and-boxes-M7G_m5XJ-go"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Photo: Russ Murray / Unsplash ↗
-                </a>
-              </div>
-            </div>
+            <PhotoCarousel />
           </section>
           <section
             className="public-systems"
