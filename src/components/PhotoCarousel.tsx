@@ -1,10 +1,15 @@
 import { useEffect, useRef, useState } from "react"
 import logisticsPhotos from "../data/logisticsPhotos"
 
+interface TouchOrigin {
+  x: number
+  y: number
+}
+
 export default function PhotoCarousel() {
   const [index, setIndex] = useState(0)
   const [failedSource, setFailedSource] = useState<string | null>(null)
-  const touchStart = useRef<{ x: number y: number } | null>(null)
+  const touchStart = useRef<TouchOrigin | null>(null)
   const photo = logisticsPhotos[index]
   const total = logisticsPhotos.length
   const move = (offset: number) =>
