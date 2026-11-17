@@ -7,6 +7,14 @@ import { join } from "node:path"
 import { createBackend } from "../server/backend.ts"
 import { createTestPool } from "./postgres-pool.mjs"
 
+test("pre-parsed Vercel request bodies support authenticated mutations", async t => {
+  const { api, login } = await fixture(t, { parsedBody: true })
+  const cookie = await login()
+  const result = await api("/api/v1/orders", { method: "POST", cookie, body: { orderId: "ORD-PARSED-001", customerId: "CUS-001", destination: "Tarlac", items: [{ sku: "BOX-001", quantity: 1 }] } })
+  assert.equal(result.status, 201)
+  assert.equal(result.body.order.id, "ORD-PARSED-001")
+})
+
 test("concurrent shipment submissions create one saved shipment", async (t) => {
   const { api, login } = await fixture(t)
   const cookie = await login()
@@ -39,8 +47,13 @@ async function fixture(t, options = {}) {
     demo: true,
     ...options,
   })
-  const server = createServer((req, res) => {
-    void backend.handle(req, res)
+  const server = createServer(async (req, res) => {
+    if (options.parsedBody && req.method !== "GET") {
+      const chunks = []
+      for await (const chunk of req) chunks.push(chunk)
+      req.body = JSON.parse(Buffer.concat(chunks).toString("utf8"))
+    }
+    await backend.handle(req, res)
   })
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve))
   const base = `http://127.0.0.1:${server.address().port}`

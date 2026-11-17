@@ -61,7 +61,8 @@ export default function ChatAssistant({ page }: { page: string }) {
     [],
   )
   useEffect(() => {
-    if (open && log.current) log.current.scrollTop = log.current.scrollHeight
+    if (open && log.current)
+      log.current.scrollTop = turns.length ? log.current.scrollHeight : 0
   }, [open, turns, busy, error])
   const close = () => {
     setOpen(false)
