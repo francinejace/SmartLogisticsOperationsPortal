@@ -490,23 +490,25 @@ function StatCard({
 }) {
   return (
     <button className="stat-card" onClick={onClick}>
-      <span className={`stat-icon ${tone || ""}`}>
-        <Icon
-          name={
-            tone === "danger"
-              ? "alert"
-              : tone === "warning"
-                ? "clock"
-                : "clipboard"
-          }
-        />
-      </span>
-      <span>
+      <span className="stat-card-heading">
+        <span className={`stat-icon ${tone || ""}`}>
+          <Icon
+            name={
+              tone === "danger"
+                ? "alert"
+                : tone === "warning"
+                  ? "clock"
+                  : "clipboard"
+            }
+          />
+        </span>
         <small>{label}</small>
-        <strong>{value}</strong>
-        <em>{note}</em>
       </span>
-      <Icon name="arrow" size={18} />
+      <strong className="stat-value">{value}</strong>
+      <span className="stat-card-footer">
+        <em>{note}</em>
+        <Icon name="arrow" size={18} />
+      </span>
     </button>
   )
 }
@@ -545,6 +547,17 @@ function EmptyState({ title, text }: EmptyStateProps) {
     </div>
   )
 }
+
+const shipmentBreakdown = [
+  { label: "Delivered", count: 18, color: "var(--chart-delivered)" },
+  { label: "In transit", count: 14, color: "var(--chart-transit)" },
+  { label: "Label created", count: 7, color: "var(--chart-label)" },
+  { label: "Exception", count: 3, color: "var(--chart-exception)" },
+]
+const shipmentTotal = shipmentBreakdown.reduce(
+  (total, status) => total + status.count,
+  0,
+)
 
 function Dashboard({ go }: { go: (p: Page) => void }) {
   return (
@@ -722,7 +735,7 @@ function Dashboard({ go }: { go: (p: Page) => void }) {
             </button>
           </div>
         </Card>
-        <Card>
+        <Card className="shipment-status-card">
           <div className="card-head">
             <div>
               <h2>Shipment status</h2>
@@ -730,29 +743,41 @@ function Dashboard({ go }: { go: (p: Page) => void }) {
             </div>
           </div>
           <div className="donut-row">
-            <div className="donut">
+            <div
+              className="donut"
+              role="img"
+              aria-label={`${shipmentTotal} shipments: 18 delivered, 14 in transit, 7 label created, 3 exceptions. Weekly demonstration data.`}
+            >
               <span>
-                <strong>42</strong>
-                <small>Total</small>
+                <strong>{shipmentTotal}</strong>
+                <small>Shipments</small>
               </span>
             </div>
-            <div className="legend">
-              <span>
-                <i className="l1" />
-                Delivered <b>18</b>
-              </span>
-              <span>
-                <i className="l2" />
-                In transit <b>14</b>
-              </span>
-              <span>
-                <i className="l3" />
-                Label created <b>7</b>
-              </span>
-              <span>
-                <i className="l4" />
-                Exception <b>3</b>
-              </span>
+            <div
+              className="shipment-breakdown"
+              aria-label="Weekly shipment distribution"
+            >
+              {shipmentBreakdown.map((status) => (
+                <div className="distribution-row" key={status.label}>
+                  <div>
+                    <span>{status.label}</span>
+                    <strong>
+                      {status.count}{" "}
+                      <small>
+                        {Math.round((status.count / shipmentTotal) * 100)}%
+                      </small>
+                    </strong>
+                  </div>
+                  <div className="distribution-track" aria-hidden="true">
+                    <span
+                      style={{
+                        width: `${(status.count / shipmentTotal) * 100}%`,
+                        background: status.color,
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </Card>
@@ -786,7 +811,7 @@ function Dashboard({ go }: { go: (p: Page) => void }) {
             ))}
           </div>
         </Card>
-        <Card>
+        <Card className="activity-summary">
           <div className="card-head">
             <div>
               <h2>Recent activity</h2>

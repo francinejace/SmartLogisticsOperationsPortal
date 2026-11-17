@@ -45,6 +45,49 @@
   .app .page-head-feature .button:hover { background: #e4f0d9; border-color: #e4f0d9; }
   .app .card { box-shadow: 0 2px 6px #12331f04; }
 
+  .app .stat-card { display: flex; flex-direction: column; gap: 18px; padding: 20px; min-height: 188px; border-radius: 14px; border-top: 3px solid var(--border-strong); background: var(--surface); }
+  .app .stat-card-heading { display: flex; align-items: center; gap: 10px; min-height: 36px; }
+  .app .stat-card .stat-icon { width: 34px; height: 34px; border-radius: 9px; background: var(--pale); color: var(--accent); }
+  .app .stat-card .stat-icon.warning { background: var(--amber-bg); color: var(--amber); }
+  .app .stat-card .stat-icon.danger { background: var(--red-bg); color: var(--red); }
+  .app .stat-card small { font-size: 12px; line-height: 1.5; margin: 0; min-height: 0; }
+  .app .stat-card .stat-value { font-size: 43px; font-weight: 500; letter-spacing: -1.5px; }
+  .app .stat-card-footer { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; width: 100%; margin-top: auto; padding-top: 13px; border-top: 1px solid var(--border); }
+  .app .stat-card-footer em { margin: 0; padding: 0; font-size: 11px; line-height: 1.6; }
+  .app .stat-card-footer svg { color: var(--muted); flex-shrink: 0; }
+  .app .stat-card:has(.stat-icon.warning) { border-top-color: var(--amber-border); }
+  .app .stat-card:has(.stat-icon.danger) { border-top-color: var(--red-border); }
+  .app .stat-card:first-child { background: var(--green); border-color: var(--green); border-top-color: #b3cc9e; }
+  .app .stat-card:first-child .stat-icon { color: #d1e5bf; background: #ffffff18; }
+  .app .stat-card:first-child .stat-card-footer { border-color: #ffffff30; }
+  .app .stat-card:first-child .stat-card-footer :is(em, svg) { color: #c7ddbe; }
+  .app .dashboard-grid > .shipment-status-card { grid-column: span 5; }
+  .app .dashboard-grid > .activity-summary { grid-column: span 3; }
+  .app .shipment-status-card .donut-row { justify-content: center; gap: 24px; padding-block: 15px; }
+  .app .shipment-status-card .donut { width: 130px; height: 130px; }
+  .app .shipment-status-card .donut::after { width: 96px; height: 96px; }
+  .app .shipment-status-card .donut strong { font-size: 29px; letter-spacing: -1px; }
+  .app .shipment-status-card .donut small { font-size: 11px; margin-top: 3px; }
+  .app .shipment-breakdown { flex: 1; min-width: 145px; display: grid; gap: 16px; }
+  .app .distribution-row > div:first-child { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 7px; font-size: 12px; color: var(--muted); }
+  .app .distribution-row strong { color: var(--heading); font-size: 13px; font-weight: 600; white-space: nowrap; }
+  .app .distribution-row strong small { display: inline-block; min-width: 28px; text-align: right; font-size: 10px; color: var(--muted); font-weight: 400; }
+  .app .distribution-track { height: 5px; background: var(--surface-sage); border-radius: 4px; overflow: hidden; }
+  .app .distribution-track > span { display: block; height: 100%; border-radius: inherit; transform-origin: left; }
+  .app .activity-summary .mini-timeline > div { padding-block: 13px 20px; }
+  .app .activity-summary .mini-timeline strong { line-height: 1.6; }
+  .app .activity-summary .mini-timeline small { line-height: 1.7; }
+  @media (prefers-reduced-motion: no-preference) {
+    .app .distribution-track > span { animation: distribution-in 320ms var(--motion-ease) backwards; }
+  }
+  @keyframes distribution-in { from { transform: scaleX(0); } to { transform: none; } }
+
+  @media (max-width: 1250px) {
+    .app .dashboard-grid > .shipment-status-card { grid-column: span 6; }
+    .app .dashboard-grid > .activity-summary { grid-column: span 12; }
+    .app .activity-summary .mini-timeline { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+  }
+
   @media (max-width: 1050px) {
     .app .page-head { padding: 22px; }
     .app .page-heading-main { gap: 14px; }
@@ -54,6 +97,18 @@
     .app .page-heading-photo { width: 32%; opacity: .25; }
   }
   @media (max-width: 600px) {
+    .app .stat-card { gap: 14px; min-height: 198px; padding: 14px; border-radius: 12px; }
+    .app .stat-card-heading { align-items: flex-start; gap: 8px; min-height: 36px; }
+    .app .stat-card .stat-icon { width: 24px; height: 24px; border-radius: 6px; }
+    .app .stat-card .stat-icon svg { width: 15px; height: 15px; }
+    .app .stat-card small { font-size: 11px; padding: 0; }
+    .app .stat-card .stat-value { font-size: 37px; }
+    .app .stat-card-footer { gap: 7px; padding-top: 10px; }
+    .app .stat-card-footer em { font-size: 10px; }
+    .app .stat-card-footer svg { width: 13px; height: 13px; }
+    .app .dashboard-grid > :is(.shipment-status-card, .activity-summary) { grid-column: 1; }
+    .app .activity-summary .mini-timeline { display: block; }
+    .app .shipment-status-card .donut-row { gap: 20px; }
     .app .page-head { padding: 20px; gap: 22px; min-height: 0; }
     .app .page-heading-main { gap: 12px; width: 100%; }
     .app .page-heading-symbol { width: 35px; height: 35px; border-radius: 9px; }
