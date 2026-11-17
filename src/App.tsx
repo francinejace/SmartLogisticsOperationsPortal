@@ -1075,222 +1075,226 @@ function CreateOrder({ go }: { go: (p: Page) => void }) {
               </Button>
             </div>
           )}
-          {step === 1 && (
-            <>
-              <div className="section-title">
-                <span>1</span>
-                <div>
-                  <h2>Customer and destination</h2>
-                  <p>Enter the identifying information for this order.</p>
-                </div>
-              </div>
-              <div className="form-grid">
-                <label className={errors.orderId ? "has-error" : ""}>
-                  <span>
-                    Order ID <b>*</b>
-                  </span>
-                  <input
-                    id="order-orderId"
-                    aria-invalid={Boolean(errors.orderId) || duplicate}
-                    aria-describedby={
-                      errors.orderId
-                        ? "error-orderId"
-                        : duplicate
-                          ? "duplicate-order"
-                          : undefined
-                    }
-                    value={orderId}
-                    onChange={(e) => {
-                      setOrderId(e.target.value.toUpperCase())
-                      setDuplicate(false)
-                    }}
-                    placeholder="e.g. ORD-1010"
-                  />
-                  {errors.orderId && (
-                    <em id="error-orderId" role="alert">
-                      {errors.orderId}
-                    </em>
-                  )}
-                  <small>Must be unique across OMS orders.</small>
-                </label>
-                <label className={errors.customerId ? "has-error" : ""}>
-                  <span>
-                    Customer ID <b>*</b>
-                  </span>
-                  <input
-                    id="order-customerId"
-                    aria-invalid={Boolean(errors.customerId)}
-                    aria-describedby={
-                      errors.customerId ? "error-customerId" : undefined
-                    }
-                    value={customerId}
-                    onChange={(e) => setCustomerId(e.target.value)}
-                  />
-                  {errors.customerId && (
-                    <em id="error-customerId" role="alert">
-                      {errors.customerId}
-                    </em>
-                  )}
-                </label>
-                <label>
-                  <span>Customer display name</span>
-                  <input
-                    value={customer}
-                    onChange={(e) => setCustomer(e.target.value)}
-                  />
-                  <small>Supporting demonstration information</small>
-                </label>
-                <label className={errors.destination ? "has-error" : ""}>
-                  <span>
-                    Destination <b>*</b>
-                  </span>
-                  <select
-                    id="order-destination"
-                    aria-invalid={Boolean(errors.destination)}
-                    aria-describedby={
-                      errors.destination ? "error-destination" : undefined
-                    }
-                    value={destination}
-                    onChange={(e) => setDestination(e.target.value)}
-                  >
-                    <option value="">Select destination</option>
-                    <option>Tarlac</option>
-                    <option>Makati</option>
-                    <option>Baguio</option>
-                    <option>Cebu City</option>
-                  </select>
-                  {errors.destination && (
-                    <em id="error-destination" role="alert">
-                      {errors.destination}
-                    </em>
-                  )}
-                </label>
-              </div>
-            </>
-          )}
-          {step === 2 && (
-            <>
-              <div className="section-title">
-                <span>2</span>
-                <div>
-                  <h2>Order items</h2>
-                  <p>Add one or more products and requested quantities.</p>
-                </div>
-              </div>
-              <div className="item-header">
-                <strong>Item 1</strong>
-                <button
-                  className="text-button danger-text"
-                  disabled
-                  title="At least one item is required; multiple item editing is not implemented"
-                >
-                  Remove
-                </button>
-              </div>
-              <div className="form-grid">
-                <label className={errors.sku ? "has-error wide" : "wide"}>
-                  <span>
-                    SKU <b>*</b>
-                  </span>
-                  <div className="input-icon">
-                    <Icon name="search" size={17} />
-                    <input
-                      id="order-sku"
-                      aria-invalid={Boolean(errors.sku)}
-                      aria-describedby={errors.sku ? "error-sku" : undefined}
-                      value={sku}
-                      onChange={(e) => setSku(e.target.value.toUpperCase())}
-                    />
+          <div className="state-panel" key={step}>
+            {step === 1 && (
+              <>
+                <div className="section-title">
+                  <span>1</span>
+                  <div>
+                    <h2>Customer and destination</h2>
+                    <p>Enter the identifying information for this order.</p>
                   </div>
-                  {errors.sku && (
-                    <em id="error-sku" role="alert">
-                      {errors.sku}
-                    </em>
-                  )}
-                  <small>
-                    {sku === "BOX-001" && "Heavy-duty storage box · WMS item"}
-                  </small>
-                </label>
-                <label className={errors.qty ? "has-error" : ""}>
-                  <span>
-                    Quantity <b>*</b>
+                </div>
+                <div className="form-grid">
+                  <label className={errors.orderId ? "has-error" : ""}>
+                    <span>
+                      Order ID <b>*</b>
+                    </span>
+                    <input
+                      id="order-orderId"
+                      aria-invalid={Boolean(errors.orderId) || duplicate}
+                      aria-describedby={
+                        errors.orderId
+                          ? "error-orderId"
+                          : duplicate
+                            ? "duplicate-order"
+                            : undefined
+                      }
+                      value={orderId}
+                      onChange={(e) => {
+                        setOrderId(e.target.value.toUpperCase())
+                        setDuplicate(false)
+                      }}
+                      placeholder="e.g. ORD-1010"
+                    />
+                    {errors.orderId && (
+                      <em id="error-orderId" role="alert">
+                        {errors.orderId}
+                      </em>
+                    )}
+                    <small>Must be unique across OMS orders.</small>
+                  </label>
+                  <label className={errors.customerId ? "has-error" : ""}>
+                    <span>
+                      Customer ID <b>*</b>
+                    </span>
+                    <input
+                      id="order-customerId"
+                      aria-invalid={Boolean(errors.customerId)}
+                      aria-describedby={
+                        errors.customerId ? "error-customerId" : undefined
+                      }
+                      value={customerId}
+                      onChange={(e) => setCustomerId(e.target.value)}
+                    />
+                    {errors.customerId && (
+                      <em id="error-customerId" role="alert">
+                        {errors.customerId}
+                      </em>
+                    )}
+                  </label>
+                  <label>
+                    <span>Customer display name</span>
+                    <input
+                      value={customer}
+                      onChange={(e) => setCustomer(e.target.value)}
+                    />
+                    <small>Supporting demonstration information</small>
+                  </label>
+                  <label className={errors.destination ? "has-error" : ""}>
+                    <span>
+                      Destination <b>*</b>
+                    </span>
+                    <select
+                      id="order-destination"
+                      aria-invalid={Boolean(errors.destination)}
+                      aria-describedby={
+                        errors.destination ? "error-destination" : undefined
+                      }
+                      value={destination}
+                      onChange={(e) => setDestination(e.target.value)}
+                    >
+                      <option value="">Select destination</option>
+                      <option>Tarlac</option>
+                      <option>Makati</option>
+                      <option>Baguio</option>
+                      <option>Cebu City</option>
+                    </select>
+                    {errors.destination && (
+                      <em id="error-destination" role="alert">
+                        {errors.destination}
+                      </em>
+                    )}
+                  </label>
+                </div>
+              </>
+            )}
+            {step === 2 && (
+              <>
+                <div className="section-title">
+                  <span>2</span>
+                  <div>
+                    <h2>Order items</h2>
+                    <p>Add one or more products and requested quantities.</p>
+                  </div>
+                </div>
+                <div className="item-header">
+                  <strong>Item 1</strong>
+                  <button
+                    className="text-button danger-text"
+                    disabled
+                    title="At least one item is required; multiple item editing is not implemented"
+                  >
+                    Remove
+                  </button>
+                </div>
+                <div className="form-grid">
+                  <label className={errors.sku ? "has-error wide" : "wide"}>
+                    <span>
+                      SKU <b>*</b>
+                    </span>
+                    <div className="input-icon">
+                      <Icon name="search" size={17} />
+                      <input
+                        id="order-sku"
+                        aria-invalid={Boolean(errors.sku)}
+                        aria-describedby={errors.sku ? "error-sku" : undefined}
+                        value={sku}
+                        onChange={(e) => setSku(e.target.value.toUpperCase())}
+                      />
+                    </div>
+                    {errors.sku && (
+                      <em id="error-sku" role="alert">
+                        {errors.sku}
+                      </em>
+                    )}
+                    <small>
+                      {sku === "BOX-001" && "Heavy-duty storage box · WMS item"}
+                    </small>
+                  </label>
+                  <label className={errors.qty ? "has-error" : ""}>
+                    <span>
+                      Quantity <b>*</b>
+                    </span>
+                    <input
+                      id="order-qty"
+                      aria-invalid={Boolean(errors.qty)}
+                      aria-describedby={errors.qty ? "error-qty" : undefined}
+                      value={qty}
+                      onChange={(e) => setQty(e.target.value)}
+                      inputMode="numeric"
+                    />
+                    {errors.qty && (
+                      <em id="error-qty" role="alert">
+                        {errors.qty}
+                      </em>
+                    )}
+                  </label>
+                </div>
+                <Button kind="secondary" icon="plus">
+                  Add item
+                </Button>
+                <p className="demo-disclosure">
+                  This sample editor supports one item. Add and remove item
+                  controls are previews.
+                </p>
+                <div className="hint">
+                  <Icon name="info" size={17} />
+                  Inventory is checked after order acceptance. Availability does
+                  not reserve or deduct stock.
+                </div>
+              </>
+            )}
+            {step === 3 && (
+              <>
+                <div className="section-title">
+                  <span>3</span>
+                  <div>
+                    <h2>Review and submit</h2>
+                    <p>
+                      Confirm the order before sending it to the middleware.
+                    </p>
+                  </div>
+                </div>
+                <div className="review-block">
+                  <div>
+                    <small>Order ID</small>
+                    <strong>{orderId}</strong>
+                  </div>
+                  <div>
+                    <small>Customer</small>
+                    <strong>{customer}</strong>
+                    <span>{customerId}</span>
+                  </div>
+                  <div>
+                    <small>Destination</small>
+                    <strong>{destination}</strong>
+                  </div>
+                </div>
+                <h3 className="subheading">Items</h3>
+                <div className="review-item">
+                  <span className="product-icon">
+                    <Icon name="box" />
                   </span>
-                  <input
-                    id="order-qty"
-                    aria-invalid={Boolean(errors.qty)}
-                    aria-describedby={errors.qty ? "error-qty" : undefined}
-                    value={qty}
-                    onChange={(e) => setQty(e.target.value)}
-                    inputMode="numeric"
-                  />
-                  {errors.qty && (
-                    <em id="error-qty" role="alert">
-                      {errors.qty}
-                    </em>
-                  )}
-                </label>
-              </div>
-              <Button kind="secondary" icon="plus">
-                Add item
-              </Button>
-              <p className="demo-disclosure">
-                This sample editor supports one item. Add and remove item
-                controls are previews.
-              </p>
-              <div className="hint">
-                <Icon name="info" size={17} />
-                Inventory is checked after order acceptance. Availability does
-                not reserve or deduct stock.
-              </div>
-            </>
-          )}
-          {step === 3 && (
-            <>
-              <div className="section-title">
-                <span>3</span>
-                <div>
-                  <h2>Review and submit</h2>
-                  <p>Confirm the order before sending it to the middleware.</p>
+                  <span>
+                    <strong>{sku}</strong>
+                    <small>Heavy-duty storage box</small>
+                  </span>
+                  <b>Quantity {qty}</b>
                 </div>
-              </div>
-              <div className="review-block">
-                <div>
-                  <small>Order ID</small>
-                  <strong>{orderId}</strong>
+                <div className="alert info">
+                  <Icon name="info" />
+                  <div>
+                    <strong>What happens next</strong>
+                    <p>
+                      The order will be validated and accepted. Inventory and
+                      shipment creation are separate steps.
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <small>Customer</small>
-                  <strong>{customer}</strong>
-                  <span>{customerId}</span>
-                </div>
-                <div>
-                  <small>Destination</small>
-                  <strong>{destination}</strong>
-                </div>
-              </div>
-              <h3 className="subheading">Items</h3>
-              <div className="review-item">
-                <span className="product-icon">
-                  <Icon name="box" />
-                </span>
-                <span>
-                  <strong>{sku}</strong>
-                  <small>Heavy-duty storage box</small>
-                </span>
-                <b>Quantity {qty}</b>
-              </div>
-              <div className="alert info">
-                <Icon name="info" />
-                <div>
-                  <strong>What happens next</strong>
-                  <p>
-                    The order will be validated and accepted. Inventory and
-                    shipment creation are separate steps.
-                  </p>
-                </div>
-              </div>
-            </>
-          )}
+              </>
+            )}
+          </div>
           <div className="form-footer">
             <Button
               kind="secondary"
@@ -1594,10 +1598,11 @@ function Warehouse({
         title="Warehouse"
         description="Review read-only WMS inventory and prepare eligible orders."
       />
-      <div className="tabs">
+      <div className="tabs" role="group" aria-label="Warehouse views">
         {["Inventory", "Preparation queue"].map((t) => (
           <button
             className={tab === t ? "active" : ""}
+            aria-pressed={tab === t}
             onClick={() => setTab(t)}
             key={t}
           >
@@ -1630,7 +1635,7 @@ function Warehouse({
           </div>
         </div>
         {tab === "Inventory" ? (
-          <div className="table-wrap">
+          <div className="table-wrap state-panel" key={tab}>
             <table>
               <thead>
                 <tr>
@@ -1724,7 +1729,7 @@ function Warehouse({
             </table>
           </div>
         ) : (
-          <div className="table-wrap">
+          <div className="table-wrap state-panel" key={tab}>
             <table>
               <thead>
                 <tr>
@@ -1842,7 +1847,7 @@ function Preparation({ go, role }: RolePageProps) {
         </Button>
       </PageHead>
       {saved && (
-        <div className="toast-inline">
+        <div className="toast-inline" role="status">
           <Icon name="check" />
           Preparation progress saved for this view only
         </div>
@@ -1988,7 +1993,17 @@ function Preparation({ go, role }: RolePageProps) {
         <aside className="detail-side">
           <Card>
             <h2>Preparation status</h2>
-            <div className="completion">
+            <div
+              className="completion"
+              role="progressbar"
+              aria-label="Preparation tasks completed"
+              aria-valuemin={0}
+              aria-valuemax={3}
+              aria-valuenow={completed}
+              aria-valuetext={`${completed} of 3 complete${
+                shortage ? "; shortage flagged" : ""
+              }`}
+            >
               <div style={{ width: `${(completed / 3) * 100}%` }} />
               <span>
                 {completed} of 3 complete{shortage ? " · Shortage flagged" : ""}
@@ -2366,7 +2381,7 @@ function ShipmentDetail({ go }: { go: (p: Page) => void }) {
         <Button onClick={() => go("tracking")}>Track shipment</Button>
       </PageHead>
       {synced && (
-        <div className="toast-inline">
+        <div className="toast-inline" role="status">
           <Icon name="check" />
           Demo synchronization completed · Confirmed shipment retained
         </div>
@@ -2592,105 +2607,107 @@ function Tracking({
           the sample; no live carrier connection.
         </small>
       </Card>
-      {found ? (
-        <div className="tracking-layout">
-          <div className="detail-main">
-            <Card className="tracking-hero">
-              <div className="tracking-status-head">
-                <div>
-                  <Badge tone="neutral">In transit</Badge>
-                  <h2>Shipment is on the way</h2>
-                  <p>Last carrier update: 18 Jun 2025, 11:26 PHT</p>
+      <div className="state-panel" key={reference}>
+        {found ? (
+          <div className="tracking-layout">
+            <div className="detail-main">
+              <Card className="tracking-hero">
+                <div className="tracking-status-head">
+                  <div>
+                    <Badge tone="neutral">In transit</Badge>
+                    <h2>Shipment is on the way</h2>
+                    <p>Last carrier update: 18 Jun 2025, 11:26 PHT</p>
+                  </div>
+                  <Button
+                    kind="secondary"
+                    icon="refresh"
+                    onClick={() => setRefreshed(true)}
+                  >
+                    {refreshed ? "Up to date" : "Refresh status"}
+                  </Button>
                 </div>
-                <Button
-                  kind="secondary"
-                  icon="refresh"
-                  onClick={() => setRefreshed(true)}
-                >
-                  {refreshed ? "Up to date" : "Refresh status"}
-                </Button>
-              </div>
-              <div className="route-line">
-                <div>
-                  <i className="done" />
-                  <span>
-                    <strong>Manila</strong>
-                    <small>Origin</small>
-                  </span>
+                <div className="route-line">
+                  <div>
+                    <i className="done" />
+                    <span>
+                      <strong>Manila</strong>
+                      <small>Origin</small>
+                    </span>
+                  </div>
+                  <div className="line">
+                    <span style={{ width: "58%" }} />
+                  </div>
+                  <div>
+                    <i />
+                    <span>
+                      <strong>Tarlac</strong>
+                      <small>Destination</small>
+                    </span>
+                  </div>
                 </div>
-                <div className="line">
-                  <span style={{ width: "58%" }} />
+              </Card>
+              <Card>
+                <div className="card-head">
+                  <div>
+                    <h2>Tracking events</h2>
+                    <p>Chronological carrier-reported updates</p>
+                  </div>
                 </div>
-                <div>
-                  <i />
-                  <span>
-                    <strong>Tarlac</strong>
-                    <small>Destination</small>
-                  </span>
+                <Timeline />
+              </Card>
+            </div>
+            <aside className="detail-side">
+              <Card>
+                <h2>Shipment details</h2>
+                <dl>
+                  <div>
+                    <dt>Tracking number</dt>
+                    <dd>TRK-123456</dd>
+                  </div>
+                  <div>
+                    <dt>Carrier</dt>
+                    <dd>LBC Express</dd>
+                  </div>
+                  <div>
+                    <dt>Destination</dt>
+                    <dd>Tarlac</dd>
+                  </div>
+                  <div>
+                    <dt>Estimated delivery</dt>
+                    <dd>20 Jun 2025</dd>
+                  </div>
+                </dl>
+              </Card>
+              <Card>
+                <h2>Linked records</h2>
+                <div className="linked-list">
+                  <button onClick={() => go("shipment-detail")}>
+                    <span>
+                      <small>Shipment</small>
+                      <strong>SHP-5012</strong>
+                    </span>
+                    <Icon name="arrow" size={16} />
+                  </button>
+                  <button onClick={() => go("order-detail")}>
+                    <span>
+                      <small>Order</small>
+                      <strong>ORD-1001</strong>
+                    </span>
+                    <Icon name="arrow" size={16} />
+                  </button>
                 </div>
-              </div>
-            </Card>
-            <Card>
-              <div className="card-head">
-                <div>
-                  <h2>Tracking events</h2>
-                  <p>Chronological carrier-reported updates</p>
-                </div>
-              </div>
-              <Timeline />
-            </Card>
+              </Card>
+            </aside>
           </div>
-          <aside className="detail-side">
-            <Card>
-              <h2>Shipment details</h2>
-              <dl>
-                <div>
-                  <dt>Tracking number</dt>
-                  <dd>TRK-123456</dd>
-                </div>
-                <div>
-                  <dt>Carrier</dt>
-                  <dd>LBC Express</dd>
-                </div>
-                <div>
-                  <dt>Destination</dt>
-                  <dd>Tarlac</dd>
-                </div>
-                <div>
-                  <dt>Estimated delivery</dt>
-                  <dd>20 Jun 2025</dd>
-                </div>
-              </dl>
-            </Card>
-            <Card>
-              <h2>Linked records</h2>
-              <div className="linked-list">
-                <button onClick={() => go("shipment-detail")}>
-                  <span>
-                    <small>Shipment</small>
-                    <strong>SHP-5012</strong>
-                  </span>
-                  <Icon name="arrow" size={16} />
-                </button>
-                <button onClick={() => go("order-detail")}>
-                  <span>
-                    <small>Order</small>
-                    <strong>ORD-1001</strong>
-                  </span>
-                  <Icon name="arrow" size={16} />
-                </button>
-              </div>
-            </Card>
-          </aside>
-        </div>
-      ) : (
-        <Card className="lookup-empty">
-          <EmptyState
-            title="No matching tracking record"
-            text="Check the reference or try the available sample TRK-123456."
-          />
-        </Card>
-      )}
+        ) : (
+          <Card className="lookup-empty">
+            <EmptyState
+              title="No matching tracking record"
+              text="Check the reference or try the available sample TRK-123456."
+            />
+          </Card>
+        )}
+      </div>
     </>
   )
 }
@@ -3257,16 +3274,17 @@ function Settings({ role, go }: RolePageProps) {
         description="Manage your profile and proposed system configuration."
       />
       {saved && (
-        <div className="toast-inline">
+        <div className="toast-inline" role="status">
           <Icon name="check" />
           Demo changes acknowledged for this view only. No settings are
           persisted and no authentication is performed.
         </div>
       )}
-      <div className="tabs">
+      <div className="tabs" role="group" aria-label="Settings views">
         {["Profile", "Users and roles", "Integrations"].map((t) => (
           <button
             className={tab === t ? "active" : ""}
+            aria-pressed={tab === t}
             onClick={() =>
               role === "Warehouse staff" && t !== "Profile"
                 ? go("access-denied")
@@ -3281,179 +3299,182 @@ function Settings({ role, go }: RolePageProps) {
           </button>
         ))}
       </div>
-      {tab === "Profile" && (
-        <Card className="settings-card">
-          <div className="settings-section">
-            <div>
-              <h2>Profile information</h2>
-              <p>
-                Update your display information and notification preferences.
-              </p>
-            </div>
-            <div className="settings-form">
-              <div className="avatar large">MS</div>
-              <div className="form-grid">
-                <label>
-                  <span>Display name</span>
-                  <input defaultValue="Maria Santos" />
-                </label>
-                <label>
-                  <span>Email address</span>
-                  <input defaultValue="maria.santos@translogix.demo" />
-                </label>
-                <label>
-                  <span>Role</span>
-                  <input value={role} readOnly disabled />
-                </label>
-                <label>
-                  <span>Time zone</span>
-                  <select>
-                    <option>Asia/Manila (PHT)</option>
-                  </select>
-                </label>
+      <div className="state-panel" key={tab}>
+        {tab === "Profile" && (
+          <Card className="settings-card">
+            <div className="settings-section">
+              <div>
+                <h2>Profile information</h2>
+                <p>
+                  Update your display information and notification preferences.
+                </p>
               </div>
-              <div className="card-actions">
-                <Button onClick={() => setSaved(true)}>Save profile</Button>
-              </div>
-            </div>
-          </div>
-        </Card>
-      )}
-      {tab === "Users and roles" && (
-        <Card>
-          <div className="card-head">
-            <div>
-              <h2>Users and roles</h2>
-              <p>Proposed access controls for this prototype</p>
-            </div>
-            <Button icon="plus">Invite user</Button>
-          </div>
-          <div className="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>User</th>
-                  <th>Role</th>
-                  <th>Status</th>
-                  <th>Last active</th>
-                  <th>
-                    <span className="sr-only">Open details</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  [
-                    "Maria Santos",
-                    "maria.santos@translogix.demo",
-                    "Administrator",
-                  ],
-                  [
-                    "Juan Dela Cruz",
-                    "juan.delacruz@translogix.demo",
-                    "Warehouse staff",
-                  ],
-                  [
-                    "Ana Reyes",
-                    "ana.reyes@translogix.demo",
-                    "Operations staff",
-                  ],
-                ].map((u) => (
-                  <tr key={u[0]}>
-                    <td>
-                      <strong>{u[0]}</strong>
-                      <small>{u[1]}</small>
-                    </td>
-                    <td>{u[2]}</td>
-                    <td>
-                      <Badge tone="success">Active</Badge>
-                    </td>
-                    <td>Today</td>
-                    <td>
-                      <Button kind="ghost">Manage</Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
-      )}
-      {tab === "Integrations" && (
-        <div className="settings-stack">
-          <div className="alert info">
-            <Icon name="info" />
-            <div>
-              <strong>Proposed configuration controls</strong>
-              <p>
-                Save and connection test actions are simulated. Credentials are
-                illustrative masked values; no authentication is performed.
-              </p>
-            </div>
-          </div>
-          {[
-            [
-              "Order Management System",
-              "https://oms.translogix.demo",
-              "Connected",
-            ],
-            [
-              "Warehouse Management System",
-              "https://wms.translogix.demo",
-              "Degraded",
-            ],
-            [
-              "Carrier API",
-              "https://carrier-gateway.translogix.demo",
-              "Connected",
-            ],
-          ].map((x, i) => (
-            <Card key={x[0]}>
-              <div className="card-head">
-                <div>
-                  <h2>{x[0]}</h2>
-                  <p>Demonstration connection</p>
+              <div className="settings-form">
+                <div className="avatar large">MS</div>
+                <div className="form-grid">
+                  <label>
+                    <span>Display name</span>
+                    <input defaultValue="Maria Santos" />
+                  </label>
+                  <label>
+                    <span>Email address</span>
+                    <input defaultValue="maria.santos@translogix.demo" />
+                  </label>
+                  <label>
+                    <span>Role</span>
+                    <input value={role} readOnly disabled />
+                  </label>
+                  <label>
+                    <span>Time zone</span>
+                    <select>
+                      <option>Asia/Manila (PHT)</option>
+                    </select>
+                  </label>
                 </div>
-                <Badge tone={i === 1 ? "warning" : "success"}>
-                  {tested
-                    ? i === 1
-                      ? "Demo test failed"
-                      : "Demo test passed"
-                    : x[2]}
-                </Badge>
+                <div className="card-actions">
+                  <Button onClick={() => setSaved(true)}>Save profile</Button>
+                </div>
               </div>
-              <div className="form-grid integration-form">
-                <label>
-                  <span>Base URL</span>
-                  <input defaultValue={x[1]} />
-                </label>
-                <label>
-                  <span>API version</span>
-                  <select>
-                    <option>v1</option>
-                  </select>
-                </label>
-                <label>
-                  <span>Authentication</span>
-                  <select>
-                    <option>API key</option>
-                  </select>
-                </label>
-                <label>
-                  <span>Credential</span>
-                  <input value="••••••••••••••••••••••••" readOnly />
-                </label>
+            </div>
+          </Card>
+        )}
+        {tab === "Users and roles" && (
+          <Card>
+            <div className="card-head">
+              <div>
+                <h2>Users and roles</h2>
+                <p>Proposed access controls for this prototype</p>
               </div>
-              <div className="card-actions">
-                <Button kind="secondary" onClick={() => setTested(true)}>
-                  Test connection
-                </Button>
-                <Button onClick={() => setSaved(true)}>Save changes</Button>
+              <Button icon="plus">Invite user</Button>
+            </div>
+            <div className="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Last active</th>
+                    <th>
+                      <span className="sr-only">Open details</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    [
+                      "Maria Santos",
+                      "maria.santos@translogix.demo",
+                      "Administrator",
+                    ],
+                    [
+                      "Juan Dela Cruz",
+                      "juan.delacruz@translogix.demo",
+                      "Warehouse staff",
+                    ],
+                    [
+                      "Ana Reyes",
+                      "ana.reyes@translogix.demo",
+                      "Operations staff",
+                    ],
+                  ].map((u) => (
+                    <tr key={u[0]}>
+                      <td>
+                        <strong>{u[0]}</strong>
+                        <small>{u[1]}</small>
+                      </td>
+                      <td>{u[2]}</td>
+                      <td>
+                        <Badge tone="success">Active</Badge>
+                      </td>
+                      <td>Today</td>
+                      <td>
+                        <Button kind="ghost">Manage</Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        )}
+        {tab === "Integrations" && (
+          <div className="settings-stack">
+            <div className="alert info">
+              <Icon name="info" />
+              <div>
+                <strong>Proposed configuration controls</strong>
+                <p>
+                  Save and connection test actions are simulated. Credentials
+                  are illustrative masked values; no authentication is
+                  performed.
+                </p>
               </div>
-            </Card>
-          ))}
-        </div>
-      )}
+            </div>
+            {[
+              [
+                "Order Management System",
+                "https://oms.translogix.demo",
+                "Connected",
+              ],
+              [
+                "Warehouse Management System",
+                "https://wms.translogix.demo",
+                "Degraded",
+              ],
+              [
+                "Carrier API",
+                "https://carrier-gateway.translogix.demo",
+                "Connected",
+              ],
+            ].map((x, i) => (
+              <Card key={x[0]}>
+                <div className="card-head">
+                  <div>
+                    <h2>{x[0]}</h2>
+                    <p>Demonstration connection</p>
+                  </div>
+                  <Badge tone={i === 1 ? "warning" : "success"}>
+                    {tested
+                      ? i === 1
+                        ? "Demo test failed"
+                        : "Demo test passed"
+                      : x[2]}
+                  </Badge>
+                </div>
+                <div className="form-grid integration-form">
+                  <label>
+                    <span>Base URL</span>
+                    <input defaultValue={x[1]} />
+                  </label>
+                  <label>
+                    <span>API version</span>
+                    <select>
+                      <option>v1</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span>Authentication</span>
+                    <select>
+                      <option>API key</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span>Credential</span>
+                    <input value="••••••••••••••••••••••••" readOnly />
+                  </label>
+                </div>
+                <div className="card-actions">
+                  <Button kind="secondary" onClick={() => setTested(true)}>
+                    Test connection
+                  </Button>
+                  <Button onClick={() => setSaved(true)}>Save changes</Button>
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
     </>
   )
 }
@@ -3464,7 +3485,7 @@ function AccessDenied({ go }: { go: (p: Page) => void }) {
       <span>
         <Icon name="alert" size={28} />
       </span>
-      <h1>Access restricted</h1>
+      <h1 tabIndex={-1}>Access restricted</h1>
       <p>
         Your current role does not have permission to view this page. Ask an
         administrator if you need access.

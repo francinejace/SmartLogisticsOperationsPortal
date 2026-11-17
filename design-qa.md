@@ -113,3 +113,24 @@ Visual evidence opened and inspected:
 Verification used local Chrome. Production authentication, backend services, and live shipment data remain outside this frontend iteration.
 
 Motion/workflow final result: passed
+
+## Follow-up: interactions throughout the operations portal
+
+The next iteration extends the existing homepage motion language to all 15 portal page states. It retains the established palette, typography, spacing, logo, and operational safeguards.
+
+- Shared hover/focus feedback covers sidebar navigation, summary actions, actionable table rows, linked records, attention items, notifications, profile controls, search fields, editable inputs, checklists, view selectors, breadcrumbs, and help disclosures. Informational surfaces retain their normal geometry; disabled controls retain their disabled state and invalid fields retain their error border.
+- Page entry uses a short opacity fade. Major modules enter over 240ms with a 4px offset and a stagger capped at 105ms. All transforms reset when their animation ends.
+- Drawers enter over 240ms, menus over 160ms, and changed form steps, warehouse views, settings views, tracking results, technical details, and inline confirmations fade over 180ms. Preparation completion width changes over 220ms. There are no repeating decorative animations or simulated network waits.
+- Form-step transitions preserve controlled values and keep navigation buttons outside the changing panel. Tracking input stays outside the result region so submitting a lookup retains input focus. Filtering remains immediate.
+- View buttons expose their pressed state. Preparation completion has progressbar values and a shortage-aware text alternative. Inline confirmations use status semantics. The access-restricted heading can receive navigation focus.
+- Every effect respects reduced motion, including changes to that preference while a drawer is open. The page container has no animated transform, so fixed overlays retain viewport bounds even during entry.
+
+Checks completed:
+- All 22 existing browser regression checks passed, including all 15 page states at 1440/1024/768/390px, all demo roles, order validation, preparation eligibility, carrier confirmation, synchronization recovery, tracking, monitor drawers, settings, and keyboard navigation.
+- All 15 page states also passed dark-theme/reduced-motion checks at 1440 and 390px, including overflow and focus on the restricted-access heading.
+- Focused checks passed for actionable versus informational surfaces, error/disabled states, module stagger, form value/focus retention, selected views, preparation progress, tracking results, help disclosure, popovers, drawer focus and full viewport bounds, and live reduced-motion changes.
+- TypeScript, production build, and whitespace checks passed. No dependency was added.
+
+Visual evidence includes `/tmp/translogix-portal-motion-comparison.png` (matching dashboard/viewport comparison), `/tmp/translogix-portal-preparation-clean.png`, `/tmp/translogix-portal-final-settings-390.png`, and `/tmp/translogix-portal-reduced-dark-390.png`. Verification used local Chrome; no broader browser-engine compatibility claim is made.
+
+Portal interaction final result: passed
