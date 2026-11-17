@@ -646,10 +646,10 @@ tr[tabindex]:focus-visible { outline-offset: -3px; }
     .public-nav a::after { transition: transform 180ms var(--motion-ease); }
     .public-site :is(.button, .text-button) svg[data-icon="arrow"] { transition: transform var(--motion-fast) var(--motion-ease); }
     .public-feature-card { transition: border-color var(--motion-fast) ease, box-shadow var(--motion-fast) ease; }
-    .motion-enter { animation: interface-enter var(--motion-enter) var(--motion-ease) both; }
+    .motion-enter { animation: interface-enter var(--motion-enter) var(--motion-ease) backwards; }
     .public-feature-card:nth-child(2).motion-enter { animation-delay: 40ms; }
     .public-feature-card:nth-child(3).motion-enter { animation-delay: 80ms; }
-    .login-main, .page-transition { animation: interface-enter 180ms var(--motion-ease) both; }
+    .login-main, .page-transition { animation: interface-enter 180ms var(--motion-ease) backwards; }
     @media (hover: hover) and (pointer: fine) {
       .public-site :is(.button, .text-button):hover svg[data-icon="arrow"] { transform: translateX(3px); }
     }

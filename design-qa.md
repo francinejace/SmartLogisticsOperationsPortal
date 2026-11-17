@@ -79,3 +79,37 @@ Latest visual evidence:
 The desktop and mobile captures were opened and inspected. No actionable P0/P1/P2 issue remains for this placement change.
 
 Follow-up final result: passed
+
+## Follow-up: purposeful motion and workflow interaction
+
+The user's next instruction requests more dynamic elements, animation, and useful UX features informed by internet research. The existing logistics imagery, green/sage palette, typography, modular layout, and demo boundaries remain the visual and product context.
+
+Design guidance consulted:
+- [Material Design motion customization](https://m2.material.io/design/motion/customization.html): short, reserved transitions for productivity interfaces.
+- [Carbon motion](https://www.carbondesignsystem.com/building-blocks/foundations/motion/code): consistent motion timing and curves that guide interactions.
+- [W3C animation from interactions](https://www.w3.org/WAI/WCAG22/Understanding/animation-from-interactions.html): honor reduced-motion preferences and avoid unnecessary motion.
+- [W3C carousel animation](https://www.w3.org/WAI/tutorials/carousels/animations/): preserve control and keyboard focus during slide changes.
+- [W3C accordion pattern](https://www.w3.org/WAI/ARIA/apg/patterns/accordion/): heading buttons, expanded state, and explicit panel relationships.
+
+Implemented in separate feature iterations:
+- Persistent photo layers crossfade over 420ms. The previous decoded image remains visible while a requested image loads. Captions fade briefly, active photo markers resize, and existing manual navigation and credits remain available.
+- Shared controls receive short press/color feedback. Public CTA arrows move 3px on pointer hover; keyboard focus highlights their feature card. Navigation links gain underline feedback.
+- Public content enters once as it becomes visible, using a 6px/240ms entrance with a short card stagger. Content is visible by default and remains available when IntersectionObserver is unavailable. Login and workspace entrances last 180ms.
+- The workflow guide expands one handoff at a time, with system ownership, validation/preparation details, and safe OMS synchronization recovery. It allows every panel to be collapsed and does not imply a live shipment or automatically advance.
+- Reduced-motion CSS disables transitions and animations. Changing that preference while the app is open also disconnects the entrance observer and removes its animation classes.
+
+Verification:
+- Carousel checks passed for normal/reduced motion, four image loads, wraparound, direct selection, keyboard/focus retention, stable section height, slow-image loading, and failed-image recovery.
+- Interaction checks passed for hover/focus feedback, one-time entrances, live reduced-motion changes, login/workspace entry, and observer-unavailable fallback.
+- Workflow checks passed for click/Enter/Space, expanded state and panel IDs, accessible regions, inert collapsed panels, focus retention, and collapsed height. Both themes passed at 1440/1024/768/390/320px with no page overflow and controls at least 44px high.
+- A fixed-drawer regression was caught: retaining the final entrance transform made the page its containing block. Animation fill now applies only before playback. After completion the computed page transform is `none`; drawer bounds match the viewport at 1440×1000 and 390×844, and Escape dismisses the drawer.
+- Final production build, TypeScript check, and whitespace checks passed. No animation dependency was added.
+
+Visual evidence opened and inspected:
+- `/tmp/translogix-motion-comparison.png`: before/after board using matching 1440px viewport captures.
+- `/tmp/translogix-motion-final-dark-390.png`: full mobile page with the expandable guide.
+- `/tmp/translogix-workflow-detail-light.png`: focused desktop workflow layout.
+
+Verification used local Chrome. Production authentication, backend services, and live shipment data remain outside this frontend iteration.
+
+Motion/workflow final result: passed
