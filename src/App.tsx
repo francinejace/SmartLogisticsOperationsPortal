@@ -415,28 +415,60 @@ function Card({
   return <section className={`card ${className}`}>{children}</section>
 }
 
+const portalSections = {
+  overview: { label: "Operations workspace", icon: "grid" },
+  orders: { label: "Order management", icon: "clipboard" },
+  warehouse: { label: "Warehouse operations", icon: "box" },
+  shipments: { label: "Shipment management", icon: "truck" },
+  tracking: { label: "Shipment visibility", icon: "location" },
+  integration: { label: "Integration health", icon: "pulse" },
+  activity: { label: "Operational history", icon: "clock" },
+  settings: { label: "Workspace configuration", icon: "settings" },
+  help: { label: "Guides and support", icon: "help" },
+} as const
+
 function PageHead({
   title,
   description,
   children,
   back,
+  section = "overview",
+  featured = false,
 }: {
   title: string
   description: string
   children?: React.ReactNode
   back?: () => void
+  section?: keyof typeof portalSections
+  featured?: boolean
 }) {
+  const identity = portalSections[section]
   return (
-    <div className="page-head">
-      <div>
-        {back && (
-          <button className="back-link" onClick={back}>
-            ← Back to previous
-          </button>
-        )}
-        <span className="page-eyebrow">TRANSLOGIX / OPERATIONS WORKSPACE</span>
-        <h1 tabIndex={-1}>{title}</h1>
-        <p>{description}</p>
+    <div className={`page-head ${featured ? "page-head-feature" : ""}`}>
+      {featured && (
+        <img
+          className="page-heading-photo"
+          src={`${import.meta.env.BASE_URL}images/logistics/warehouse.webp`}
+          alt=""
+          aria-hidden="true"
+          width={1400}
+          height={1000}
+        />
+      )}
+      <div className="page-heading-main">
+        <span className="page-heading-symbol" aria-hidden="true">
+          <Icon name={identity.icon} size={24} />
+        </span>
+        <div className="page-heading-copy">
+          {back && (
+            <button className="back-link" onClick={back}>
+              ← Back to previous
+            </button>
+          )}
+          <span className="page-eyebrow">TRANSLOGIX / {identity.label}</span>
+          <h1 tabIndex={-1}>{title}</h1>
+          <p>{description}</p>
+        </div>
       </div>
       {children && <div className="page-actions">{children}</div>}
     </div>
@@ -519,6 +551,7 @@ function Dashboard({ go }: { go: (p: Page) => void }) {
     <>
       <PageHead
         title="Operations overview"
+        featured
         description="Your orders, shipments, and exceptions. One connected workspace."
       >
         <div className="updated">Snapshot · 18 Jun 2025, 11:30 PHT</div>
@@ -806,6 +839,7 @@ function Orders({
     <>
       <PageHead
         title="Orders"
+        section="orders"
         description="Create and manage customer orders from acceptance through shipment."
       >
         <Button icon="plus" onClick={() => go("create-order")}>
@@ -990,6 +1024,7 @@ function CreateOrder({ go }: { go: (p: Page) => void }) {
       <>
         <PageHead
           title="Order reviewed"
+          section="orders"
           description="Order creation demonstration · No API request has been sent."
         />
         <Card className="success-panel">
@@ -1038,6 +1073,7 @@ function CreateOrder({ go }: { go: (p: Page) => void }) {
     <>
       <PageHead
         title="Create order"
+        section="orders"
         description="Submit a customer order to the integration workflow."
         back={() => go("orders")}
       />
@@ -1355,6 +1391,7 @@ function OrderDetail({ go }: { go: (p: Page) => void }) {
       </div>
       <PageHead
         title="Order ORD-1001"
+        section="orders"
         description="Accepted 18 June 2025 at 09:42 PHT · Demonstration data"
         back={() => go("orders")}
       >
@@ -1596,6 +1633,7 @@ function Warehouse({
     <>
       <PageHead
         title="Warehouse"
+        section="warehouse"
         description="Review read-only WMS inventory and prepare eligible orders."
       />
       <div className="tabs" role="group" aria-label="Warehouse views">
@@ -1836,6 +1874,7 @@ function Preparation({ go, role }: RolePageProps) {
       </div>
       <PageHead
         title="Prepare order ORD-1001"
+        section="warehouse"
         description="Record proposed picking, packing, and package details."
         back={() => go("warehouse")}
       >
@@ -2057,6 +2096,7 @@ function CreateShipment({ go }: { go: (p: Page) => void }) {
       <>
         <PageHead
           title="Shipment created"
+          section="shipments"
           description="Simulated carrier confirmation linked to sample order ORD-1001."
         />
         <Card className="success-panel">
@@ -2104,6 +2144,7 @@ function CreateShipment({ go }: { go: (p: Page) => void }) {
       </div>
       <PageHead
         title="Create shipment"
+        section="shipments"
         description="Sample creation scenario for ORD-1001, before carrier confirmation. No network request is sent."
         back={() => go("order-detail")}
       />
@@ -2250,6 +2291,7 @@ function Shipments({
     <>
       <PageHead
         title="Shipments"
+        section="shipments"
         description="Monitor carrier confirmations, tracking, and OMS synchronization."
       />
       <Card>
@@ -2372,6 +2414,7 @@ function ShipmentDetail({ go }: { go: (p: Page) => void }) {
       </div>
       <PageHead
         title="Shipment SHP-5012"
+        section="shipments"
         description="Created 18 June 2025 at 10:51 PHT · Demonstration of OMS synchronization recovery"
         back={() => go("shipments")}
       >
@@ -2581,6 +2624,7 @@ function Tracking({
     <>
       <PageHead
         title="Tracking"
+        section="tracking"
         description="Look up carrier status by tracking number, shipment ID, or order ID."
       />
       <Card className="lookup-card">
@@ -2831,6 +2875,7 @@ function Integration({ role, go }: RolePageProps) {
     <>
       <PageHead
         title="Integration monitor"
+        section="integration"
         description="Inspect connection health, events, and authorized recovery actions."
       >
         <Button kind="secondary" icon="refresh">
@@ -3181,6 +3226,7 @@ function Activity({ go }: { go: (p: Page) => void }) {
     <>
       <PageHead
         title="Activity log"
+        section="activity"
         description="Sample history of operational and integration actions. This prototype has no persistent audit log."
       />
       <Card>
@@ -3271,6 +3317,7 @@ function Settings({ role, go }: RolePageProps) {
     <>
       <PageHead
         title="Settings"
+        section="settings"
         description="Manage your profile and proposed system configuration."
       />
       {saved && (
@@ -3500,6 +3547,7 @@ function Help() {
     <>
       <PageHead
         title="Help center"
+        section="help"
         description="Understand statuses, prerequisites, and safe recovery steps."
       />
       <div className="help-grid">

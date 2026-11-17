@@ -1,0 +1,68 @@
+@layer components {
+  .app .sidebar {
+    --sidebar-bg: #12331f;
+    --accent: #cee4c1;
+    --heading: #f0f6e9;
+    --text: #e4eddf;
+    --muted: #b3c6b0;
+    --border: #36533d;
+    --surface-inset: #1c402a;
+    --hover: #24492e;
+    --icon-bg: #31543a;
+    --pale: #254c31;
+    background: var(--sidebar-bg);
+    border-right: 0;
+  }
+  .app .sidebar nav button.active { background: #d1e5bf; color: #17351f; box-shadow: none; }
+  .app .sidebar nav button.active:enabled:active { background: #c3dbb1; color: #17351f; }
+  .app .sidebar nav button.active small { color: #274a30; border-color: #74936d; }
+  .app .sidebar nav button.active .active-nav-dot { background: #376940; }
+  .app .sidebar .product-name { background: var(--surface-inset); border-color: #48664c; border-radius: 12px; }
+  .app .sidebar .brand { min-height: 88px; }
+  .app .sidebar .brand small { font-size: 11px; }
+  .app .sidebar .nav-section-label { color: #afc4a8; font-size: 9px; letter-spacing: 1.6px; }
+  .app .sidebar .sidebar-demo { border-style: solid; }
+  .app .sidebar .avatar { border-color: #547351; }
+  .app .topbar { box-shadow: 0 2px 8px #12331f04; }
+
+  .app .page-head { position: relative; isolation: isolate; padding: 25px 28px; min-height: 158px; background: var(--surface-sage); border: 1px solid var(--border); border-radius: 16px; gap: 24px; }
+  .app .page-heading-main { display: flex; align-items: flex-start; gap: 18px; position: relative; min-width: 0; z-index: 1; }
+  .app .page-heading-copy { min-width: 0; }
+  .app .page-heading-symbol { width: 48px; height: 48px; display: grid; place-items: center; flex-shrink: 0; background: var(--surface); border: 1px solid var(--border-strong); border-radius: 12px; color: var(--accent); }
+  .app .page-eyebrow { text-transform: uppercase; font-size: 9px; color: var(--accent); letter-spacing: 1.35px; margin: 2px 0 9px; }
+  .app .page-head h1 { font-size: 30px; letter-spacing: -1.1px; }
+  .app .page-head p { font-size: 13px; line-height: 1.7; }
+  .app .page-actions { position: relative; z-index: 1; }
+  .app .page-heading-photo { position: absolute; inset: 0 0 0 auto; width: 38%; height: 100%; object-fit: cover; object-position: 55% center; opacity: .4; pointer-events: none; border-radius: 0 16px 16px 0; }
+  .app .page-head-feature { background: #123f25; border-color: #123f25; min-height: 192px; }
+  .app .page-head-feature .page-heading-symbol { background: #ffffff12; border-color: #ffffff45; color: #d1e5bf; }
+  .app .page-head-feature .page-heading-main { max-width: 62%; }
+  .app .page-head-feature h1 { color: #fff; font-size: 33px; }
+  .app .page-head-feature :is(.page-eyebrow, .updated) { color: #d8e7ce; }
+  .app .page-head-feature .page-heading-copy > p { color: #d8e7ce; }
+  .app .page-head-feature .updated { background: #0b2c1cc9; padding: 6px 9px; border-radius: 5px; }
+  .app .page-head-feature .button { background: #d1e5bf; color: #17351f; border-color: #d1e5bf; }
+  .app .page-head-feature .button:hover { background: #e4f0d9; border-color: #e4f0d9; }
+  .app .card { box-shadow: 0 2px 6px #12331f04; }
+
+  @media (max-width: 1050px) {
+    .app .page-head { padding: 22px; }
+    .app .page-heading-main { gap: 14px; }
+    .app .page-heading-symbol { width: 42px; height: 42px; }
+    .app .page-head h1 { font-size: 27px; }
+    .app .page-head-feature .page-heading-main { max-width: none; }
+    .app .page-heading-photo { width: 32%; opacity: .25; }
+  }
+  @media (max-width: 600px) {
+    .app .page-head { padding: 20px; gap: 22px; min-height: 0; }
+    .app .page-heading-main { gap: 12px; width: 100%; }
+    .app .page-heading-symbol { width: 35px; height: 35px; border-radius: 9px; }
+    .app .page-heading-symbol svg { width: 19px; height: 19px; }
+    .app .page-eyebrow { font-size: 8px; letter-spacing: .8px; line-height: 1.6; }
+    .app .page-head h1 { font-size: 26px; line-height: 1.2; }
+    .app .page-head-feature h1 { font-size: 29px; }
+    .app .page-head-feature .page-heading-photo { width: 100%; opacity: .15; border-radius: 16px; }
+    .app .page-actions { gap: 10px; }
+    .app .page-head-feature .updated { text-align: left; font-size: 10px; }
+  }
+}
