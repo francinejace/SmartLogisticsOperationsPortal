@@ -39,9 +39,15 @@ export async function api<T>(
   if (!response.ok || !data) {
     if (response.status === 401 && !path.startsWith("auth/"))
       window.dispatchEvent(new Event("trancelogix-session-expired"))
+    const fallbackMessage =
+      response.status === 503
+        ? "The workspace database is not connected yet. Please contact the project administrator."
+        : response.status === 401 || response.status === 403
+          ? "This deployment requires Vercel access before you can sign in."
+          : "The server returned an unexpected response. Check the local server or deployment configuration and try again."
     throw new ApiError(
       data?.error?.message ||
-        "The request could not be completed. Please try again.",
+        fallbackMessage,
       response.status,
       data?.error?.code || "request_failed",
     )
