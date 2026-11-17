@@ -44,6 +44,53 @@
   .app .page-head-feature .button { background: #d1e5bf; color: #17351f; border-color: #d1e5bf; }
   .app .page-head-feature .button:hover { background: #e4f0d9; border-color: #e4f0d9; }
   .app .card { box-shadow: 0 2px 6px #12331f04; }
+  .app .card > .card-head:first-child { margin: -20px -20px 20px; padding: 18px 20px; border-bottom: 1px solid var(--border); border-radius: 11px 11px 0 0; background: var(--surface-soft); min-height: 78px; }
+  .app .card > .card-head:first-child h2 { font-size: 15px; }
+  .app .card > .card-head:first-child p { line-height: 1.6; }
+  .app .attention-card > .card-head:first-child { background: var(--surface-sage); }
+  .app .toolbar { padding: 13px; background: var(--surface-soft); border: 1px solid var(--border); border-radius: 11px; gap: 12px; }
+  .app .toolbar .search-field { background: var(--surface); }
+  .app .list-context { padding: 0 3px 16px; }
+  .app table th { font-size: 11px; letter-spacing: .55px; text-transform: uppercase; padding-block: 14px; }
+  .app table tbody tr:nth-child(even) { background: var(--surface-inset); }
+  .app .tabs { gap: 5px; padding: 5px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-sage); width: fit-content; max-width: 100%; }
+  .app .tabs button { min-height: 44px; padding: 8px 14px; border: 0; border-radius: 6px; font-size: 13px; }
+  .app .tabs button.active { background: var(--surface); color: var(--accent); box-shadow: 0 1px 4px #12331f10; }
+  .app .tabs button:focus-visible { outline-offset: -3px; }
+  .app .section-title { padding-bottom: 20px; border-bottom: 1px solid var(--border); gap: 13px; }
+  .app .section-title > span { width: 34px; height: 34px; border-radius: 9px; background: var(--action); color: var(--action-text); font-size: 13px; }
+  .app .section-title h2 { font-size: 17px; line-height: 1.4; margin: 0 0 5px; }
+  .app .section-title p { font-size: 12px; line-height: 1.7; }
+  .app .side-note { border-top: 4px solid var(--accent); border-radius: 12px; }
+  .app .side-note .aside-label { letter-spacing: 1.4px; font-size: 10px; }
+  .app .summary-grid > div { padding-bottom: 13px; border-bottom: 1px solid var(--border); }
+  .app .summary-grid small { font-size: 11px; }
+  .app .summary-grid strong { font-size: 14px; line-height: 1.5; }
+  .app .next-action { border-inline-start: 3px solid var(--accent); }
+  .app .next-action > small { font-size: 10px; letter-spacing: 1.2px; }
+  .app .next-action h3 { font-size: 16px; line-height: 1.5; margin-block: 9px; }
+  .app .next-action p { line-height: 1.8; }
+  .app .settings-section > .settings-intro { background: var(--surface-sage); }
+  .app .settings-card { overflow: hidden; }
+  .app .settings-intro-icon { display: grid; place-items: center; width: 52px; height: 52px; margin-bottom: 24px; background: var(--surface); border: 1px solid var(--border-strong); border-radius: 13px; color: var(--accent); }
+  .app .section-overline { display: block; font-size: 9px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; font-weight: 600; }
+  .app .settings-intro h2 { font-size: 20px; line-height: 1.4; letter-spacing: -.4px; }
+  .app .settings-intro p { margin-top: 12px; font-size: 12px; line-height: 1.9; }
+  .app .settings-form { padding: 28px; }
+  .app .settings-form > .avatar { margin-bottom: 22px; width: 54px; height: 54px; font-size: 18px; }
+  .app .activity-list > div { padding: 13px 10px; }
+  .app .activity-list > div:nth-child(even) { background: var(--surface-inset); }
+  .app .activity-time { font-variant-numeric: tabular-nums; }
+  .app .center-state { background: var(--surface); border: 1px solid var(--border); border-top: 4px solid var(--amber); padding: 36px 28px; border-radius: 15px; }
+  .app .center-state > span { background: var(--amber-bg); color: var(--amber); }
+  .app .help-grid > .help-topic-card { display: flex; flex-direction: column; padding: 23px; background: var(--surface); }
+  .app .help-topic-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
+  .app .help-topic-top .help-icon { margin: 0; width: 40px; height: 40px; }
+  .app .help-topic-index { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+  .app .help-topic-card h2 { font-size: 17px; line-height: 1.5; }
+  .app .help-topic-card > p { min-height: 0; line-height: 1.9; margin: 10px 0 25px; }
+  .app .help-topic-label { margin-top: auto; color: var(--accent); font-size: 9px; letter-spacing: 1.2px; text-transform: uppercase; }
+  .app .help-topic-card:nth-child(3) { border-top: 3px solid var(--amber-border); background: var(--amber-bg); }
 
   .app .stat-card { display: flex; flex-direction: column; gap: 18px; padding: 20px; min-height: 188px; border-radius: 14px; border-top: 3px solid var(--border-strong); background: var(--surface); }
   .app .stat-card-heading { display: flex; align-items: center; gap: 10px; min-height: 36px; }
@@ -79,13 +126,16 @@
   .app .activity-summary .mini-timeline small { line-height: 1.7; }
   @media (prefers-reduced-motion: no-preference) {
     .app .distribution-track > span { animation: distribution-in 320ms var(--motion-ease) backwards; }
+    .app .stat-card-footer svg { transition: transform var(--motion-fast) var(--motion-ease); }
+    @media (hover: hover) and (pointer: fine) {
+      .app .stat-card:hover .stat-card-footer svg { transform: translateX(3px); }
+    }
   }
   @keyframes distribution-in { from { transform: scaleX(0); } to { transform: none; } }
 
   @media (max-width: 1250px) {
     .app .dashboard-grid > .shipment-status-card { grid-column: span 6; }
-    .app .dashboard-grid > .activity-summary { grid-column: span 12; }
-    .app .activity-summary .mini-timeline { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+    .app .dashboard-grid > .activity-summary { grid-column: span 6; }
   }
 
   @media (max-width: 1050px) {
@@ -97,6 +147,13 @@
     .app .page-heading-photo { width: 32%; opacity: .25; }
   }
   @media (max-width: 600px) {
+    .app .card > .card-head:first-child { margin: -18px -18px 18px; padding: 17px 18px; }
+    .app .toolbar { padding: 11px; }
+    .app .tabs { width: 100%; }
+    .app .tabs button { padding-inline: 11px; font-size: 12px; }
+    .app .settings-form { padding: 22px; }
+    .app .settings-intro-icon { margin-bottom: 18px; }
+    .app .help-topic-card { padding: 22px; }
     .app .stat-card { gap: 14px; min-height: 198px; padding: 14px; border-radius: 12px; }
     .app .stat-card-heading { align-items: flex-start; gap: 8px; min-height: 36px; }
     .app .stat-card .stat-icon { width: 24px; height: 24px; border-radius: 6px; }

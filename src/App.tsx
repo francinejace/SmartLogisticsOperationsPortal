@@ -558,6 +558,14 @@ const shipmentTotal = shipmentBreakdown.reduce(
   (total, status) => total + status.count,
   0,
 )
+const shipmentChartStops = shipmentBreakdown
+  .map((status, index) => {
+    const start = shipmentBreakdown
+      .slice(0, index)
+      .reduce((sum, item) => sum + item.count, 0)
+    return `${status.color} ${(start / shipmentTotal) * 100}% ${((start + status.count) / shipmentTotal) * 100}%`
+  })
+  .join(", ")
 
 function Dashboard({ go }: { go: (p: Page) => void }) {
   return (
@@ -745,8 +753,9 @@ function Dashboard({ go }: { go: (p: Page) => void }) {
           <div className="donut-row">
             <div
               className="donut"
+              style={{ background: `conic-gradient(${shipmentChartStops})` }}
               role="img"
-              aria-label={`${shipmentTotal} shipments: 18 delivered, 14 in transit, 7 label created, 3 exceptions. Weekly demonstration data.`}
+              aria-label={`${shipmentTotal} shipments. ${shipmentBreakdown.map((status) => `${status.label}: ${status.count}`).join(", ")}. Weekly demonstration data.`}
             >
               <span>
                 <strong>{shipmentTotal}</strong>
@@ -3375,7 +3384,11 @@ function Settings({ role, go }: RolePageProps) {
         {tab === "Profile" && (
           <Card className="settings-card">
             <div className="settings-section">
-              <div>
+              <div className="settings-intro">
+                <span className="settings-intro-icon" aria-hidden="true">
+                  <Icon name="settings" size={26} />
+                </span>
+                <span className="section-overline">Personal workspace</span>
                 <h2>Profile information</h2>
                 <p>
                   Update your display information and notification preferences.
@@ -3602,19 +3615,24 @@ function Help() {
             "Contact the TransLogix integration support team and include the order or correlation ID.",
           ],
         ].map((x, i) => (
-          <Card key={x[0]}>
-            <span className="help-icon">
-              <Icon name={i === 5 ? "help" : "info"} />
-            </span>
+          <Card className="help-topic-card" key={x[0]}>
+            <div className="help-topic-top">
+              <span className="help-icon">
+                <Icon name={i === 5 ? "help" : "info"} />
+              </span>
+              <span className="help-topic-index" aria-hidden="true">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+            </div>
             <h2>{x[0]}</h2>
             <p>{x[1]}</p>
-            <button
-              className="text-button"
-              disabled
-              title="Additional documentation is not connected"
-            >
-              Learn more <Icon name="arrow" size={15} />
-            </button>
+            <span className="help-topic-label">
+              {i === 5
+                ? "Support information"
+                : i === 2 || i === 3
+                  ? "Recovery guidance"
+                  : "Workflow reference"}
+            </span>
           </Card>
         ))}
       </div>

@@ -134,3 +134,45 @@ Checks completed:
 Visual evidence includes `/tmp/translogix-portal-motion-comparison.png` (matching dashboard/viewport comparison), `/tmp/translogix-portal-preparation-clean.png`, `/tmp/translogix-portal-final-settings-390.png`, and `/tmp/translogix-portal-reduced-dark-390.png`. Verification used local Chrome; no broader browser-engine compatibility claim is made.
 
 Portal interaction final result: passed
+
+## Follow-up: stronger visual design across the system
+
+The user requests a less plain presentation. This is a visual refresh of the existing TransLogix system: stronger branding, a photographic dashboard header, more expressive data summaries, and structured operational layouts. The earlier Dribbble reference remains a reference for tonal hierarchy and modular composition; its healthcare content and framed laptop presentation are not implementation requirements.
+
+### Source and comparison evidence
+
+- Source visual truth: `/tmp/translogix-visual-before.png`, 1440 × 1424 pixels, the existing portal before this iteration.
+- Implementation: `/tmp/translogix-visual-dashboard-final-light-1440.png`, 1440 × 1565 pixels.
+- Both captures use a 1440 × 1000 CSS viewport, deviceScaleFactor 1, Administrator role, light theme, and the default dashboard snapshot. Full-page capture height differs intentionally because the new feature header and summary cards have more vertical presence. Images are displayed at the same scale for comparison.
+- Full-view comparison opened: `/tmp/translogix-visual-comparison.png`, 1500 × 1200 pixels.
+- Focused comparison opened: `/tmp/translogix-visual-focused-comparison.png`, 1500 × 340 pixels, showing the summary typography, value placement, footer divisions, and semantic accents.
+- Additional rendered evidence opened: desktop order list, create-order form, and help cards; mobile order list and help cards; final dark Settings view; and the mobile keyboard-focus capture `/tmp/translogix-visual-tabs-focus-dark-390.png`.
+- Final mobile dashboard: `/tmp/translogix-visual-dashboard-final-dark-390.png`, 390 × 3106 pixels, CSS viewport 390 × 1000, deviceScaleFactor 1.
+
+### Findings and comparison history
+
+- **Resolved P2 — Settings background exceeded rounded corners.** The first dark Settings capture, `/tmp/translogix-records-settings-dark-1440.png`, showed the introductory panel painting square corners outside its parent. The Settings card now clips its internal background. The final capture, `/tmp/translogix-visual-settings-final-dark-1440.png` (1440 × 1000), was opened and confirms clean rounded corners.
+- Table headings were increased from the initial 10px treatment to 11px for readability. Segmented-control focus rings now sit inside the controls, preserving the full ring within the scrolling group. Post-fix checks cover both themes at 1440/390/320px; the keyboard-focus capture was opened and inspected.
+- No actionable P0/P1/P2 finding remains in the final captures and tested flows.
+
+### Required fidelity surfaces
+
+- **Fonts and typography:** Existing Inter remains in use. Page titles, metric values, section titles, table headings, and supporting labels have distinct scales. Long record titles wrap on mobile, while counts and chart labels remain readable. No new font dependency was introduced.
+- **Spacing and layout:** The forest-green navigation rail, section-specific header frames, dashboard feature image, metric-card footers, proportioned chart panel, inset toolbars, segmented selectors, card headers, and form summaries establish a consistent hierarchy. Controls retain their action ordering. Tables scroll within their containers; tested layouts have no page-level horizontal overflow.
+- **Colors and tokens:** Sage surfaces and the established semantic success/warning/error colors remain token-based. The sidebar uses a scoped forest palette with mint selection states, including readable active admin badges. Both themes retain clear foreground contrast and non-color status labels.
+- **Image quality and assets:** The dashboard reuses the credited warehouse photograph already in the project. It remains illustrative, without a claim that it depicts a TransLogix-owned facility. The generated brand mark and existing line-icon system are preserved. The shipment chart and proportional bars represent actual existing weekly sample counts; no trend data or decorative analytics were invented.
+- **Copy and content:** Operational guidance, fixture disclosures, role restrictions, and recovery safeguards remain intact. Section identities and help-guide labels add context. Inactive “Learn more” controls were replaced with informational labels. No authentication, persistence, or live-service claim was added.
+
+### Verification and implementation checklist
+
+- [x] All 22 existing browser regression checks passed, including all 15 page states at 1440/1024/768/390px and all three demo roles.
+- [x] Dashboard totals, chart proportions, summary destinations, and layout passed in both themes at 1440/1024/768/390/320px. Chart total, ring segments, and bars use the same counts.
+- [x] Tables, forms, settings, warehouse selectors, and help layouts passed both-theme checks at 1440/768/390/320px. View buttons retain targets at least 44px high.
+- [x] All 15 page states passed dark-theme/reduced-motion checks at desktop and mobile widths.
+- [x] Existing animation, form-value/focus retention, progress feedback, disclosure, drawer geometry, focus-trap, and live reduced-motion checks passed after the redesign.
+- [x] Final corner, table-typography, and keyboard-focus fixes were captured and verified in both themes at 1440/390/320px.
+- [x] Production build, TypeScript, and whitespace checks passed. No package dependency was added.
+
+Verification used local Chrome. Existing frontend-demo limitations remain unchanged. The local preview remains running.
+
+final result: passed
