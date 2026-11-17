@@ -6,6 +6,46 @@ import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { createBackend } from "../server/backend.ts"
 import { createTestPool } from "./postgres-pool.mjs"
+import { LEGACY_BRAND_KEY } from "../src/brand.ts"
+import { DatabaseSync } from "node:sqlite"
+import { hashPassword } from "../server/database.ts"
+import localDatabasePath from "../server/local-database.ts"
+
+test("production bootstrap accepts a normal email and creates only its administrator", async t => {
+  const { api } = await fixture(t, { demo: false, adminEmail: "owner@example.com", adminPassword: "PrivateBootstrap!2026" })
+  const result = await api("/api/auth/login", { method: "POST", body: { email: "owner@example.com", password: "PrivateBootstrap!2026" } })
+  assert.equal(result.status, 200)
+  const snapshot = await api("/api/v1/workspace", { cookie: result.cookie.split(";")[0] })
+  assert.equal(snapshot.body.users.length, 1)
+  assert.equal(snapshot.body.orders.length, 0)
+})
+
+test("brand rename preserves saved records, custom passwords and previous sessions", async t => {
+  const directory = mkdtempSync(join(tmpdir(), "trancelogix-rename-"))
+  const filename = join(directory, ".data", `${LEGACY_BRAND_KEY}.sqlite`)
+  const first = await fixture(t, { filename })
+  const currentCookie = await first.login("admin")
+  const oldCookie = currentCookie.replace("trancelogix_session=", `${LEGACY_BRAND_KEY}_session=`)
+  const database = new DatabaseSync(filename)
+  for (const account of ["admin", "operations", "warehouse"]) database.prepare("UPDATE users SET email = ? WHERE id = ?").run(`${account}@${LEGACY_BRAND_KEY}.local`, `usr-${account}`)
+  database.prepare("UPDATE users SET password_hash = ? WHERE id = 'usr-admin'").run(hashPassword("KeptCustomPassword!2026"))
+  database.prepare("DELETE FROM metadata WHERE key = 'brand-trancelogix'").run()
+  database.close()
+  const second = await fixture(t, { filename, demo: false })
+  t.after(() => rmSync(directory, { recursive: true, force: true }))
+  const session = await second.api("/api/auth/session", { cookie: oldCookie })
+  assert.equal(session.body.user.email, "admin@trancelogix.local")
+  const snapshot = await second.api("/api/v1/workspace", { cookie: oldCookie })
+  assert.equal(snapshot.body.orders.length, 9)
+  for (const email of ["admin@trancelogix.local", `admin@${LEGACY_BRAND_KEY}.local`]) {
+    assert.equal((await second.api("/api/auth/login", { method: "POST", body: { email, password: "KeptCustomPassword!2026" } })).status, 200)
+  }
+  assert.equal(localDatabasePath(directory), filename)
+  assert.equal(localDatabasePath(directory, ".data/new.sqlite"), join(directory, ".data", "new.sqlite"))
+  const logout = await second.api("/api/auth/logout", { method: "POST", cookie: oldCookie, body: {} })
+  assert(logout.cookie.includes(`${LEGACY_BRAND_KEY}_session=`))
+  assert.equal((await second.api("/api/auth/session", { cookie: oldCookie })).body.user, null)
+})
 
 test("pre-parsed Vercel request bodies support authenticated mutations", async t => {
   const { api, login } = await fixture(t, { parsedBody: true })
@@ -37,7 +77,7 @@ test("concurrent shipment submissions create one saved shipment", async (t) => {
 
 async function fixture(t, options = {}) {
   if (
-    process.env.TRANSLOGIX_TEST_POSTGRES === "1" &&
+    process.env.TRANCELOGIX_TEST_POSTGRES === "1" &&
     options.filename === undefined
   ) {
     options = { ...options, pool: await createTestPool() }
@@ -70,7 +110,7 @@ async function fixture(t, options = {}) {
       method,
       headers: {
         "Content-Type": "application/json",
-        "X-TransLogix-Request": "1",
+        "X-TranceLogix-Request": "1",
         ...(cookie ? { Cookie: cookie } : {}),
         ...headers,
       },
@@ -87,8 +127,8 @@ async function fixture(t, options = {}) {
     const result = await api("/api/auth/login", {
       method: "POST",
       body: {
-        email: `${account}@translogix.local`,
-        password: "TransLogixDemo!2026",
+        email: `${account}@trancelogix.local`,
+        password: "TranceLogixDemo!2026",
       },
     })
     assert.equal(result.status, 200)
@@ -115,7 +155,7 @@ test("authentication, cookies, request origin, and server-enforced roles", async
       await api("/api/auth/login", {
         method: "POST",
         body: {},
-        headers: { "X-TransLogix-Request": "" },
+        headers: { "X-TranceLogix-Request": "" },
       })
     ).status,
     403,
@@ -124,7 +164,7 @@ test("authentication, cookies, request origin, and server-enforced roles", async
     (
       await api("/api/auth/login", {
         method: "POST",
-        body: { email: "operations@translogix.local", password: "wrong" },
+        body: { email: "operations@trancelogix.local", password: "wrong" },
       })
     ).status,
     401,
@@ -410,7 +450,7 @@ test("unknown carrier outcomes block retries until a persisted status check", as
 })
 
 test("profiles and sessions survive a backend restart; password changes invalidate sessions", async (t) => {
-  const directory = mkdtempSync(join(tmpdir(), "translogix-test-"))
+  const directory = mkdtempSync(join(tmpdir(), "trancelogix-test-"))
   t.after(() => rmSync(directory, { recursive: true, force: true }))
   const filename = join(directory, "test.sqlite")
   // Close the first database before reopening the same file.
@@ -424,11 +464,11 @@ test("profiles and sessions survive a backend restart; password changes invalida
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "X-TransLogix-Request": "1",
+      "X-TranceLogix-Request": "1",
     },
     body: JSON.stringify({
-      email: "operations@translogix.local",
-      password: "TransLogixDemo!2026",
+      email: "operations@trancelogix.local",
+      password: "TranceLogixDemo!2026",
     }),
   })
   const cookie = response.headers.get("set-cookie").split(";")[0]
@@ -461,7 +501,7 @@ test("profiles and sessions survive a backend restart; password changes invalida
         method: "PATCH",
         cookie,
         body: {
-          currentPassword: "TransLogixDemo!2026",
+          currentPassword: "TranceLogixDemo!2026",
           newPassword: "ChangedPassword!2026",
         },
       })

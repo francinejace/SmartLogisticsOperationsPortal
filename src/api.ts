@@ -21,7 +21,7 @@ export async function api<T>(
         credentials: "same-origin",
         headers: {
           "Content-Type": "application/json",
-          "X-TransLogix-Request": "1",
+          "X-TranceLogix-Request": "1",
           ...options.headers,
         },
       },
@@ -38,7 +38,7 @@ export async function api<T>(
   const data = await response.json().catch(() => null)
   if (!response.ok || !data) {
     if (response.status === 401 && !path.startsWith("auth/"))
-      window.dispatchEvent(new Event("translogix-session-expired"))
+      window.dispatchEvent(new Event("trancelogix-session-expired"))
     throw new ApiError(
       data?.error?.message ||
         "The request could not be completed. Please try again.",

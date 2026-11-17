@@ -16,6 +16,7 @@ import {
 } from "./database.ts"
 import type { DatabaseOptions } from "./database.ts"
 import { answerChat } from "./chat.ts"
+import { LEGACY_BRAND_KEY } from "../src/brand.ts"
 interface BackendOptions extends DatabaseOptions {
   apiKey?: string
   model?: string
@@ -35,7 +36,7 @@ class HttpError extends Error {
 type Row = Record<string, unknown>
 const roles = ["Administrator", "Operations staff", "Warehouse staff"]
 const carriers = ["LBC Express", "J&T Express", "2GO Express"]
-const cookieName = "translogix_session"
+const cookieName = "trancelogix_session"
 const sessionLifetime = 8 * 60 * 60 * 1000
 const dateLabel = (value: string) =>
   new Intl.DateTimeFormat("en-GB", {
@@ -180,11 +181,7 @@ export async function createBackend(options: BackendOptions) {
       )
   }
   const sessionUser = async (req: IncomingMessage) => {
-    const token = req.headers.cookie
-      ?.split(";")
-      .map((part) => part.trim())
-      .find((part) => part.startsWith(`${cookieName}=`))
-      ?.slice(cookieName.length + 1)
+    const token = sessionToken(req)
     if (!token || !/^[a-f0-9]{64}$/.test(token)) return null
     const row = await one(
       "SELECT u.* FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token_hash = ? AND s.expires_at > ?",
@@ -197,6 +194,15 @@ export async function createBackend(options: BackendOptions) {
     `${cookieName}=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${maxAge}${
       options.secureCookies ? "; Secure" : ""
     }`
+  const sessionToken = (req: IncomingMessage) => {
+    const parts = req.headers.cookie?.split(";").map(part => part.trim()) || []
+    for (const name of [cookieName, `${LEGACY_BRAND_KEY}_session`]) {
+      const value = parts.find(part => part.startsWith(`${name}=`))
+      if (value) return value.slice(name.length + 1)
+    }
+    return undefined
+  }
+  const expiredLegacyCookie = () => cookie("", 0).replace(cookieName, `${LEGACY_BRAND_KEY}_session`)
   async function route(
     req: IncomingMessage,
     res: ServerResponse,
@@ -219,7 +225,7 @@ export async function createBackend(options: BackendOptions) {
       )
         throw new HttpError(403, "Request origin is not allowed.")
     }
-    if (method !== "GET" && req.headers["x-translogix-request"] !== "1")
+    if (method !== "GET" && req.headers["x-trancelogix-request"] !== "1" && req.headers[`x-${LEGACY_BRAND_KEY}-request`] !== "1")
       throw new HttpError(403, "Request verification failed.")
     if (path === "/api/health" && method === "GET")
       return json(res, 200, {
@@ -251,7 +257,10 @@ export async function createBackend(options: BackendOptions) {
       const body = await readJson(req)
       const email = stringField(body.email, "Email", 254).toLowerCase()
       const password = stringField(body.password, "Password", 200, false)
-      const found = await one("SELECT * FROM users WHERE email = ?", email)
+      let found = await one("SELECT * FROM users WHERE email = ?", email)
+      if (!found && email.endsWith(`@${LEGACY_BRAND_KEY}.local`)) {
+        found = await one("SELECT * FROM users WHERE email = ?", email.replace(`@${LEGACY_BRAND_KEY}.local`, "@trancelogix.local"))
+      }
       if (
         !checkPassword(
           password,
@@ -273,20 +282,16 @@ export async function createBackend(options: BackendOptions) {
           .prepare("INSERT INTO sessions VALUES (?, ?, ?)")
           .run(digest(token), String(found.id), Date.now() + sessionLifetime)
       })
-      res.setHeader("Set-Cookie", cookie(token, sessionLifetime / 1000))
+      res.setHeader("Set-Cookie", [cookie(token, sessionLifetime / 1000), expiredLegacyCookie()])
       return json(res, 200, { user: userView(found) })
     }
     if (path === "/api/auth/logout" && method === "POST") {
-      const token = req.headers.cookie
-        ?.split(";")
-        .map((v) => v.trim())
-        .find((v) => v.startsWith(`${cookieName}=`))
-        ?.slice(cookieName.length + 1)
+      const token = sessionToken(req)
       if (token)
         await db
           .prepare("DELETE FROM sessions WHERE token_hash = ?")
           .run(digest(token))
-      res.setHeader("Set-Cookie", cookie("", 0))
+      res.setHeader("Set-Cookie", [cookie("", 0), expiredLegacyCookie()])
       return json(res, 200, { ok: true })
     }
     if (!user)
@@ -880,7 +885,7 @@ export async function createBackend(options: BackendOptions) {
         json(res, 404, { error: { message: "Not found." } })
       },
     ) {
-      const url = new URL(req.url || "/", "http://translogix.local")
+      const url = new URL(req.url || "/", "http://trancelogix.local")
       // Handles both a root URL and a Figma preview URL with a base prefix.
       const index = url.pathname.indexOf("/api/")
       if (index < 0) return next()

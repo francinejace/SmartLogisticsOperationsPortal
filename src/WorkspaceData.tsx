@@ -81,7 +81,7 @@ export default function WorkspaceData({
   if (!data)
     return (
       <main className="backend-loading">
-        <h1 tabIndex={-1}>TransLogix workspace</h1>
+        <h1 tabIndex={-1}>TranceLogix workspace</h1>
         {error ? (
           <>
             <p role="alert">{error}</p>

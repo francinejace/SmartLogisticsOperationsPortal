@@ -156,7 +156,7 @@ export default function ChatAssistant({ page }: { page: string }) {
         ref={launcher}
         className="assistant-launcher"
         onClick={() => setOpen(true)}
-        aria-label="Open TransLogix assistant"
+        aria-label="Open TranceLogix assistant"
         aria-haspopup="dialog"
         aria-expanded={open}
       >
@@ -174,7 +174,7 @@ export default function ChatAssistant({ page }: { page: string }) {
           <path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H4l-2 2V11.5a9.5 9.5 0 0 1 19 0Z" />
           <path d="M7 10h10M7 14h6" />
         </svg>
-        <span>Ask TransLogix</span>
+        <span>Ask TranceLogix</span>
       </button>
       <dialog
         ref={dialog}
@@ -200,7 +200,7 @@ export default function ChatAssistant({ page }: { page: string }) {
           <div className="assistant-identity">
             <BrandMark />
             <div>
-              <h2 id="assistant-title">TransLogix assistant</h2>
+              <h2 id="assistant-title">TranceLogix assistant</h2>
               <p>Workspace guidance</p>
             </div>
           </div>
@@ -276,7 +276,7 @@ export default function ChatAssistant({ page }: { page: string }) {
               </div>
               {turn.answer !== undefined && (
                 <div className="assistant-message assistant-answer">
-                  <span>TransLogix · AI</span>
+                  <span>TranceLogix · AI</span>
                   <p>{turn.answer}</p>
                 </div>
               )}
@@ -323,7 +323,7 @@ export default function ChatAssistant({ page }: { page: string }) {
             }}
           >
             <label className="sr-only" htmlFor="assistant-question">
-              Message TransLogix assistant
+              Message TranceLogix assistant
             </label>
             <textarea
               ref={input}

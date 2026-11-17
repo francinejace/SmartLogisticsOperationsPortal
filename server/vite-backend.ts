@@ -1,11 +1,11 @@
 import { loadEnv, type Plugin } from "vite"
-import { resolve } from "node:path"
 import { createBackend } from "./backend.ts"
+import localDatabasePath from "./local-database.ts"
 
-export default function translogixBackend(): Plugin {
+export default function trancelogixBackend(): Plugin {
   let backend: Awaited<ReturnType<typeof createBackend>> | undefined
   return {
-    name: "translogix-backend",
+    name: "trancelogix-backend",
     async configureServer(server) {
       backend = await start(
         server.config.mode,
@@ -38,7 +38,7 @@ function start(mode: string, envDir: string | false, root: string) {
     ...process.env,
   }
   return createBackend({
-    filename: resolve(root, env.DATABASE_PATH || ".data/translogix.sqlite"),
+    filename: localDatabasePath(root, env.DATABASE_PATH),
     databaseUrl: env.DATABASE_URL,
     demo: env.SEED_DEMO_DATA !== "false" && env.NODE_ENV !== "production",
     demoPassword: env.DEMO_PASSWORD,

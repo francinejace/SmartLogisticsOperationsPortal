@@ -75,7 +75,7 @@ function Help() {
           ],
           [
             "Need more help?",
-            "Contact the TransLogix integration support team and include the order or correlation ID.",
+            "Contact the TranceLogix integration support team and include the order or correlation ID.",
           ],
         ].map((x, i) => (
           <Card className="help-topic-card" key={x[0]}>
@@ -327,7 +327,7 @@ function Workspace({ theme, onToggleTheme, onSignOut }: WorkspaceProps) {
         <div className="brand">
           <BrandMark />
           <div>
-            <strong>TransLogix</strong>
+            <strong>TranceLogix</strong>
             <small>Logistics Services</small>
           </div>
           <button
@@ -636,7 +636,7 @@ function Workspace({ theme, onToggleTheme, onSignOut }: WorkspaceProps) {
             {render()}
           </div>
           <footer>
-            TransLogix SLSIS · Team Sync
+            TranceLogix SLSIS · Team Sync
             <span>Saved workspace data · Carrier, WMS and OMS simulations</span>
           </footer>
         </main>
@@ -672,10 +672,10 @@ export default function App() {
       setView("login")
       setError("Your session ended. Sign in to continue.")
     }
-    window.addEventListener("translogix-session-expired", expired)
+    window.addEventListener("trancelogix-session-expired", expired)
     return () => {
       controller.abort()
-      window.removeEventListener("translogix-session-expired", expired)
+      window.removeEventListener("trancelogix-session-expired", expired)
     }
   }, [])
   const toggleTheme = () => {
@@ -703,7 +703,7 @@ export default function App() {
   if (loading)
     return (
       <main className="backend-loading">
-        <h1>TransLogix</h1>
+        <h1>TranceLogix</h1>
         <p role="status">Connecting to workspace…</p>
       </main>
     )

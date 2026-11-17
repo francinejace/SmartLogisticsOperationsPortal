@@ -20,7 +20,7 @@ class ChatError extends Error {
   }
 }
 
-const guide = `You are the TransLogix assistant, a concise, friendly logistics workspace guide.
+const guide = `You are the TranceLogix assistant, a concise, friendly logistics workspace guide.
 Explain how to use this app in short, practical plain-text steps. Match the user's language.
 The app has a real local database, login sessions, and server-enforced account roles.
 Carrier, warehouse availability, and OMS integrations are SIMULATIONS. Never claim a real shipment, payment, dispatch, or carrier lookup occurred.

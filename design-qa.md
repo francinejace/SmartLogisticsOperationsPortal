@@ -1,10 +1,12 @@
-# TransLogix design QA
+# TranceLogix design QA
+
+Historical screenshot filenames below are retained as captured; the current product name is TranceLogix.
 
 final result: passed
 
 ## Scope and visual truth
 
-The user requested the reference's **design method**, with TransLogix's brand, logistics content, working interactions, and role restrictions preserved. This is a style adaptation, not a pixel-for-pixel recreation of a healthcare interface.
+The user requested the reference's **design method**, with TranceLogix's brand, logistics content, working interactions, and role restrictions preserved. This is a style adaptation, not a pixel-for-pixel recreation of a healthcare interface.
 
 - Shared URL: https://dribbble.com/tags/web-ui. This is a general gallery; its sharing metadata names the earlier Zajno reference.
 - Selected reference: https://dribbble.com/shots/26451832-AI-Powered-Platform-for-Proactive-Health-Monitoring
@@ -36,8 +38,8 @@ No actionable P0/P1/P2 findings remain.
 
 - **Fonts and typography:** The existing Inter family, restrained weights, and readable operational font sizes remain. The source photograph cannot establish exact typeface metrics; no exact-font claim is made. Desktop and mobile heading wraps, labels, table text, and button text were inspected.
 - **Spacing and layout:** Existing sidebar dimensions, aligned action groups, responsive forms, and locally scrolling tables are preserved. The public homepage uses a modular grid, aligned section headings, consistent card padding, fine dividers, and restrained radii. No page-level overflow was found at 1440, 1024, 768, or 390px; the carousel also passed at 320px.
-- **Colors and tokens:** The primary and secondary TransLogix greens remain. Existing semantic light/dark tokens supply the tonal surface hierarchy and labeled warning/error states. Computed text-contrast checks on the tested workspace screens found no failures.
-- **Images and assets:** Four genuine logistics photos were downloaded from verified free Unsplash source pages. Subjects, crops, quality, loading, and photographer links were checked. Sources and credits live in `src/data/logisticsPhotos.ts`. Photos illustrate logistics and are not represented as TransLogix-owned facilities or vehicles. The established line-icon system is retained. No healthcare imagery was introduced.
+- **Colors and tokens:** The primary and secondary TranceLogix greens remain. Existing semantic light/dark tokens supply the tonal surface hierarchy and labeled warning/error states. Computed text-contrast checks on the tested workspace screens found no failures.
+- **Images and assets:** Four genuine logistics photos were downloaded from verified free Unsplash source pages. Subjects, crops, quality, loading, and photographer links were checked. Sources and credits live in `src/data/logisticsPhotos.ts`. Photos illustrate logistics and are not represented as TranceLogix-owned facilities or vehicles. The established line-icon system is retained. No healthcare imagery was introduced.
 - **Copy and content:** Public cards describe orders, preparation, carrier confirmations, tracking, and recovery. The system summary keeps OMS, middleware, WMS, and carrier responsibilities distinct. Login is explicitly demo access, requests no real credentials, and makes no production-authentication claim.
 
 ## Functional and responsive verification
@@ -137,7 +139,7 @@ Portal interaction final result: passed
 
 ## Follow-up: stronger visual design across the system
 
-The user requests a less plain presentation. This is a visual refresh of the existing TransLogix system: stronger branding, a photographic dashboard header, more expressive data summaries, and structured operational layouts. The earlier Dribbble reference remains a reference for tonal hierarchy and modular composition; its healthcare content and framed laptop presentation are not implementation requirements.
+The user requests a less plain presentation. This is a visual refresh of the existing TranceLogix system: stronger branding, a photographic dashboard header, more expressive data summaries, and structured operational layouts. The earlier Dribbble reference remains a reference for tonal hierarchy and modular composition; its healthcare content and framed laptop presentation are not implementation requirements.
 
 ### Source and comparison evidence
 
@@ -160,7 +162,7 @@ The user requests a less plain presentation. This is a visual refresh of the exi
 - **Fonts and typography:** Existing Inter remains in use. Page titles, metric values, section titles, table headings, and supporting labels have distinct scales. Long record titles wrap on mobile, while counts and chart labels remain readable. No new font dependency was introduced.
 - **Spacing and layout:** The forest-green navigation rail, section-specific header frames, dashboard feature image, metric-card footers, proportioned chart panel, inset toolbars, segmented selectors, card headers, and form summaries establish a consistent hierarchy. Controls retain their action ordering. Tables scroll within their containers; tested layouts have no page-level horizontal overflow.
 - **Colors and tokens:** Sage surfaces and the established semantic success/warning/error colors remain token-based. The sidebar uses a scoped forest palette with mint selection states, including readable active admin badges. Both themes retain clear foreground contrast and non-color status labels.
-- **Image quality and assets:** The dashboard reuses the credited warehouse photograph already in the project. It remains illustrative, without a claim that it depicts a TransLogix-owned facility. The generated brand mark and existing line-icon system are preserved. The shipment chart and proportional bars represent actual existing weekly sample counts; no trend data or decorative analytics were invented.
+- **Image quality and assets:** The dashboard reuses the credited warehouse photograph already in the project. It remains illustrative, without a claim that it depicts a TranceLogix-owned facility. The generated brand mark and existing line-icon system are preserved. The shipment chart and proportional bars represent actual existing weekly sample counts; no trend data or decorative analytics were invented.
 - **Copy and content:** Operational guidance, fixture disclosures, role restrictions, and recovery safeguards remain intact. Section identities and help-guide labels add context. Inactive “Learn more” controls were replaced with informational labels. No authentication, persistence, or live-service claim was added.
 
 ### Verification and implementation checklist

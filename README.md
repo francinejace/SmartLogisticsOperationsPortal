@@ -1,4 +1,4 @@
-# TransLogix
+# TranceLogix
 
 React + Vite + Tailwind frontend with a Node.js API, persistent storage, account sessions, and an optional OpenAI assistant. Vercel uses Neon PostgreSQL; local development defaults to SQLite.
 
@@ -14,15 +14,17 @@ pnpm dev
 
 Open the URL printed by Vite, normally **http://localhost:8443**. One command starts both the website and its API. In Figma Make the development server is already running.
 
-On the first development start, the server creates `.data/translogix.sqlite` and these local example accounts:
+On the first development start, the server creates `.data/trancelogix.sqlite` and these local example accounts:
 
 | Role | Email |
 | --- | --- |
-| Administrator | admin@translogix.local |
-| Operations staff | operations@translogix.local |
-| Warehouse staff | warehouse@translogix.local |
+| Administrator | admin@trancelogix.local |
+| Operations staff | operations@trancelogix.local |
+| Warehouse staff | warehouse@trancelogix.local |
 
-Their initial local password is `TransLogixDemo!2026`. These are example accounts for local testing. Administrators can create individual accounts in Settings; users can change their own passwords. Account roles are checked by the API, and changing a role revokes that account's sessions.
+Their initial local password is `TranceLogixDemo!2026`. These are example accounts for local testing. Administrators can create individual accounts in Settings; users can change their own passwords. Account roles are checked by the API, and changing a role revokes that account's sessions.
+
+Existing databases keep their passwords and records during the rename. The three built-in local account emails are updated to `@trancelogix.local`, while their previous email aliases still work. Existing browser sessions and theme preferences are accepted. The server reuses an existing pre-rename database file unless `DATABASE_PATH` explicitly selects another one; new databases use `.data/trancelogix.sqlite`.
 
 The SQLite file persists orders, preparation, shipments, users, profiles, sessions, and activity across browser reloads and server restarts. `.data/` is ignored by Git. Keep a backup of this directory if its contents matter; cloning the repository creates a separate database on each computer.
 
@@ -82,6 +84,6 @@ pnpm start
 
 Open **http://127.0.0.1:3000**. `pnpm preview` also includes the API for local inspection. Uploading only `dist/` to static hosting will not run the backend.
 
-For **Vercel and translogix.com**, follow [the Vercel setup guide](docs/vercel-setup.md). It describes Neon, private environment variables, the initial administrator, API routing, the supplied DNS record, and deployment verification. Vercel functions always use PostgreSQL and secure cookies and never seed the local demo accounts. No deployment or DNS changes are performed by these commands.
+For **TranceLogix on Vercel**, follow [the Vercel setup guide](docs/vercel-setup.md). It describes Neon, private environment variables, the initial administrator, API routing, the project's free Vercel address, and deployment verification. Vercel functions always use PostgreSQL and secure cookies and never seed the local demo accounts. No deployment or DNS changes are performed by these commands.
 
 For a standalone Node server, use a persistent database volume or `DATABASE_URL`, HTTPS with `COOKIE_SECURE=true`, and `SEED_DEMO_DATA=false`. For an empty database also set `BOOTSTRAP_ADMIN_EMAIL` and `BOOTSTRAP_ADMIN_PASSWORD` (at least 12 characters). Bootstrap variables only create the initial account; use Settings to change an existing password.

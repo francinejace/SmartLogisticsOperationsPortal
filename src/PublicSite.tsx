@@ -143,11 +143,11 @@ function LoginScreen({ onLogin }: { onLogin: (user: User) => void }) {
         <span className="public-icon-tile">
           <PublicIcon name="lock" size={25} />
         </span>
-        <span className="public-eyebrow">TRANSLOGIX WORKSPACE</span>
+        <span className="public-eyebrow">TRANCELOGIX WORKSPACE</span>
         <h1 id="login-title" tabIndex={-1}>
           Welcome back
         </h1>
-        <p>Sign in with your TransLogix account.</p>
+        <p>Sign in with your TranceLogix account.</p>
         <form
           onSubmit={(event) => {
             void submit(event)
@@ -202,11 +202,11 @@ function LoginScreen({ onLogin }: { onLogin: (user: User) => void }) {
               type="button"
               disabled={busy}
               onClick={() => {
-                setEmail(`${account}@translogix.local`)
+                setEmail(`${account}@trancelogix.local`)
                 document.getElementById("login-password")?.focus()
               }}
             >
-              {account}@translogix.local
+              {account}@trancelogix.local
             </button>
           ))}
         </details>
@@ -315,11 +315,11 @@ export default function PublicSite({
           <button
             className="public-brand"
             onClick={() => onNavigate("home")}
-            aria-label="TransLogix homepage"
+            aria-label="TranceLogix homepage"
           >
             <BrandMark />
             <span>
-              <strong>TransLogix</strong>
+              <strong>TranceLogix</strong>
               <small>Logistics Services</small>
             </span>
           </button>
@@ -535,7 +535,7 @@ export default function PublicSite({
       )}
       <footer className="public-footer">
         <div>
-          <strong>TransLogix</strong>
+          <strong>TranceLogix</strong>
           <span>Smart Logistics Shipment Integration System</span>
         </div>
         <p>Team Sync · Logistics operations</p>

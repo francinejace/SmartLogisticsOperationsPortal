@@ -1,6 +1,7 @@
 import Storage from "./storage.ts"
 import type pg from "pg"
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto"
+import { LEGACY_BRAND_KEY } from "../src/brand.ts"
 
 export function hashPassword(password: string) {
   const salt = randomBytes(16).toString("hex")
@@ -70,24 +71,24 @@ export async function openDatabase(options: DatabaseOptions) {
       await db.exec(schema)
       if (!(await db.prepare("SELECT id FROM users LIMIT 1").get())) {
         if (options.demo) {
-          const password = options.demoPassword || "TransLogixDemo!2026"
+          const password = options.demoPassword || "TranceLogixDemo!2026"
           for (const [id, name, email, role] of [
             [
               "usr-admin",
               "Maria Santos",
-              "admin@translogix.local",
+              "admin@trancelogix.local",
               "Administrator",
             ],
             [
               "usr-operations",
               "Ana Reyes",
-              "operations@translogix.local",
+              "operations@trancelogix.local",
               "Operations staff",
             ],
             [
               "usr-warehouse",
               "Juan Dela Cruz",
-              "warehouse@translogix.local",
+              "warehouse@trancelogix.local",
               "Warehouse staff",
             ],
           ])
@@ -97,7 +98,7 @@ export async function openDatabase(options: DatabaseOptions) {
         } else {
           if (
             !options.adminEmail ||
-            !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(options.adminEmail) ||
+            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(options.adminEmail) ||
             !options.adminPassword ||
             options.adminPassword.length < 12 ||
             options.adminPassword.length > 200
@@ -116,6 +117,15 @@ export async function openDatabase(options: DatabaseOptions) {
               "Administrator",
             )
         }
+      }
+      if (!(await db.prepare("SELECT value FROM metadata WHERE key = 'brand-trancelogix'").get())) {
+        for (const account of ["admin", "operations", "warehouse"]) {
+          const email = `${account}@trancelogix.local`
+          if (!(await db.prepare("SELECT id FROM users WHERE email = ?").get(email))) {
+            await db.prepare("UPDATE users SET email = ? WHERE id = ? AND email = ?").run(email, `usr-${account}`, `${account}@${LEGACY_BRAND_KEY}.local`)
+          }
+        }
+        await db.prepare("INSERT INTO metadata VALUES ('brand-trancelogix', '1')").run()
       }
       if (
         !(await db

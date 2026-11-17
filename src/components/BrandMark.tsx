@@ -1,4 +1,4 @@
-const markSource = `${import.meta.env.BASE_URL}images/brand/translogix-mark.png`
+const markSource = `${import.meta.env.BASE_URL}images/brand/trancelogix-mark.png`
 
 export default function BrandMark() {
   return (

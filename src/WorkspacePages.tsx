@@ -953,7 +953,7 @@ export function OrderDetail({ go }: PageProps) {
               </div>
               <div>
                 <small>Source</small>
-                <strong>TransLogix API</strong>
+                <strong>TranceLogix API</strong>
               </div>
             </div>
           </Card>
@@ -2563,7 +2563,7 @@ export function Settings({ go }: PageProps) {
                         body: JSON.stringify({ currentPassword, newPassword }),
                       })
                       window.dispatchEvent(
-                        new Event("translogix-session-expired"),
+                        new Event("trancelogix-session-expired"),
                       )
                     })
                   }

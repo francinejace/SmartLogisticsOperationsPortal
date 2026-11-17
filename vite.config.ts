@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import fs from 'node:fs'
 import path from 'node:path'
-import translogixBackend from './server/vite-backend'
+import trancelogixBackend from './server/vite-backend'
 
 import siteConfiguration from './.figma/make/site.json'
 
@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => {
       minify: !emitSourcemaps,
     },
     plugins: [
-      translogixBackend(),
+      trancelogixBackend(),
 react(),
       tailwindcss(),
       figmaSiteConfiguration(siteConfiguration),

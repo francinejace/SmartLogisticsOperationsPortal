@@ -1,5 +1,5 @@
 // Downloaded from the credited Unsplash pages; these photos illustrate logistics,
-// and are not presented as TransLogix-owned facilities or vehicles.
+// and are not presented as TranceLogix-owned facilities or vehicles.
 const logisticsPhotos = [
   {
     id: "warehouse",

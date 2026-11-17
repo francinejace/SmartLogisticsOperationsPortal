@@ -251,7 +251,7 @@ function PageHead({
               ← Back to previous
             </button>
           )}
-          <span className="page-eyebrow">TRANSLOGIX / {identity.label}</span>
+          <span className="page-eyebrow">TRANCELOGIX / {identity.label}</span>
           <h1 tabIndex={-1}>{title}</h1>
           <p>{description}</p>
         </div>

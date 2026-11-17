@@ -5,6 +5,7 @@ import {
   getPreferredTheme,
   saveThemePreference,
 } from "../src/theme.ts"
+import { LEGACY_BRAND_KEY } from "../src/brand.ts"
 
 function withBrowser(
   {
@@ -12,12 +13,14 @@ function withBrowser(
     systemDark = false,
     blockRead = false,
     blockWrite = false,
+    legacyStored = null,
   } = {},
   run,
 ) {
   const previousWindow = globalThis.window
   const previousDocument = globalThis.document
-  const storage = new Map(stored === null ? [] : [["translogix-theme", stored]])
+  const storage = new Map(stored === null ? [] : [["trancelogix-theme", stored]])
+  if (legacyStored !== null) storage.set(`${LEGACY_BRAND_KEY}-theme`, legacyStored)
   globalThis.window = {
     matchMedia: () => ({ matches: systemDark }),
     localStorage: {
@@ -51,6 +54,16 @@ test("uses the system preference when no theme is saved", () => {
   )
 })
 
+test("carries a pre-rename theme preference into the current brand key", () => {
+  withBrowser({ legacyStored: "dark" }, storage => {
+    assert.equal(getPreferredTheme(), "dark")
+    assert.equal(storage.get("trancelogix-theme"), "dark")
+  })
+  withBrowser({ stored: "light", legacyStored: "dark" }, () => {
+    assert.equal(getPreferredTheme(), "light")
+  })
+})
+
 test("a saved choice takes priority over the system preference", () => {
   withBrowser({ stored: "light", systemDark: true }, () =>
     assert.equal(getPreferredTheme(), "light"),
@@ -75,7 +88,7 @@ test("falls back to the system preference when storage cannot be read", () => {
 test("persists a theme choice under the application key", () => {
   withBrowser({}, (storage) => {
     saveThemePreference("dark")
-    assert.equal(storage.get("translogix-theme"), "dark")
+    assert.equal(storage.get("trancelogix-theme"), "dark")
   })
 })
 

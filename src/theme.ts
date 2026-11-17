@@ -1,11 +1,18 @@
 export type Theme = "light" | "dark"
 
-const THEME_STORAGE_KEY = "translogix-theme"
+import { LEGACY_BRAND_KEY } from "./brand.ts"
+
+const THEME_STORAGE_KEY = "trancelogix-theme"
 
 export function getPreferredTheme(): Theme {
   try {
     const stored = window.localStorage.getItem(THEME_STORAGE_KEY)
     if (stored === "light" || stored === "dark") return stored
+    const legacy = window.localStorage.getItem(`${LEGACY_BRAND_KEY}-theme`)
+    if (legacy === "light" || legacy === "dark") {
+      saveThemePreference(legacy)
+      return legacy
+    }
   } catch {
     // The toggle still works when browser storage is unavailable.
   }

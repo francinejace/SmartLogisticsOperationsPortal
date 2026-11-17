@@ -1,4 +1,4 @@
-# Vercel setup for translogix.com
+# TranceLogix on Vercel
 
 The deployment uses Vercel for the React frontend and Node.js API, with Neon PostgreSQL for persistent storage. Local development uses SQLite when `DATABASE_URL` is empty.
 
@@ -26,27 +26,21 @@ Never prefix secret variables with `VITE_`. Never paste credentials into source 
 
 ## 3. Build and API routing
 
-The committed `vercel.json` specifies the Vite framework, `pnpm build`, `dist` output, and routing from `/api/*` to `api/index.ts`. The Node runtime is pinned to 24 in `package.json`. Both the frontend and API stay on the same origin, so login cookies and API calls work on the Vercel preview URL and on `https://translogix.com` without hard-coded backend URLs or broad CORS rules.
+The committed `vercel.json` specifies the Vite framework, `pnpm build`, `dist` output, and routing from `/api/*` to `api/index.ts`. The Node runtime is pinned to 24 in `package.json`. Both the frontend and API stay on the same origin, so login cookies and API calls work on the Vercel preview URL and on the project's assigned `.vercel.app` address without hard-coded backend URLs or broad CORS rules.
 
 The first API request initializes the database schema and administrator inside a transaction. PostgreSQL advisory locks protect initialization and writes across function instances. The pool is registered with Vercel's connection lifecycle helper. Login and chat rate-limit counters are persisted in the database. If `DATABASE_URL` is absent, the function returns an actionable 503 response and does not fall back to an ephemeral filesystem database.
 
 Database and API behavior have local SQLite and embedded PostgreSQL tests. A hosted Neon connection, Vercel deployment, and production login still require verification in the actual project.
 
-## 4. Attach the domain
+## 4. Use the Vercel project address
 
-In **Settings → Domains**, add **translogix.com** to the correct Vercel project. At the authoritative DNS provider, apply the record supplied for this project:
+Use the production address shown in the renamed project's **Settings → Domains**. A project named `trancelogix` may use `https://trancelogix.vercel.app` if that address is assigned and available; copy the actual address from Vercel rather than assuming it.
 
-| Type | Name | Value |
-| --- | --- | --- |
-| A | @ | 216.198.79.1 |
+The website's canonical URL and Open Graph URL follow the current hosting origin, and API calls stay relative to it. Renaming the project requires no hard-coded domain change in the app. Keep the existing `noindex` setting until the site is ready for public indexing.
 
-The address above is the value supplied by the project owner. Follow the domain panel if Vercel displays an updated project-specific record. Remove conflicting apex A records only after verifying that they belong to the old website. Do not remove unrelated MX or TXT records.
+No purchased domain or external DNS changes are needed for a `.vercel.app` address. A custom domain requires ownership or the owner's permission; adding a name to this repository does not register or connect it.
 
-DNS is configured at the DNS provider, not inside the React code. The HTML canonical URL and Open Graph URL are set to `https://translogix.com/`; browser API requests use the current origin. Keep the existing `noindex` setting until the site is ready for public indexing.
-
-During the implementation check on 17 November 2026, the local resolver returned A records `13.248.169.48` and `76.223.54.146`, and nameservers `ns3.afternic.com` / `ns4.afternic.com`. That lookup did not verify the requested Vercel record. Confirm that changes were made at the authoritative DNS provider, and recheck Vercel's domain panel and certificate status after propagation. No DNS provider records were modified by the code changes.
-
-Official instructions: [Vercel custom domains](https://vercel.com/docs/domains/working-with-domains/add-a-domain).
+Official instructions: [Vercel domains](https://vercel.com/docs/domains/working-with-domains).
 
 ## 5. Verify the deployment
 

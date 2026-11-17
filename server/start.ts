@@ -2,6 +2,7 @@ import { createServer } from "node:http"
 import { createReadStream, existsSync, statSync } from "node:fs"
 import { resolve, sep, extname } from "node:path"
 import { createBackend } from "./backend.ts"
+import localDatabasePath from "./local-database.ts"
 
 // Node reads the private environment file; static assets are served from dist only.
 if (existsSync(".env.local")) process.loadEnvFile(".env.local")
@@ -9,7 +10,7 @@ const root = resolve("dist")
 if (!existsSync(resolve(root, "index.html")))
   throw new Error("Build the frontend with pnpm build before pnpm start.")
 const backend = await createBackend({
-  filename: resolve(process.env.DATABASE_PATH || ".data/translogix.sqlite"),
+  filename: localDatabasePath(process.cwd(), process.env.DATABASE_PATH),
   databaseUrl: process.env.DATABASE_URL,
   demo: process.env.SEED_DEMO_DATA === "true",
   demoPassword: process.env.DEMO_PASSWORD,
@@ -87,7 +88,7 @@ server.listen(
   process.env.HOST || "127.0.0.1",
   () => {
     console.log(
-      `TransLogix full-stack server listening on http://${process.env.HOST || "127.0.0.1"}:${process.env.PORT || 3000}`,
+      `TranceLogix full-stack server listening on http://${process.env.HOST || "127.0.0.1"}:${process.env.PORT || 3000}`,
     )
   },
 )
