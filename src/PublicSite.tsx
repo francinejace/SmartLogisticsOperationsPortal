@@ -175,6 +175,80 @@ function LoginScreen({ onLogin }: { onLogin: (role: Role) => void }) {
   )
 }
 
+function WorkflowGuide() {
+  const [expanded, setExpanded] = useState<number | null>(0)
+  const stages = [
+    {
+      title: "Accept and validate",
+      summary: "Start with a valid, unique customer order.",
+      detail:
+        "Review the customer, destination, and requested item quantities. Duplicate order references are flagged before an order is accepted.",
+      owner: "Order management · Integration middleware",
+    },
+    {
+      title: "Check and prepare",
+      summary: "Confirm inventory and prepare the package.",
+      detail:
+        "Middleware checks inventory with WMS. Warehouse staff pick and pack eligible orders, then confirm the package details before a carrier request.",
+      owner: "Integration middleware · Warehouse",
+    },
+    {
+      title: "Confirm and synchronize",
+      summary: "Receive the tracking number and update OMS.",
+      detail:
+        "A confirmed carrier response supplies the shipment details. Middleware updates OMS. If that update fails, keep the confirmed shipment and retry synchronization.",
+      owner: "Carrier · Integration middleware · Order management",
+    },
+  ]
+  return (
+    <div className="workflow-guide">
+      <p className="workflow-guide-hint">Explore each handoff</p>
+      <ol aria-label="Shipment workflow stages">
+        {stages.map((stage, index) => {
+          const open = expanded === index
+          return (
+            <li key={stage.title} data-expanded={open}>
+              <h3>
+                <button
+                  type="button"
+                  id={`workflow-trigger-${index}`}
+                  aria-expanded={open}
+                  aria-controls={`workflow-panel-${index}`}
+                  onClick={() => setExpanded(open ? null : index)}
+                >
+                  <span className="workflow-step-number" aria-hidden="true">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <span className="workflow-step-label">
+                    <strong>{stage.title}</strong>
+                    <span>{stage.summary}</span>
+                  </span>
+                  <PublicIcon name="arrow" size={17} />
+                </button>
+              </h3>
+              <div
+                className="workflow-panel"
+                id={`workflow-panel-${index}`}
+                role="region"
+                aria-labelledby={`workflow-trigger-${index}`}
+                aria-hidden={!open}
+                inert={!open}
+              >
+                <div className="workflow-panel-clip">
+                  <div className="workflow-panel-content">
+                    <p>{stage.detail}</p>
+                    <small>{stage.owner}</small>
+                  </div>
+                </div>
+              </div>
+            </li>
+          )
+        })}
+      </ol>
+    </div>
+  )
+}
+
 export default function PublicSite({
   view,
   onNavigate,
@@ -386,29 +460,7 @@ export default function PublicSite({
                   information then returns to OMS.
                 </p>
               </div>
-              <ol>
-                <li>
-                  <span>01</span>
-                  <div>
-                    <strong>Accept and validate</strong>
-                    <p>Start with a valid, unique customer order.</p>
-                  </div>
-                </li>
-                <li>
-                  <span>02</span>
-                  <div>
-                    <strong>Check and prepare</strong>
-                    <p>Confirm inventory and prepare the package.</p>
-                  </div>
-                </li>
-                <li>
-                  <span>03</span>
-                  <div>
-                    <strong>Confirm and synchronize</strong>
-                    <p>Receive the tracking number and update OMS.</p>
-                  </div>
-                </li>
-              </ol>
+              <WorkflowGuide />
             </section>
             <section
               className="public-team-section public-section"
