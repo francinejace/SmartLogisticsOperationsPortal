@@ -8,6 +8,7 @@ import {
 import type { Role } from "./types"
 import PublicSite from "./PublicSite"
 import ThemeToggle from "./components/ThemeToggle"
+import BrandMark from "./components/BrandMark"
 
 type Page = "dashboard" | "orders" | "create-order" | "order-detail" | "warehouse" | "preparation" | "create-shipment" | "shipments" | "shipment-detail" | "tracking" | "integration" | "activity" | "settings" | "help" | "access-denied"
 
@@ -3729,10 +3730,7 @@ function Workspace({
         aria-modal={mobileNav || undefined}
       >
         <div className="brand">
-          <div className="brand-mark">
-            <span>T</span>
-            <i />
-          </div>
+          <BrandMark />
           <div>
             <strong>TransLogix</strong>
             <small>Logistics Services</small>

@@ -2,6 +2,7 @@ import { useState } from "react"
 import type { Theme } from "./theme"
 import type { Role } from "./types"
 import ThemeToggle from "./components/ThemeToggle"
+import BrandMark from "./components/BrandMark"
 import PhotoCarousel from "./components/PhotoCarousel"
 import useEntranceMotion from "./useEntranceMotion"
 
@@ -269,9 +270,7 @@ export default function PublicSite({
             onClick={() => onNavigate("home")}
             aria-label="TransLogix homepage"
           >
-            <span className="brand-mark">
-              T<i />
-            </span>
+            <BrandMark />
             <span>
               <strong>TransLogix</strong>
               <small>Logistics Services</small>

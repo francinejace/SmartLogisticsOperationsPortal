@@ -113,8 +113,7 @@
 .app { min-height: 100vh; display: flex; }
 .sidebar { position: fixed; inset: 0 auto 0 0; width: 240px; background: var(--sidebar-bg); color: var(--accent); z-index: 30; display: flex; flex-direction: column; padding: 0 16px 16px; border-right: 1px solid var(--border); overflow-y: auto; }
 .brand { position: sticky; top: 0; z-index: 2; flex-shrink: 0; background: var(--sidebar-bg); min-height: 80px; display: flex; align-items: center; gap: 11px; padding: 0 8px; }
-.brand-mark { position: relative; width: 36px; height: 36px; background: var(--green); color: var(--on-brand); border-radius: 10px; display: grid; place-items: center; font-size: 22px; font-weight: 700; }
-.brand-mark i { position: absolute; width: 8px; height: 8px; right: -3px; bottom: 1px; background: #91b88b; border: 2px solid var(--sidebar-bg); border-radius: 3px; }
+.brand-mark { display: inline-block; width: 40px; height: 40px; flex-shrink: 0; background: var(--accent); mask-mode: alpha; mask-repeat: no-repeat; mask-position: center; mask-size: contain; -webkit-mask-repeat: no-repeat; -webkit-mask-position: center; -webkit-mask-size: contain; }
 .brand strong { display: block; font-size: 19px; letter-spacing: -.5px; }
 .brand small { color: var(--muted); font-size: 12px; }
 .mobile-close { display: none; min-width: 44px; min-height: 44px; margin-left: auto; background: none; border: 0; color: var(--accent); padding: 8px; }
