@@ -32,7 +32,8 @@
   .photo-carousel { touch-action: pan-y; }
   .photo-carousel:focus-visible { outline-offset: -4px; outline-color: #d1e8c3; }
   .hero-background { position: absolute; z-index: 0; inset: 0; margin: 0; overflow: hidden; }
-  .hero-background img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+  .hero-background img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; opacity: 0; }
+  .hero-background img[data-visible="true"] { opacity: 1; }
   .hero-background::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, #052313ed 0%, #052313c9 40%, #0523134d 100%), linear-gradient(0deg, #031e13ed 0%, #031e1326 60%); }
   .hero-carousel-footer { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 28px; border-top: 1px solid #ffffff3b; padding-top: 18px; }
   .hero-slide-copy { min-width: 0; min-height: 112px; }
@@ -53,6 +54,15 @@
   .carousel-arrows .icon-button { border: 1px solid #ffffff70; background: #ffffff0d; color: #fff; }
   .carousel-arrows .icon-button:hover { background: #ffffff24; border-color: #fff; color: #fff; }
   .carousel-image-fallback { height: 100%; background: var(--green); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-background img { transition: opacity 420ms ease; }
+    .hero-caption-enter { animation: hero-caption-in 220ms ease-out both; }
+    .carousel-selectors button > span { transition: width 220ms ease, background-color 160ms ease; }
+    .carousel-arrows .icon-button { transition: background-color 160ms ease, border-color 160ms ease, transform 120ms ease; }
+    .carousel-arrows .icon-button:active { transform: scale(.95); }
+  }
+  @keyframes hero-caption-in { from { opacity: .35; } to { opacity: 1; } }
   .public-systems { padding: 22px 0; display: grid; grid-template-columns: 130px repeat(4, minmax(0, 1fr)); align-items: stretch; gap: 16px; border-block: 1px dashed var(--border-strong); }
   .public-systems > span { align-self: center; font-size: 10px; letter-spacing: 1.1px; color: var(--muted); max-width: 100px; line-height: 1.7; }
   .public-systems > div { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 10px; align-content: center; align-items: center; min-height: 74px; padding: 13px 15px; background: var(--surface-soft); border: 1px solid var(--border); border-radius: 9px; color: var(--accent); }

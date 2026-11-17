@@ -3,6 +3,7 @@ import type { Theme } from "./theme"
 import type { Role } from "./types"
 import ThemeToggle from "./components/ThemeToggle"
 import PhotoCarousel from "./components/PhotoCarousel"
+import useEntranceMotion from "./useEntranceMotion"
 
 interface PublicSiteProps {
   view: "home" | "login"
@@ -70,6 +71,7 @@ function PublicIcon({ name, size = 22 }: PublicIconProps) {
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
+      data-icon={name}
     >
       {paths[name]}
     </svg>
@@ -180,8 +182,9 @@ export default function PublicSite({
   theme,
   onToggleTheme,
 }: PublicSiteProps) {
+  const motionRoot = useEntranceMotion(view)
   return (
-    <div className="public-site">
+    <div className="public-site" ref={motionRoot}>
       <a className="skip-link" href="#public-content">
         Skip to content
       </a>
@@ -233,7 +236,7 @@ export default function PublicSite({
       ) : (
         <main className="public-main public-home-main" id="public-content">
           <PhotoCarousel>
-            <div className="public-hero-copy">
+            <div className="public-hero-copy" data-enter>
               <span className="public-eyebrow public-hero-eyebrow">
                 <PublicIcon name="link" size={17} /> SMART LOGISTICS. CONNECTED
                 OPERATIONS.
@@ -308,7 +311,7 @@ export default function PublicSite({
               </div>
             </section>
             <section className="public-section" id="platform">
-              <div className="public-section-heading">
+              <div className="public-section-heading" data-enter>
                 <div>
                   <span className="public-eyebrow">01 / THE PLATFORM</span>
                   <h2>Less searching. More moving forward.</h2>
@@ -339,7 +342,11 @@ export default function PublicSite({
                     text: "Review carrier confirmations, tracking updates, and synchronization exceptions.",
                   },
                 ].map((feature) => (
-                  <article className="public-feature-card" key={feature.title}>
+                  <article
+                    className="public-feature-card"
+                    key={feature.title}
+                    data-enter
+                  >
                     <div className="public-feature-top">
                       <span className="public-icon-tile">
                         <PublicIcon
@@ -364,6 +371,7 @@ export default function PublicSite({
             <section
               className="public-workflow-banner public-section"
               id="how-it-works"
+              data-enter
             >
               <div>
                 <span className="public-eyebrow">02 / HOW IT WORKS</span>
@@ -405,6 +413,7 @@ export default function PublicSite({
             <section
               className="public-team-section public-section"
               id="your-team"
+              data-enter
             >
               <div>
                 <span className="public-eyebrow">03 / FOR YOUR TEAM</span>

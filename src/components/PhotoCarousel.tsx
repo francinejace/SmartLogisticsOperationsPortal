@@ -8,16 +8,20 @@ interface TouchOrigin {
 
 export default function PhotoCarousel({ children }: { children: ReactNode }) {
   const [index, setIndex] = useState(0)
-  const [failedSource, setFailedSource] = useState<string | null>(null)
+  const [loadedSources, setLoadedSources] = useState<string[]>([])
+  const [failedSources, setFailedSources] = useState<string[]>([])
+  const [visibleIndex, setVisibleIndex] = useState(0)
   const touchStart = useRef<TouchOrigin | null>(null)
   const photo = logisticsPhotos[index]
   const total = logisticsPhotos.length
+  const failed = failedSources.includes(photo.src)
+  const pending = !loadedSources.includes(photo.src) && !failed
   const move = (offset: number) =>
     setIndex((current) => (current + offset + total) % total)
   useEffect(() => {
-    const nextImage = new Image()
-    nextImage.src = logisticsPhotos[(index + 1) % total].src
-  }, [index, total])
+    // Keep the last decoded photo visible while the requested photo loads.
+    if (!pending) setVisibleIndex(index)
+  }, [index, pending])
 
   return (
     <section
@@ -59,24 +63,37 @@ export default function PhotoCarousel({ children }: { children: ReactNode }) {
         aria-roledescription="slide"
         aria-label={`${index + 1} of ${total}: ${photo.category}`}
         aria-describedby="hero-photo-description"
+        aria-busy={pending}
       >
-        {failedSource === photo.src ? (
+        {failed && (
           <div
             className="carousel-image-fallback"
             role="img"
             aria-label={`${photo.alt}. Photo unavailable.`}
           />
-        ) : (
-          <img
-            key={photo.id}
-            src={photo.src}
-            alt={photo.alt}
-            width={photo.width}
-            height={photo.height}
-            fetchPriority={index === 0 ? "high" : "auto"}
-            onError={() => setFailedSource(photo.src)}
-          />
         )}
+        {logisticsPhotos.map((item, position) => (
+          <img
+            key={item.id}
+            src={item.src}
+            alt={position === visibleIndex && !failed ? item.alt : ""}
+            aria-hidden={position !== visibleIndex || failed}
+            data-visible={position === visibleIndex && !failed}
+            width={item.width}
+            height={item.height}
+            fetchPriority={position === 0 ? "high" : "low"}
+            onLoad={() =>
+              setLoadedSources((sources) =>
+                sources.includes(item.src) ? sources : [...sources, item.src],
+              )
+            }
+            onError={() =>
+              setFailedSources((sources) =>
+                sources.includes(item.src) ? sources : [...sources, item.src],
+              )
+            }
+          />
+        ))}
         <figcaption className="sr-only">{photo.title}</figcaption>
       </figure>
       <div className="public-hero-inner">
@@ -84,13 +101,13 @@ export default function PhotoCarousel({ children }: { children: ReactNode }) {
         <div className="hero-carousel-footer">
           <div className="hero-slide-copy">
             <div aria-live="polite" aria-atomic="true">
-              <span className="hero-slide-category">
-                {failedSource === photo.src
-                  ? "Photo unavailable"
-                  : photo.category}
-              </span>
-              <h2>{photo.title}</h2>
-              <p id="hero-photo-description">{photo.description}</p>
+              <div key={photo.id} className="hero-caption-enter">
+                <span className="hero-slide-category">
+                  {failed ? "Photo unavailable" : photo.category}
+                </span>
+                <h2>{photo.title}</h2>
+                <p id="hero-photo-description">{photo.description}</p>
+              </div>
             </div>
             <a
               className="hero-photo-source"

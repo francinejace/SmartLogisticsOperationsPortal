@@ -5,6 +5,9 @@
 :root {
   color-scheme: light;
   --green: #004717;
+  --motion-fast: 140ms;
+  --motion-enter: 240ms;
+  --motion-ease: cubic-bezier(.2, 0, 0, 1);
   --green-2: #3f8b4e;
   --system-logo-alt: #367a43;
   --chart-delivered: #004717;
@@ -627,6 +630,31 @@ tr[tabindex]:focus-visible { outline-offset: -3px; }
   .endpoint-list > div { flex-direction: column; }
   .contract-flow { grid-template-columns: 1fr; }
 }
+}
+
+@layer components {
+  .public-nav a { position: relative; }
+  .public-nav a::after { content: ""; position: absolute; inset: auto 0 4px; height: 2px; background: currentColor; transform: scaleX(0); transform-origin: left; }
+  .public-nav a:is(:hover, :focus-visible)::after { transform: scaleX(1); }
+  .public-site .text-button:is(:hover, :focus-visible) { text-decoration: underline; text-underline-offset: 4px; }
+  .public-feature-card:focus-within { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .public-feature-card:first-child:focus-within { border-color: #b9d5b6; box-shadow: 0 0 0 1px #b9d5b6; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .button, .icon-button, .theme-toggle, .text-button { transition: background-color var(--motion-fast) ease, border-color var(--motion-fast) ease, color var(--motion-fast) ease, transform var(--motion-fast) var(--motion-ease); }
+    :is(.button, .icon-button, .theme-toggle):not(:disabled):active { transform: translateY(1px); }
+    .public-nav a::after { transition: transform 180ms var(--motion-ease); }
+    .public-site :is(.button, .text-button) svg[data-icon="arrow"] { transition: transform var(--motion-fast) var(--motion-ease); }
+    .public-feature-card { transition: border-color var(--motion-fast) ease, box-shadow var(--motion-fast) ease; }
+    .motion-enter { animation: interface-enter var(--motion-enter) var(--motion-ease) both; }
+    .public-feature-card:nth-child(2).motion-enter { animation-delay: 40ms; }
+    .public-feature-card:nth-child(3).motion-enter { animation-delay: 80ms; }
+    .login-main, .page-transition { animation: interface-enter 180ms var(--motion-ease) both; }
+    @media (hover: hover) and (pointer: fine) {
+      .public-site :is(.button, .text-button):hover svg[data-icon="arrow"] { transform: translateX(3px); }
+    }
+  }
+  @keyframes interface-enter { from { opacity: .65; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 }
 
 @media (prefers-reduced-motion: reduce) {
