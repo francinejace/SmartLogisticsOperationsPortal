@@ -888,7 +888,7 @@ function Orders({
               aria-label="Search orders"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search order, customer, or destination"
+              placeholder="e.g. ORD-1001 or Tarlac"
             />
           </label>
           <Button kind="secondary" icon="filter">
@@ -1692,9 +1692,7 @@ function Warehouse({
               onChange={(event) => setQuery(event.target.value)}
               aria-label="Search warehouse records"
               placeholder={
-                tab === "Inventory"
-                  ? "Search SKU, product, or location"
-                  : "Search order or destination"
+                tab === "Inventory" ? "e.g. BOX-001" : "e.g. ORD-1001"
               }
             />
           </label>
@@ -2336,7 +2334,7 @@ function Shipments({
               aria-label="Search shipments"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search shipment, order, or tracking number"
+              placeholder="e.g. SHP-5012 or TRK-123456"
             />
           </label>
           <Button kind="secondary" icon="filter">
@@ -2973,7 +2971,7 @@ function Integration({ role, go }: RolePageProps) {
               aria-label="Search integration events"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search correlation ID, order, or operation"
+              placeholder="e.g. ORD-1001"
             />
           </label>
           <Button kind="secondary" icon="filter">
@@ -3271,7 +3269,7 @@ function Activity({ go }: { go: (p: Page) => void }) {
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               aria-label="Search activity"
-              placeholder="Search record, actor, or action"
+              placeholder="e.g. Maria or ORD-1001"
             />
           </label>
           <Button kind="secondary" icon="filter">
@@ -3746,6 +3744,7 @@ function Workspace({
   const [notifications, setNotifications] = useState(false)
   const [profile, setProfile] = useState(false)
   const [globalQuery, setGlobalQuery] = useState("")
+  const [searchExamplesOpen, setSearchExamplesOpen] = useState(false)
   const [searchRequest, setSearchRequest] = useState<{
     page: Page
     query: string
@@ -3774,10 +3773,25 @@ function Workspace({
     setMobileNav(false)
     setNotifications(false)
     setProfile(false)
+    setSearchExamplesOpen(false)
     window.scrollTo({ top: 0, behavior: "instant" })
     requestAnimationFrame(() =>
       document.querySelector<HTMLElement>("main h1")?.focus(),
     )
+  }
+  const runGlobalSearch = (value: string) => {
+    const query = value.trim()
+    if (!query) return
+    const target: Page = /^TRK-/i.test(query)
+      ? "tracking"
+      : /^(SHP-|JTX-|2GO-)/i.test(query)
+        ? "shipments"
+        : /^(BOX|TAPE|WRAP|LABEL|POUCH)-/i.test(query)
+          ? "warehouse"
+          : "orders"
+    go(target)
+    setSearchRequest({ page: target, query })
+    setGlobalQuery("")
   }
   const render = () => {
     if (page === "dashboard") return <Dashboard go={go} />
@@ -3948,20 +3962,18 @@ function Workspace({
           </div>
           <form
             className="global-search"
+            role="search"
+            aria-label="Workspace records"
+            onBlur={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget))
+                setSearchExamplesOpen(false)
+            }}
+            onKeyDown={(event) => {
+              if (event.key === "Escape") setSearchExamplesOpen(false)
+            }}
             onSubmit={(event) => {
               event.preventDefault()
-              const query = globalQuery.trim()
-              if (!query) return
-              const target: Page = /^TRK-/i.test(query)
-                ? "tracking"
-                : /^(SHP-|JTX-|2GO-)/i.test(query)
-                  ? "shipments"
-                  : /^(BOX|TAPE|WRAP|LABEL|POUCH)-/i.test(query)
-                    ? "warehouse"
-                    : "orders"
-              go(target)
-              setSearchRequest({ page: target, query })
-              setGlobalQuery("")
+              runGlobalSearch(globalQuery)
             }}
           >
             <label className="sr-only" htmlFor="global-search">
@@ -3970,10 +3982,24 @@ function Workspace({
             <Icon name="search" />
             <input
               id="global-search"
+              type="search"
+              autoComplete="off"
+              aria-describedby="global-search-hint"
               value={globalQuery}
               onChange={(event) => setGlobalQuery(event.target.value)}
-              placeholder="Search sample records…"
+              onFocus={() => {
+                setSearchExamplesOpen(true)
+                setProfile(false)
+                setNotifications(false)
+              }}
+              onClick={() => setSearchExamplesOpen(true)}
+              placeholder="Try ORD-1001 or BOX-001"
             />
+            <span className="sr-only" id="global-search-hint">
+              Search an order, shipment, product SKU, or tracking reference.
+              When the field is empty, use Tab to choose a sample search, or
+              type a reference and press Enter.
+            </span>
             <button
               className="search-submit"
               aria-label="Search records"
@@ -3981,6 +4007,50 @@ function Workspace({
             >
               ↵
             </button>
+            {searchExamplesOpen && !globalQuery.trim() && (
+              <div
+                className="global-search-examples"
+                role="group"
+                aria-label="Sample searches"
+              >
+                <p>
+                  Try a sample search <small>Choose a record to explore</small>
+                </p>
+                {[
+                  {
+                    term: "ORD-1001",
+                    label: "Customer order",
+                    icon: "clipboard",
+                  },
+                  {
+                    term: "SHP-5012",
+                    label: "Carrier shipment",
+                    icon: "truck",
+                  },
+                  { term: "BOX-001", label: "Warehouse product", icon: "box" },
+                  {
+                    term: "TRK-123456",
+                    label: "Shipment tracking",
+                    icon: "location",
+                  },
+                ].map((example) => (
+                  <button
+                    type="button"
+                    key={example.term}
+                    onClick={() => runGlobalSearch(example.term)}
+                  >
+                    <span className="search-example-icon">
+                      <Icon name={example.icon} size={18} />
+                    </span>
+                    <span>
+                      <strong>{example.term}</strong>
+                      <small>{example.label}</small>
+                    </span>
+                    <Icon name="arrow" size={15} />
+                  </button>
+                ))}
+              </div>
+            )}
           </form>
           <div className="top-actions">
             <ThemeToggle theme={theme} onToggle={onToggleTheme} />

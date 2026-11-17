@@ -24,6 +24,24 @@
   .app .sidebar .sidebar-demo { border-style: solid; }
   .app .sidebar .avatar { border-color: #547351; }
   .app .topbar { box-shadow: 0 2px 8px #12331f04; }
+  .app .global-search { position: relative; }
+  .app .global-search-examples { position: absolute; top: calc(100% + 10px); right: 0; z-index: 45; width: 330px; max-height: min(360px, calc(100dvh - 100px)); overflow-y: auto; overscroll-behavior: contain; padding: 7px; border: 1px solid var(--border-strong); border-radius: 12px; background: var(--surface); color: var(--text); box-shadow: 0 8px 24px #12331f20; }
+  .app .global-search-examples > p { margin: 0; padding: 9px 10px 13px; border-bottom: 1px solid var(--border); color: var(--heading); font-size: 13px; font-weight: 600; }
+  .app .global-search-examples small { display: block; color: var(--muted); font-size: 11px; font-weight: 400; line-height: 1.6; margin-top: 2px; }
+  .app .global-search-examples > button { display: flex; align-items: center; gap: 11px; width: 100%; min-height: 61px; padding: 9px 10px; border: 0; border-radius: 7px; background: transparent; color: var(--accent); text-align: left; }
+  .app .global-search-examples > button > span:nth-child(2) { flex: 1; }
+  .app .global-search-examples strong { display: block; color: var(--heading); font-size: 13px; font-weight: 600; }
+  .app .search-example-icon { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 8px; background: var(--pale); flex-shrink: 0; }
+  .app .global-search-examples > button:is(:hover, :focus-visible) { background: var(--pale); }
+  .app .global-search-examples > button:focus-visible { outline-offset: -3px; }
+  @media (prefers-reduced-motion: no-preference) {
+    .app .global-search-examples { animation: portal-menu-in 160ms var(--motion-ease) backwards; }
+    .app .global-search-examples > button { transition: background-color var(--motion-fast) ease; }
+  }
+  @media (max-width: 820px) {
+    .app .global-search { position: static; }
+    .app .global-search-examples { top: calc(100% + 8px); left: 16px; right: 16px; width: auto; }
+  }
 
   .app .page-head { position: relative; isolation: isolate; padding: 25px 28px; min-height: 158px; background: var(--surface-sage); border: 1px solid var(--border); border-radius: 16px; gap: 24px; }
   .app .page-heading-main { display: flex; align-items: flex-start; gap: 18px; position: relative; min-width: 0; z-index: 1; }
