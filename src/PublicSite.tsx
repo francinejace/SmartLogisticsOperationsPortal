@@ -231,8 +231,8 @@ export default function PublicSite({
       {view === "login" ? (
         <LoginScreen onLogin={onLogin} />
       ) : (
-        <main className="public-main" id="public-content">
-          <section className="public-hero">
+        <main className="public-main public-home-main" id="public-content">
+          <PhotoCarousel>
             <div className="public-hero-copy">
               <span className="public-eyebrow public-hero-eyebrow">
                 <PublicIcon name="link" size={17} /> SMART LOGISTICS. CONNECTED
@@ -272,157 +272,158 @@ export default function PublicSite({
                 </span>
               </div>
             </div>
-            <PhotoCarousel />
-          </section>
-          <section
-            className="public-systems"
-            aria-label="Systems coordinated by integration middleware"
-          >
-            <span>
-              CONNECTED
-              <br />
-              SYSTEMS
-            </span>
-            <div>
-              <PublicIcon name="box" />
-              <strong>Order management</strong>
-              <small>OMS</small>
-            </div>
-
-            <div>
-              <PublicIcon name="link" />
-              <strong>Integration middleware</strong>
-              <small>SLSIS</small>
-            </div>
-
-            <div>
-              <PublicIcon name="warehouse" />
-              <strong>Warehouse</strong>
-              <small>WMS</small>
-            </div>
-
-            <div>
-              <PublicIcon name="truck" />
-              <strong>Carrier</strong>
-              <small>API</small>
-            </div>
-          </section>
-          <section className="public-section" id="platform">
-            <div className="public-section-heading">
-              <div>
-                <span className="public-eyebrow">01 / THE PLATFORM</span>
-                <h2>Less searching. More moving forward.</h2>
-              </div>
-              <p>
-                The operational information your team needs, brought together
-                around each customer order.
-              </p>
-            </div>
-            <div className="public-feature-grid">
-              {[
-                {
-                  icon: "box",
-                  label: "01 / ORDERS",
-                  title: "Start with the right details",
-                  text: "Create and review customer orders with clear validation and inventory status.",
-                },
-                {
-                  icon: "warehouse",
-                  label: "02 / PREPARATION",
-                  title: "Make every handoff count",
-                  text: "Work through picking, packing, and package details before creating a shipment.",
-                },
-                {
-                  icon: "truck",
-                  label: "03 / SHIPMENTS",
-                  title: "Keep the next step in sight",
-                  text: "Review carrier confirmations, tracking updates, and synchronization exceptions.",
-                },
-              ].map((feature) => (
-                <article className="public-feature-card" key={feature.title}>
-                  <div className="public-feature-top">
-                    <span className="public-icon-tile">
-                      <PublicIcon
-                        name={feature.icon as PublicIconProps["name"]}
-                      />
-                    </span>
-                    <small>{feature.label}</small>
-                  </div>
-                  <h3>{feature.title}</h3>
-                  <p>{feature.text}</p>
-                  <button
-                    className="text-button"
-                    onClick={() => onNavigate("login")}
-                  >
-                    Explore in the workspace
-                    <PublicIcon name="arrow" size={16} />
-                  </button>
-                </article>
-              ))}
-            </div>
-          </section>
-          <section
-            className="public-workflow-banner public-section"
-            id="how-it-works"
-          >
-            <div>
-              <span className="public-eyebrow">02 / HOW IT WORKS</span>
-              <h2>
-                Different systems.
-                <br />
-                One connected journey.
-              </h2>
-              <p>
-                An order is validated, inventory is checked with WMS, and
-                middleware coordinates the carrier request. Confirmed shipment
-                information then returns to OMS.
-              </p>
-            </div>
-            <ol>
-              <li>
-                <span>01</span>
-                <div>
-                  <strong>Accept and validate</strong>
-                  <p>Start with a valid, unique customer order.</p>
-                </div>
-              </li>
-              <li>
-                <span>02</span>
-                <div>
-                  <strong>Check and prepare</strong>
-                  <p>Confirm inventory and prepare the package.</p>
-                </div>
-              </li>
-              <li>
-                <span>03</span>
-                <div>
-                  <strong>Confirm and synchronize</strong>
-                  <p>Receive the tracking number and update OMS.</p>
-                </div>
-              </li>
-            </ol>
-          </section>
-          <section
-            className="public-team-section public-section"
-            id="your-team"
-          >
-            <div>
-              <span className="public-eyebrow">03 / FOR YOUR TEAM</span>
-              <h2>A shared view. A clear responsibility.</h2>
-              <p>
-                Operations staff follow orders and shipments. Warehouse staff
-                prepare eligible orders. Administrators review integration
-                health and recovery.
-              </p>
-            </div>
-            <button
-              className="button primary"
-              onClick={() => onNavigate("login")}
+          </PhotoCarousel>
+          <div className="public-content-wrap">
+            <section
+              className="public-systems"
+              aria-label="Systems coordinated by integration middleware"
             >
-              Find your workspace
-              <PublicIcon name="arrow" size={18} />
-            </button>
-          </section>
+              <span>
+                CONNECTED
+                <br />
+                SYSTEMS
+              </span>
+              <div>
+                <PublicIcon name="box" />
+                <strong>Order management</strong>
+                <small>OMS</small>
+              </div>
+
+              <div>
+                <PublicIcon name="link" />
+                <strong>Integration middleware</strong>
+                <small>SLSIS</small>
+              </div>
+
+              <div>
+                <PublicIcon name="warehouse" />
+                <strong>Warehouse</strong>
+                <small>WMS</small>
+              </div>
+
+              <div>
+                <PublicIcon name="truck" />
+                <strong>Carrier</strong>
+                <small>API</small>
+              </div>
+            </section>
+            <section className="public-section" id="platform">
+              <div className="public-section-heading">
+                <div>
+                  <span className="public-eyebrow">01 / THE PLATFORM</span>
+                  <h2>Less searching. More moving forward.</h2>
+                </div>
+                <p>
+                  The operational information your team needs, brought together
+                  around each customer order.
+                </p>
+              </div>
+              <div className="public-feature-grid">
+                {[
+                  {
+                    icon: "box",
+                    label: "01 / ORDERS",
+                    title: "Start with the right details",
+                    text: "Create and review customer orders with clear validation and inventory status.",
+                  },
+                  {
+                    icon: "warehouse",
+                    label: "02 / PREPARATION",
+                    title: "Make every handoff count",
+                    text: "Work through picking, packing, and package details before creating a shipment.",
+                  },
+                  {
+                    icon: "truck",
+                    label: "03 / SHIPMENTS",
+                    title: "Keep the next step in sight",
+                    text: "Review carrier confirmations, tracking updates, and synchronization exceptions.",
+                  },
+                ].map((feature) => (
+                  <article className="public-feature-card" key={feature.title}>
+                    <div className="public-feature-top">
+                      <span className="public-icon-tile">
+                        <PublicIcon
+                          name={feature.icon as PublicIconProps["name"]}
+                        />
+                      </span>
+                      <small>{feature.label}</small>
+                    </div>
+                    <h3>{feature.title}</h3>
+                    <p>{feature.text}</p>
+                    <button
+                      className="text-button"
+                      onClick={() => onNavigate("login")}
+                    >
+                      Explore in the workspace
+                      <PublicIcon name="arrow" size={16} />
+                    </button>
+                  </article>
+                ))}
+              </div>
+            </section>
+            <section
+              className="public-workflow-banner public-section"
+              id="how-it-works"
+            >
+              <div>
+                <span className="public-eyebrow">02 / HOW IT WORKS</span>
+                <h2>
+                  Different systems.
+                  <br />
+                  One connected journey.
+                </h2>
+                <p>
+                  An order is validated, inventory is checked with WMS, and
+                  middleware coordinates the carrier request. Confirmed shipment
+                  information then returns to OMS.
+                </p>
+              </div>
+              <ol>
+                <li>
+                  <span>01</span>
+                  <div>
+                    <strong>Accept and validate</strong>
+                    <p>Start with a valid, unique customer order.</p>
+                  </div>
+                </li>
+                <li>
+                  <span>02</span>
+                  <div>
+                    <strong>Check and prepare</strong>
+                    <p>Confirm inventory and prepare the package.</p>
+                  </div>
+                </li>
+                <li>
+                  <span>03</span>
+                  <div>
+                    <strong>Confirm and synchronize</strong>
+                    <p>Receive the tracking number and update OMS.</p>
+                  </div>
+                </li>
+              </ol>
+            </section>
+            <section
+              className="public-team-section public-section"
+              id="your-team"
+            >
+              <div>
+                <span className="public-eyebrow">03 / FOR YOUR TEAM</span>
+                <h2>A shared view. A clear responsibility.</h2>
+                <p>
+                  Operations staff follow orders and shipments. Warehouse staff
+                  prepare eligible orders. Administrators review integration
+                  health and recovery.
+                </p>
+              </div>
+              <button
+                className="button primary"
+                onClick={() => onNavigate("login")}
+              >
+                Find your workspace
+                <PublicIcon name="arrow" size={18} />
+              </button>
+            </section>
+          </div>
         </main>
       )}
       <footer className="public-footer">

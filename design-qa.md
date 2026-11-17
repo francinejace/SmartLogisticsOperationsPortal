@@ -60,3 +60,22 @@ No actionable P0/P1/P2 findings remain.
 ## Remaining implementation limits
 
 Login remains a frontend demonstration, with no production authentication or live service connection. Existing sample records and fixed detail-view scenarios remain disclosed. Visual verification used local Chrome; no production deployment or additional browser-engine compatibility claim is made.
+
+## Follow-up: first-section background carousel
+
+The user's subsequent instruction makes the four carousel photographs the background of the entire first homepage section. This intentionally supersedes the previous side-by-side hero/photo-card placement; the reference-inspired modules below the hero and inside the workspace remain intact.
+
+- Photos now fill the hero edge to edge behind the headline, supporting copy, and login/explore actions.
+- Green overlays and explicit light foreground colors keep the copy, credits, counter, and controls readable in both themes.
+- Captions and source links remain available in the hero footer. Keyboard navigation, swipe, wrapping, direct selection, and image-error recovery are preserved.
+- Background and section bounds matched at 1440/1024/768/390/320px, with no page-level overflow. All four slides retained the same section height at each tested width, in both themes.
+- A hover-contrast issue on the arrow controls was found during screenshot inspection and corrected with an explicit white hover foreground. The resulting computed color was verified.
+- Build and TypeScript checks passed. The public workspace functionality was not changed by this follow-up.
+
+Latest visual evidence:
+- `/tmp/translogix-background-carousel-light-1440.png`: 1440 × 2084 pixels, deviceScaleFactor 1, full-page light-theme capture.
+- `/tmp/translogix-background-carousel-light-390.png`: 390 × 3467 pixels, deviceScaleFactor 1, full-page light-theme capture.
+
+The desktop and mobile captures were opened and inspected. No actionable P0/P1/P2 issue remains for this placement change.
+
+Follow-up final result: passed

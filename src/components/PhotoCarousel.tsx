@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, type ReactNode } from "react"
 import logisticsPhotos from "../data/logisticsPhotos"
 
 interface TouchOrigin {
@@ -6,7 +6,7 @@ interface TouchOrigin {
   y: number
 }
 
-export default function PhotoCarousel() {
+export default function PhotoCarousel({ children }: { children: ReactNode }) {
   const [index, setIndex] = useState(0)
   const [failedSource, setFailedSource] = useState<string | null>(null)
   const touchStart = useRef<TouchOrigin | null>(null)
@@ -21,11 +21,25 @@ export default function PhotoCarousel() {
 
   return (
     <section
-      className="public-visual photo-carousel"
+      className="public-hero photo-carousel"
       aria-roledescription="carousel"
       aria-label="Logistics in motion"
       aria-describedby="carousel-instructions"
       tabIndex={0}
+      onTouchStart={(event) => {
+        const touch = event.touches[0]
+        touchStart.current = { x: touch.clientX, y: touch.clientY }
+      }}
+      onTouchEnd={(event) => {
+        const start = touchStart.current
+        const end = event.changedTouches[0]
+        touchStart.current = null
+        if (!start || !end) return
+        const dx = end.clientX - start.x
+        const dy = end.clientY - start.y
+        if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.5)
+          move(dx < 0 ? 1 : -1)
+      }}
       onKeyDown={(event) => {
         if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key))
           return
@@ -41,33 +55,17 @@ export default function PhotoCarousel() {
         when you choose.
       </p>
       <figure
-        className="public-photo"
+        className="hero-background"
         aria-roledescription="slide"
         aria-label={`${index + 1} of ${total}: ${photo.category}`}
-        onTouchStart={(event) => {
-          const touch = event.touches[0]
-          touchStart.current = { x: touch.clientX, y: touch.clientY }
-        }}
-        onTouchEnd={(event) => {
-          const start = touchStart.current
-          const end = event.changedTouches[0]
-          touchStart.current = null
-          if (!start || !end) return
-          const dx = end.clientX - start.x
-          const dy = end.clientY - start.y
-          if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.5)
-            move(dx < 0 ? 1 : -1)
-        }}
+        aria-describedby="hero-photo-description"
       >
         {failedSource === photo.src ? (
           <div
             className="carousel-image-fallback"
             role="img"
-            aria-label={photo.alt}
-          >
-            <span>Photo unavailable</span>
-            <p>Use the controls to explore the other logistics photos.</p>
-          </div>
+            aria-label={`${photo.alt}. Photo unavailable.`}
+          />
         ) : (
           <img
             key={photo.id}
@@ -79,84 +77,97 @@ export default function PhotoCarousel() {
             onError={() => setFailedSource(photo.src)}
           />
         )}
-        <span className="carousel-photo-count" aria-hidden="true">
-          {String(index + 1).padStart(2, "0")}{" "}
-          <span>/ {String(total).padStart(2, "0")}</span>
-        </span>
-        <figcaption>
-          <span>{photo.category}</span>
-          <h2>{photo.title}</h2>
-          <p>{photo.description}</p>
-        </figcaption>
+        <figcaption className="sr-only">{photo.title}</figcaption>
       </figure>
-      <div className="carousel-toolbar">
-        <div
-          className="carousel-selectors"
-          role="group"
-          aria-label="Choose a logistics photo"
-        >
-          {logisticsPhotos.map((item, position) => (
-            <button
-              type="button"
-              key={item.id}
-              aria-label={`Show photo ${position + 1}: ${item.category}`}
-              aria-current={position === index ? "true" : undefined}
-              onClick={() => setIndex(position)}
+      <div className="public-hero-inner">
+        {children}
+        <div className="hero-carousel-footer">
+          <div className="hero-slide-copy">
+            <div aria-live="polite" aria-atomic="true">
+              <span className="hero-slide-category">
+                {failedSource === photo.src
+                  ? "Photo unavailable"
+                  : photo.category}
+              </span>
+              <h2>{photo.title}</h2>
+              <p id="hero-photo-description">{photo.description}</p>
+            </div>
+            <a
+              className="hero-photo-source"
+              href={photo.source}
+              target="_blank"
+              rel="noreferrer"
             >
-              <span />
-            </button>
-          ))}
+              Photo: {photo.photographer} / Unsplash ↗
+            </a>
+          </div>
+          <div className="carousel-toolbar">
+            <span className="carousel-photo-count" aria-hidden="true">
+              {String(index + 1).padStart(2, "0")}{" "}
+              <span>/ {String(total).padStart(2, "0")}</span>
+            </span>
+
+            <div
+              className="carousel-selectors"
+              role="group"
+              aria-label="Choose a logistics photo"
+            >
+              {logisticsPhotos.map((item, position) => (
+                <button
+                  type="button"
+                  key={item.id}
+                  aria-label={`Show photo ${position + 1}: ${item.category}`}
+                  aria-current={position === index ? "true" : undefined}
+                  onClick={() => setIndex(position)}
+                >
+                  <span />
+                </button>
+              ))}
+            </div>
+            <div className="carousel-arrows">
+              <button
+                className="icon-button"
+                type="button"
+                aria-label="Previous logistics photo"
+                onClick={() => move(-1)}
+              >
+                <svg
+                  width="19"
+                  height="19"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M20 12H4m6-6-6 6 6 6" />
+                </svg>
+              </button>
+              <button
+                className="icon-button"
+                type="button"
+                aria-label="Next logistics photo"
+                onClick={() => move(1)}
+              >
+                <svg
+                  width="19"
+                  height="19"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M4 12h16m-6-6 6 6-6 6" />
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
-        <div className="carousel-arrows">
-          <button
-            className="icon-button"
-            type="button"
-            aria-label="Previous logistics photo"
-            onClick={() => move(-1)}
-          >
-            <svg
-              width="19"
-              height="19"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M20 12H4m6-6-6 6 6 6" />
-            </svg>
-          </button>
-          <button
-            className="icon-button"
-            type="button"
-            aria-label="Next logistics photo"
-            onClick={() => move(1)}
-          >
-            <svg
-              width="19"
-              height="19"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M4 12h16m-6-6 6 6-6 6" />
-            </svg>
-          </button>
-        </div>
-      </div>
-      <div className="public-photo-credit">
-        <span aria-live="polite" aria-atomic="true">
-          Photo {index + 1} of {total} · {photo.category}
-        </span>
-        <a href={photo.source} target="_blank" rel="noreferrer">
-          {photo.photographer} / Unsplash ↗
-        </a>
       </div>
     </section>
   )
