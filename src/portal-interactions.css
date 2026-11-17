@@ -1,0 +1,82 @@
+@layer components {
+  /* Interactive surfaces retain their geometry as their state changes. */
+  .app :is(.text-button, .back-link, .breadcrumbs button):enabled:is(:hover, :focus-visible) {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .app :is(.linked-list button, .record-link):enabled:is(:hover, :focus-visible) {
+    background: var(--pale);
+    border-color: var(--accent);
+  }
+  .app :is(.attention-list button, .notifications > button, .profile-menu > button):enabled:is(:hover, :focus-visible) {
+    background: var(--pale);
+    color: var(--accent);
+  }
+  .app .top-user:is(:hover, :focus-visible, [aria-expanded="true"]) { background: var(--surface-sage); }
+  .app :is(.menu-button, .mobile-close):is(:hover, :focus-visible) { background: var(--pale); border-radius: 7px; }
+  .app .sidebar :is(nav button, .sidebar-bottom > button):enabled:active { background: var(--icon-bg); }
+  .app .tabs button:not(.active):is(:hover, :focus-visible) { color: var(--accent); border-bottom-color: var(--border-strong); }
+  .app .stat-card:focus-visible { background: var(--hover); border-color: var(--accent); }
+  .app .card:has(:is(button, a):focus-visible) { border-color: var(--border-strong); }
+
+  .app tbody tr[tabindex="0"]:is(:hover, :focus-within) { background: var(--pale); }
+  .app tbody tr[tabindex="0"]:is(:hover, :focus-within) > td:first-child { box-shadow: inset 3px 0 var(--accent); }
+  .app tbody tr[tabindex="0"]:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+
+  .app :is(.form-grid, .settings-form) :is(input, select):enabled:not([readonly]):not([aria-invalid="true"]):hover { border-color: var(--border-strong); }
+  .app :is(.form-grid, .settings-form) :is(input, select):enabled:not([readonly]):not([aria-invalid="true"]):focus-visible { border-color: var(--accent); }
+  .app :is(.search-field, .global-search, .tracking-lookup-field, .input-icon, .input-suffix):focus-within:not(:has([aria-invalid="true"])) { border-color: var(--accent); }
+  .app .input-icon:has([aria-invalid="true"]) { border-color: var(--red); }
+  .app input[type="checkbox"] { accent-color: var(--accent); }
+  .app .checklist-item:is(:hover, :focus-within) { background: var(--surface-sage); border-color: var(--border-strong); }
+  .app .checklist-item:has(input:checked) { border-color: var(--border-strong); background: var(--surface-sage); }
+  .app :is(.packing-check, .shortage-check):focus-within { outline: 2px solid var(--focus); outline-offset: 4px; border-radius: 4px; }
+  .app .packing-check:has(input:checked) strong { color: var(--accent); }
+  .app .shortage-check:has(input:checked) strong { color: var(--amber); }
+  .app .tracking-number button:is(:hover, :focus-visible) { background: #ffffff26; border-color: #ffffffa6; }
+  .app .expand-button:is(:hover, :focus-visible) { text-decoration: underline; text-underline-offset: 4px; }
+  .app .contract-card summary { cursor: pointer; min-height: 44px; align-content: center; border-radius: 6px; }
+  .app .contract-card summary:is(:hover, :focus-visible) { background: var(--pale); color: var(--accent); }
+  .app .expand-button[aria-expanded="true"] > svg { transform: rotate(180deg); }
+  .app .top-user[aria-expanded="true"] > svg { transform: rotate(180deg); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* Page and state fades never establish a transformed ancestor for drawers. */
+    .app .page-transition { animation: portal-fade-in 140ms ease-out backwards; }
+    .app .page-transition > :is(.card, .center-state),
+    .app .page-transition > :is(.stats-grid, .dashboard-grid, .connection-cards, .help-grid) > :is(.card, .stat-card),
+    .app .page-transition > :is(.detail-grid, .form-layout) > :is(.detail-main, .detail-side, .form-card, .side-note) {
+      animation: portal-module-in 240ms var(--motion-ease) backwards;
+    }
+    .app .page-transition > :is(.stats-grid, .dashboard-grid, .connection-cards, .help-grid) > :nth-child(2) { animation-delay: 35ms; }
+    .app .page-transition > :is(.stats-grid, .dashboard-grid, .connection-cards, .help-grid) > :nth-child(3) { animation-delay: 70ms; }
+    .app .page-transition > :is(.stats-grid, .dashboard-grid, .connection-cards, .help-grid) > :nth-child(n + 4) { animation-delay: 105ms; }
+    .app .state-panel, .app .technical, .app .toast-inline,
+    .app .contract-card details[open] > :not(summary) { animation: portal-fade-in 180ms ease-out backwards; }
+    .app .overlay, .app .nav-scrim { animation: portal-fade-in 160ms ease-out backwards; }
+    .app .drawer { animation: portal-drawer-in 240ms var(--motion-ease) backwards; }
+    .app .popover { animation: portal-menu-in 160ms var(--motion-ease) backwards; transform-origin: top right; }
+    .app :is(.expand-button, .top-user) > svg,
+    .app .stepper :is(span, strong), .app .task-list span { transition: transform 180ms var(--motion-ease), color 180ms ease, background-color 180ms ease, border-color 180ms ease; }
+    .app .completion > div { transition: width 220ms var(--motion-ease); }
+    .app :is(.linked-list button, .record-link, .attention-list button, .notifications > button, .profile-menu > button, .top-user, .tabs button, .checklist-item, .contract-card summary, .menu-button, .mobile-close, .tracking-number button) {
+      transition: color var(--motion-fast) ease, background-color var(--motion-fast) ease, border-color var(--motion-fast) ease;
+    }
+    .app :is(.card, .stat-card) { transition: border-color var(--motion-fast) ease, background-color var(--motion-fast) ease, box-shadow var(--motion-fast) ease, transform var(--motion-fast) var(--motion-ease); }
+    .app :is(.form-grid, .settings-form) :is(input, select),
+    .app :is(.search-field, .global-search, .tracking-lookup-field, .input-icon, .input-suffix) { transition: border-color var(--motion-fast) ease, background-color var(--motion-fast) ease; }
+    .app tbody tr[tabindex="0"], .app tbody tr[tabindex="0"] > td:first-child { transition: background-color var(--motion-fast) ease, box-shadow var(--motion-fast) ease; }
+    .app :is(.linked-list button, .record-link, .attention-list button, .stat-card) > svg:last-child,
+    .app tbody tr[tabindex="0"] > td:last-child > svg { transition: transform var(--motion-fast) var(--motion-ease); }
+    @media (hover: hover) and (pointer: fine) {
+      .app .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px #002c130a; }
+      .app :is(.linked-list button, .record-link, .attention-list button, .stat-card):enabled:hover > svg:last-child,
+      .app tbody tr[tabindex="0"]:hover > td:last-child > svg { transform: translateX(3px); }
+    }
+    .app .stat-card:active { transform: translateY(0); box-shadow: none; }
+  }
+  @keyframes portal-fade-in { from { opacity: .4; } to { opacity: 1; } }
+  @keyframes portal-module-in { from { opacity: .65; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  @keyframes portal-drawer-in { from { opacity: .7; transform: translateX(18px); } to { opacity: 1; transform: none; } }
+  @keyframes portal-menu-in { from { opacity: .5; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+}
