@@ -3,6 +3,8 @@
 @import "./public-site.css";
 @import "./portal-interactions.css";
 @import "./portal-design.css";
+@import "./fullstack.css";
+@import "./chat-assistant.css";
 
 :root {
   color-scheme: light;

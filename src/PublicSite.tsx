@@ -1,6 +1,7 @@
 import { useState } from "react"
 import type { Theme } from "./theme"
-import type { Role } from "./types"
+import type { User } from "./api-types"
+import { api, errorMessage } from "./api"
 import ThemeToggle from "./components/ThemeToggle"
 import BrandMark from "./components/BrandMark"
 import PhotoCarousel from "./components/PhotoCarousel"
@@ -9,7 +10,7 @@ import useEntranceMotion from "./useEntranceMotion"
 interface PublicSiteProps {
   view: "home" | "login"
   onNavigate: (view: "home" | "login") => void
-  onLogin: (role: Role) => void
+  onLogin: (user: User) => void
   theme: Theme
   onToggleTheme: () => void
 }
@@ -79,31 +80,48 @@ function PublicIcon({ name, size = 22 }: PublicIconProps) {
   )
 }
 
-function LoginScreen({ onLogin }: { onLogin: (role: Role) => void }) {
-  const [role, setRole] = useState<Role>("Operations staff")
-  const description =
-    role === "Administrator"
-      ? "Explore connection health, integration events, and recovery guidance."
-      : role === "Warehouse staff"
-        ? "Review inventory and prepare eligible orders for shipment."
-        : "Follow customer orders, carrier confirmations, and shipment progress."
+function LoginScreen({ onLogin }: { onLogin: (user: User) => void }) {
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState("")
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault()
+    if (busy) return
+    setBusy(true)
+    setError("")
+    try {
+      const result = await api<{ user: User }>("auth/login", {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+      })
+      setPassword("")
+      onLogin(result.user)
+    } catch (cause) {
+      setError(errorMessage(cause))
+    } finally {
+      setBusy(false)
+    }
+  }
   return (
     <main className="public-main login-main" id="public-content">
       <section className="login-story">
-        <span className="public-eyebrow">YOUR NEXT SHIFT, CONNECTED</span>
-        <h2>
-          A clearer view.
-          <br />A better handoff.
-        </h2>
-        <p>
-          Bring your people, orders, and shipment information into one shared
-          operations workspace.
-        </p>
-        <div className="login-story-list">
+        <div>
+          <span className="public-eyebrow">YOUR NEXT SHIFT, CONNECTED</span>
+          <h2>
+            A clearer view.
+            <br />A connected team.
+          </h2>
+          <p>
+            Sign in to your saved logistics workspace. Keep each order, package,
+            and shipment in view.
+          </p>
+        </div>
+        <div className="login-benefits">
           {[
-            "Know which orders need attention",
-            "Coordinate picking, packing, and carrier requests",
-            "Follow shipment progress and safe recovery steps",
+            "Customer orders saved in one workspace",
+            "Picking and packing progress that persists",
+            "Clear shipment status and recovery guidance",
           ].map((text) => (
             <div key={text}>
               <span>
@@ -116,8 +134,8 @@ function LoginScreen({ onLogin }: { onLogin: (role: Role) => void }) {
         <div className="login-story-note">
           <PublicIcon name="link" />
           <div>
-            <strong>OMS. WMS. Carrier API.</strong>
-            <p>One workflow from order acceptance to shipment information.</p>
+            <strong>One connected workflow</strong>
+            <p>Persistent local data · Simulated logistics services</p>
           </div>
         </div>
       </section>
@@ -129,46 +147,75 @@ function LoginScreen({ onLogin }: { onLogin: (role: Role) => void }) {
         <h1 id="login-title" tabIndex={-1}>
           Welcome back
         </h1>
-        <p>Choose a demo role to explore the operations portal.</p>
+        <p>Sign in with your TransLogix account.</p>
         <form
           onSubmit={(event) => {
-            event.preventDefault()
-            onLogin(role)
+            void submit(event)
           }}
         >
-          <div className="login-account">
-            <span className="avatar large">MS</span>
-            <div>
-              <strong>Maria Santos</strong>
-              <small>Sample profile · Role preview</small>
-            </div>
-            <span className="public-tag">Demo</span>
-          </div>
-          <label htmlFor="login-role">Workspace role</label>
-          <select
-            id="login-role"
-            value={role}
-            onChange={(event) => setRole(event.target.value as Role)}
-            aria-describedby="login-role-help"
+          {error && (
+            <p className="login-error" role="alert">
+              {error}
+            </p>
+          )}
+          <label htmlFor="login-email">Email address</label>
+          <input
+            id="login-email"
+            type="email"
+            autoComplete="username"
+            required
+            maxLength={254}
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            placeholder="you@example.com"
+            disabled={busy}
+          />
+          <label htmlFor="login-password">Password</label>
+          <input
+            id="login-password"
+            type="password"
+            autoComplete="current-password"
+            required
+            maxLength={200}
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            disabled={busy}
+          />
+          <button
+            className="button primary public-login-submit"
+            type="submit"
+            disabled={busy}
           >
-            <option>Operations staff</option>
-            <option>Warehouse staff</option>
-            <option>Administrator</option>
-          </select>
-          <p className="login-role-help" id="login-role-help">
-            {description}
-          </p>
-          <button className="button primary public-login-submit" type="submit">
-            Enter workspace
+            {busy ? "Signing in…" : "Sign in"}
             <PublicIcon name="arrow" size={18} />
           </button>
         </form>
+        <details className="login-local-accounts">
+          <summary>Running the project locally?</summary>
+          <p>
+            Local demo accounts are available when demo seeding is enabled. The
+            initial password is documented in the project README.
+          </p>
+          {["admin", "operations", "warehouse"].map((account) => (
+            <button
+              key={account}
+              type="button"
+              disabled={busy}
+              onClick={() => {
+                setEmail(`${account}@translogix.local`)
+                document.getElementById("login-password")?.focus()
+              }}
+            >
+              {account}@translogix.local
+            </button>
+          ))}
+        </details>
         <div className="login-demo-note">
           <PublicIcon name="lock" size={17} />
           <p>
-            <strong>Demonstration access</strong>No password is needed. This
-            frontend prototype does not authenticate users or connect to live
-            services.
+            <strong>Account access</strong>Your session and role are checked by
+            the server. Contact an administrator if you need an account or a
+            password reset.
           </p>
         </div>
       </section>
@@ -491,8 +538,8 @@ export default function PublicSite({
           <strong>TransLogix</strong>
           <span>Smart Logistics Shipment Integration System</span>
         </div>
-        <p>Team Sync · Demonstration prototype</p>
-        <span>No live APIs or production authentication</span>
+        <p>Team Sync · Logistics operations</p>
+        <span>Persistent workspace · Simulated logistics services</span>
       </footer>
     </div>
   )

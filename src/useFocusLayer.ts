@@ -1,6 +1,10 @@
 import { useEffect, useRef } from "react"
 
-export default function useFocusLayer(open: boolean, close: () => void, modal = false) {
+export default function useFocusLayer(
+  open: boolean,
+  close: () => void,
+  modal = false,
+) {
   const ref = useRef<HTMLElement | null>(null)
   const closeRef = useRef(close)
   closeRef.current = close
@@ -61,5 +65,3 @@ export default function useFocusLayer(open: boolean, close: () => void, modal = 
   }, [open, modal])
   return ref
 }
-
-

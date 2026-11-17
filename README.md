@@ -1,10 +1,10 @@
 # TransLogix
 
-React + Vite + Tailwind frontend with a Node.js API, SQLite persistence, account sessions, and an optional OpenAI assistant.
+React + Vite + Tailwind frontend with a Node.js API, persistent storage, account sessions, and an optional OpenAI assistant. Vercel uses Neon PostgreSQL; local development defaults to SQLite.
 
 ## Run after cloning
 
-Use Node.js **22.13 or newer** (Node 24 LTS is also supported) and pnpm. No separate database installation is needed.
+Use Node.js **24 LTS** and pnpm. No separate database installation is needed for local development.
 
 ```sh
 corepack enable
@@ -41,7 +41,7 @@ The server calls the [OpenAI Responses API](https://developers.openai.com/api/do
 
 ## Backend and integrations
 
-The application API runs on the same origin as the frontend. Passwords are hashed with scrypt. Session tokens are stored as hashes in SQLite and sent in HttpOnly, SameSite cookies. Mutations require a same-origin request header; login and chat are rate limited in each server process.
+The application API runs on the same origin as the frontend. Passwords are hashed with scrypt. Session tokens are stored as hashes in the database and sent in HttpOnly, SameSite cookies. Mutations require a same-origin request header; login and chat rate limits are persisted in the database and shared across Vercel instances. Setting `DATABASE_URL` selects PostgreSQL; leaving it empty in local development selects SQLite.
 
 | Area | Routes |
 | --- | --- |
@@ -67,6 +67,7 @@ Operations staff and administrators can create orders and shipments and retry sy
 
 ```sh
 pnpm test:backend
+pnpm test:postgres
 pnpm test:theme
 pnpm exec tsc --noEmit
 pnpm build
@@ -81,4 +82,6 @@ pnpm start
 
 Open **http://127.0.0.1:3000**. `pnpm preview` also includes the API for local inspection. Uploading only `dist/` to static hosting will not run the backend.
 
-For a future production server, use a persistent writable database volume, HTTPS with `COOKIE_SECURE=true`, and `SEED_DEMO_DATA=false`. For an empty database also set `BOOTSTRAP_ADMIN_EMAIL` and `BOOTSTRAP_ADMIN_PASSWORD` (at least 12 characters). Bootstrap variables only create the initial account; use Settings to change an existing password. Do not expose the local example database or accounts. The current server is intended for a single Node process; multi-instance hosting needs shared storage and distributed rate limits. No deployment is performed by these commands.
+For **Vercel and translogix.com**, follow [the Vercel setup guide](docs/vercel-setup.md). It describes Neon, private environment variables, the initial administrator, API routing, the supplied DNS record, and deployment verification. Vercel functions always use PostgreSQL and secure cookies and never seed the local demo accounts. No deployment or DNS changes are performed by these commands.
+
+For a standalone Node server, use a persistent database volume or `DATABASE_URL`, HTTPS with `COOKIE_SECURE=true`, and `SEED_DEMO_DATA=false`. For an empty database also set `BOOTSTRAP_ADMIN_EMAIL` and `BOOTSTRAP_ADMIN_PASSWORD` (at least 12 characters). Bootstrap variables only create the initial account; use Settings to change an existing password.

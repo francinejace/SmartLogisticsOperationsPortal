@@ -334,6 +334,5 @@ function EmptyState({ title, text }: EmptyStateProps) {
   )
 }
 
-
 export { Icon, Badge, Button, PageHead, StatCard, SamplePagination, EmptyState }
 export default Card
