@@ -1,9 +1,12 @@
 import { AsyncLocalStorage } from "node:async_hooks"
-import { DatabaseSync } from "node:sqlite"
+import { createRequire } from "node:module"
+import type { DatabaseSync } from "node:sqlite"
 import { mkdirSync } from "node:fs"
 import { dirname } from "node:path"
 import pg from "pg"
 import { attachDatabasePool } from "@vercel/functions"
+
+const require = createRequire(import.meta.url)
 
 export type Row = Record<string, unknown>
 type Value = string | number | null
@@ -35,7 +38,12 @@ export default class Storage {
     } else {
       if (filename !== ":memory:")
         mkdirSync(dirname(filename), { recursive: true, mode: 0o700 })
-      this.sqlite = new DatabaseSync(filename)
+      // Do not load SQLite in a Vercel function. Its PostgreSQL path needs no
+      // filesystem database module, while local development still gets SQLite.
+      const { DatabaseSync: LocalDatabaseSync } = require(
+        "node:sqlite",
+      ) as typeof import("node:sqlite")
+      this.sqlite = new LocalDatabaseSync(filename)
       this.sqlite.exec(
         "PRAGMA foreign_keys = ON; PRAGMA journal_mode = WAL; PRAGMA busy_timeout = 5000;",
       )
