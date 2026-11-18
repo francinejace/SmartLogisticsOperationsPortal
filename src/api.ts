@@ -8,6 +8,19 @@ export class ApiError extends Error {
   }
 }
 
+function responseFallbackMessage(response: Response) {
+  const contentType = response.headers.get("content-type") || ""
+  if (response.url.includes("vercel.com/sso-api"))
+    return "This Vercel deployment is protected. Sign in to Vercel with project access, or ask the project owner to disable Deployment Protection."
+  if (response.status === 503)
+    return "The workspace database is not connected yet. Please contact the project administrator."
+  if (response.status === 401 || response.status === 403)
+    return "This deployment requires Vercel access before you can sign in."
+  if (contentType.includes("text/html"))
+    return "The deployment returned a web page instead of the TranceLogix API. Check Deployment Protection and the /api route configuration."
+  return "The server returned an invalid API response. Check the local server or deployment configuration and try again."
+}
+
 export async function api<T>(
   path: string,
   options: RequestInit = {},
@@ -39,15 +52,9 @@ export async function api<T>(
   if (!response.ok || !data) {
     if (response.status === 401 && !path.startsWith("auth/"))
       window.dispatchEvent(new Event("trancelogix-session-expired"))
-    const fallbackMessage =
-      response.status === 503
-        ? "The workspace database is not connected yet. Please contact the project administrator."
-        : response.status === 401 || response.status === 403
-          ? "This deployment requires Vercel access before you can sign in."
-          : "The server returned an unexpected response. Check the local server or deployment configuration and try again."
     throw new ApiError(
       data?.error?.message ||
-        fallbackMessage,
+        responseFallbackMessage(response),
       response.status,
       data?.error?.code || "request_failed",
     )
