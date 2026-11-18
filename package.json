@@ -3,7 +3,9 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "engines": { "node": "24.x" },
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -12,13 +14,17 @@
     "format": "oxfmt",
     "test:theme": "node --experimental-strip-types --test scripts/theme.test.mjs",
     "test:backend": "node --experimental-strip-types --test scripts/backend.test.mjs",
-    "test:postgres": "node --experimental-strip-types --test scripts/postgres.test.mjs"
+    "test:postgres": "node --experimental-strip-types --test scripts/postgres.test.mjs",
+    "test:netlify": "node --experimental-strip-types --test scripts/netlify.test.mjs"
   },
   "dependencies": {
+    "@netlify/aws-lambda-compat": "^2.0.4",
+    "@netlify/functions": "^6.1.1",
     "@vercel/functions": "^3.11.3",
     "pg": "^8.23.1",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "serverless-http": "^4.0.0"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.16",

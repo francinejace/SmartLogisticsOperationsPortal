@@ -1,6 +1,6 @@
 # TranceLogix
 
-React + Vite + Tailwind frontend with a Node.js API, persistent storage, account sessions, and an optional OpenAI assistant. Vercel uses Neon PostgreSQL; local development defaults to SQLite.
+React + Vite + Tailwind frontend with a Node.js API, persistent storage, account sessions, and an optional OpenAI assistant. Netlify and Vercel use managed PostgreSQL; local development defaults to SQLite.
 
 ## Run after cloning
 
@@ -43,7 +43,7 @@ The server calls the [OpenAI Responses API](https://developers.openai.com/api/do
 
 ## Backend and integrations
 
-The application API runs on the same origin as the frontend. Passwords are hashed with scrypt. Session tokens are stored as hashes in the database and sent in HttpOnly, SameSite cookies. Mutations require a same-origin request header; login and chat rate limits are persisted in the database and shared across Vercel instances. Setting `DATABASE_URL` selects PostgreSQL; leaving it empty in local development selects SQLite.
+The application API runs on the same origin as the frontend. Passwords are hashed with scrypt. Session tokens are stored as hashes in the database and sent in HttpOnly, SameSite cookies. Mutations require a same-origin request header; login and chat rate limits are persisted in the database and shared across hosted instances. Setting `DATABASE_URL` selects PostgreSQL; leaving it empty in local development selects SQLite.
 
 | Area | Routes |
 | --- | --- |
@@ -70,6 +70,7 @@ Operations staff and administrators can create orders and shipments and retry sy
 ```sh
 pnpm test:backend
 pnpm test:postgres
+pnpm test:netlify
 pnpm test:theme
 pnpm exec tsc --noEmit
 pnpm build
@@ -84,6 +85,8 @@ pnpm start
 
 Open **http://127.0.0.1:3000**. `pnpm preview` also includes the API for local inspection. Uploading only `dist/` to static hosting will not run the backend.
 
-For **TranceLogix on Vercel**, follow [the Vercel setup guide](docs/vercel-setup.md). It describes Neon, private environment variables, the initial administrator, API routing, the project's free Vercel address, and deployment verification. Vercel functions always use PostgreSQL and secure cookies and never seed the local demo accounts. No deployment or DNS changes are performed by these commands.
+For **TranceLogix on Netlify**, follow [the Netlify setup guide](docs/netlify-setup.md). The committed `netlify.toml` builds the frontend and deploys `netlify/functions/api.ts` for `/api/*`. Connect the Git repository so both the frontend and function deploy; a manual upload of only `dist/` cannot run login. Set `DATABASE_URL`, `BOOTSTRAP_ADMIN_EMAIL`, and `BOOTSTRAP_ADMIN_PASSWORD` privately in Netlify with Functions access, then redeploy. Hosted login uses your database accounts, not the local demo accounts.
+
+The [Vercel setup guide](docs/vercel-setup.md) remains available for that host. Both hosted adapters require PostgreSQL and secure cookies and disable local demo seeding. These local build commands do not deploy the site or change cloud settings.
 
 For a standalone Node server, use a persistent database volume or `DATABASE_URL`, HTTPS with `COOKIE_SECURE=true`, and `SEED_DEMO_DATA=false`. For an empty database also set `BOOTSTRAP_ADMIN_EMAIL` and `BOOTSTRAP_ADMIN_PASSWORD` (at least 12 characters). Bootstrap variables only create the initial account; use Settings to change an existing password.

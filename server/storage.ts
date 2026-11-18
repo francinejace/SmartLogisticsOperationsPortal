@@ -4,7 +4,6 @@ import type { DatabaseSync } from "node:sqlite"
 import { mkdirSync } from "node:fs"
 import { dirname } from "node:path"
 import pg from "pg"
-import { attachDatabasePool } from "@vercel/functions"
 
 const require = createRequire(import.meta.url)
 
@@ -32,7 +31,12 @@ export default class Storage {
           connectionTimeoutMillis: 10000,
           allowExitOnIdle: true,
         })
-      if (process.env.VERCEL) attachDatabasePool(this.pool)
+      if (process.env.VERCEL) {
+        const { attachDatabasePool } = require(
+          "@vercel/functions",
+        ) as typeof import("@vercel/functions")
+        attachDatabasePool(this.pool)
+      }
       // A disconnected idle client must not crash a warm function instance.
       this.pool.on("error", () => {})
     } else {

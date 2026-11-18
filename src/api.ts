@@ -15,9 +15,9 @@ function responseFallbackMessage(response: Response) {
   if (response.status === 503)
     return "The workspace database is not connected yet. Please contact the project administrator."
   if (response.status === 401 || response.status === 403)
-    return "This deployment requires Vercel access before you can sign in."
+    return "The hosting service denied API access. Ask the project administrator to check site access settings."
   if (contentType.includes("text/html"))
-    return "The deployment returned a web page instead of the TranceLogix API. Check Deployment Protection and the /api route configuration."
+    return "The TranceLogix API is unavailable on this deployment. Ask the project administrator to check the API function and routing configuration."
   return "The server returned an invalid API response. Check the local server or deployment configuration and try again."
 }
 
@@ -53,8 +53,7 @@ export async function api<T>(
     if (response.status === 401 && !path.startsWith("auth/"))
       window.dispatchEvent(new Event("trancelogix-session-expired"))
     throw new ApiError(
-      data?.error?.message ||
-        responseFallbackMessage(response),
+      data?.error?.message || responseFallbackMessage(response),
       response.status,
       data?.error?.code || "request_failed",
     )
