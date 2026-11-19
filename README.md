@@ -55,7 +55,7 @@ The application API runs on the same origin as the frontend. Passwords are hashe
 | Recovery | `POST /api/v1/carrier/check` |
 | Tracking | `GET /api/v1/tracking?reference=...` |
 | Account | `PATCH /api/v1/profile`, `PATCH /api/v1/password` |
-| Administration | `POST /api/v1/users`, `PATCH /api/v1/users/:id/role` |
+| Administration | `POST /api/v1/users`, `PATCH /api/v1/users/:id/role`, `DELETE /api/v1/users/:id` |
 | Assistant | `GET /api/chat/status`, `POST /api/chat` |
 | Health | `GET /api/health` |
 
@@ -63,7 +63,9 @@ Orders accept `items: [{ sku, quantity }]`. The server validates required fields
 
 **Carrier, WMS, and OMS adapters are simulations.** They produce persistent example records, not real carrier bookings. The shipment form can demonstrate a success, timeout, carrier unavailability, or failed OMS synchronization. An unknown carrier outcome blocks creation until a status check confirms no shipment exists. Repeated shipment requests return the existing shipment. Synchronization retries retain the shipment and tracking reference. Availability checks do not reserve or deduct stock, and tracking refresh does not invent dispatch or delivery events.
 
-Operations staff and administrators can create orders and shipments and retry synchronization. All authenticated roles can read operational records, check simulated stock, and save preparation. Only administrators can create users, change other users' roles, and receive integration technical details. The assistant uses the authenticated server role rather than a role supplied by the browser.
+Operations staff and administrators can create orders and shipments and retry synchronization. All authenticated roles can read operational records, check simulated stock, and save preparation. Only administrators can create users, change other users' roles, delete other users, and receive integration technical details. The assistant uses the authenticated server role rather than a role supplied by the browser.
+
+In **Settings → Users and roles**, an administrator can select **Delete user** and confirm the named account. Deletion permanently removes the account and revokes its sessions while preserving orders, shipments, and existing activity history. The active account and the last administrator are protected. Deletions are recorded in the activity history, and permission checks run again inside the database transaction to prevent concurrent administrators from deleting each other.
 
 ## Checks and built server
 

@@ -207,6 +207,39 @@ test("Netlify login, secure cookies, PostgreSQL records, origin checks and logou
     200,
   )
   assert.equal((await api("/api/unknown-endpoint", { cookie })).status, 404)
+  const staff = await api("/api/v1/users", {
+    method: "POST",
+    cookie,
+    body: {
+      name: "Netlify Staff",
+      email: "netlify-staff@example.com",
+      password: "NetlifyStaffTest!2026",
+      role: "Warehouse staff",
+    },
+  })
+  assert.equal(staff.status, 201)
+  const staffLogin = await api("/api/auth/login", {
+    method: "POST",
+    body: {
+      email: "netlify-staff@example.com",
+      password: "NetlifyStaffTest!2026",
+    },
+  })
+  assert.equal(staffLogin.status, 200)
+  const staffCookie = staffLogin.headers.getSetCookie()[0].split(";")[0]
+  const removed = await api(`/api/v1/users/${staff.body.user.id}`, {
+    method: "DELETE",
+    cookie,
+  })
+  assert.equal(removed.status, 200)
+  assert.equal(
+    (await api("/api/auth/session", { cookie: staffCookie })).body.user,
+    null,
+  )
+  assert.equal(
+    (await api("/api/v1/workspace", { cookie })).body.orders[0].id,
+    "ORD-NETLIFY-001",
+  )
   assert.equal(
     (await api("/api/auth/logout", { method: "POST", cookie, body: {} }))
       .status,

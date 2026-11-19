@@ -11,24 +11,41 @@ import { DatabaseSync } from "node:sqlite"
 import { hashPassword } from "../server/database.ts"
 import localDatabasePath from "../server/local-database.ts"
 
-test("production bootstrap accepts a normal email and creates only its administrator", async t => {
-  const { api } = await fixture(t, { demo: false, adminEmail: "owner@example.com", adminPassword: "PrivateBootstrap!2026" })
-  const result = await api("/api/auth/login", { method: "POST", body: { email: "owner@example.com", password: "PrivateBootstrap!2026" } })
+test("production bootstrap accepts a normal email and creates only its administrator", async (t) => {
+  const { api } = await fixture(t, {
+    demo: false,
+    adminEmail: "owner@example.com",
+    adminPassword: "PrivateBootstrap!2026",
+  })
+  const result = await api("/api/auth/login", {
+    method: "POST",
+    body: { email: "owner@example.com", password: "PrivateBootstrap!2026" },
+  })
   assert.equal(result.status, 200)
-  const snapshot = await api("/api/v1/workspace", { cookie: result.cookie.split(";")[0] })
+  const snapshot = await api("/api/v1/workspace", {
+    cookie: result.cookie.split(";")[0],
+  })
   assert.equal(snapshot.body.users.length, 1)
   assert.equal(snapshot.body.orders.length, 0)
 })
 
-test("brand rename preserves saved records, custom passwords and previous sessions", async t => {
+test("brand rename preserves saved records, custom passwords and previous sessions", async (t) => {
   const directory = mkdtempSync(join(tmpdir(), "trancelogix-rename-"))
   const filename = join(directory, ".data", `${LEGACY_BRAND_KEY}.sqlite`)
   const first = await fixture(t, { filename })
   const currentCookie = await first.login("admin")
-  const oldCookie = currentCookie.replace("trancelogix_session=", `${LEGACY_BRAND_KEY}_session=`)
+  const oldCookie = currentCookie.replace(
+    "trancelogix_session=",
+    `${LEGACY_BRAND_KEY}_session=`,
+  )
   const database = new DatabaseSync(filename)
-  for (const account of ["admin", "operations", "warehouse"]) database.prepare("UPDATE users SET email = ? WHERE id = ?").run(`${account}@${LEGACY_BRAND_KEY}.local`, `usr-${account}`)
-  database.prepare("UPDATE users SET password_hash = ? WHERE id = 'usr-admin'").run(hashPassword("KeptCustomPassword!2026"))
+  for (const account of ["admin", "operations", "warehouse"])
+    database
+      .prepare("UPDATE users SET email = ? WHERE id = ?")
+      .run(`${account}@${LEGACY_BRAND_KEY}.local`, `usr-${account}`)
+  database
+    .prepare("UPDATE users SET password_hash = ? WHERE id = 'usr-admin'")
+    .run(hashPassword("KeptCustomPassword!2026"))
   database.prepare("DELETE FROM metadata WHERE key = 'brand-trancelogix'").run()
   database.close()
   const second = await fixture(t, { filename, demo: false })
@@ -37,20 +54,50 @@ test("brand rename preserves saved records, custom passwords and previous sessio
   assert.equal(session.body.user.email, "admin@trancelogix.local")
   const snapshot = await second.api("/api/v1/workspace", { cookie: oldCookie })
   assert.equal(snapshot.body.orders.length, 9)
-  for (const email of ["admin@trancelogix.local", `admin@${LEGACY_BRAND_KEY}.local`]) {
-    assert.equal((await second.api("/api/auth/login", { method: "POST", body: { email, password: "KeptCustomPassword!2026" } })).status, 200)
+  for (const email of [
+    "admin@trancelogix.local",
+    `admin@${LEGACY_BRAND_KEY}.local`,
+  ]) {
+    assert.equal(
+      (
+        await second.api("/api/auth/login", {
+          method: "POST",
+          body: { email, password: "KeptCustomPassword!2026" },
+        })
+      ).status,
+      200,
+    )
   }
   assert.equal(localDatabasePath(directory), filename)
-  assert.equal(localDatabasePath(directory, ".data/new.sqlite"), join(directory, ".data", "new.sqlite"))
-  const logout = await second.api("/api/auth/logout", { method: "POST", cookie: oldCookie, body: {} })
+  assert.equal(
+    localDatabasePath(directory, ".data/new.sqlite"),
+    join(directory, ".data", "new.sqlite"),
+  )
+  const logout = await second.api("/api/auth/logout", {
+    method: "POST",
+    cookie: oldCookie,
+    body: {},
+  })
   assert(logout.cookie.includes(`${LEGACY_BRAND_KEY}_session=`))
-  assert.equal((await second.api("/api/auth/session", { cookie: oldCookie })).body.user, null)
+  assert.equal(
+    (await second.api("/api/auth/session", { cookie: oldCookie })).body.user,
+    null,
+  )
 })
 
-test("pre-parsed Vercel request bodies support authenticated mutations", async t => {
+test("pre-parsed Vercel request bodies support authenticated mutations", async (t) => {
   const { api, login } = await fixture(t, { parsedBody: true })
   const cookie = await login()
-  const result = await api("/api/v1/orders", { method: "POST", cookie, body: { orderId: "ORD-PARSED-001", customerId: "CUS-001", destination: "Tarlac", items: [{ sku: "BOX-001", quantity: 1 }] } })
+  const result = await api("/api/v1/orders", {
+    method: "POST",
+    cookie,
+    body: {
+      orderId: "ORD-PARSED-001",
+      customerId: "CUS-001",
+      destination: "Tarlac",
+      items: [{ sku: "BOX-001", quantity: 1 }],
+    },
+  })
   assert.equal(result.status, 201)
   assert.equal(result.body.order.id, "ORD-PARSED-001")
 })
@@ -227,6 +274,134 @@ test("authentication, cookies, request origin, and server-enforced roles", async
   })
   assert.match(logout.cookie, /HttpOnly; SameSite=Strict/)
   assert.equal((await api("/api/v1/workspace", { cookie: admin })).status, 401)
+})
+
+test("administrators can delete other accounts, revoke sessions and preserve workspace history", async (t) => {
+  const { api, login } = await fixture(t)
+  const admin = await login("admin")
+  const operations = await login("operations")
+  const warehouse = await login("warehouse")
+  const target = "/api/v1/users/usr-warehouse"
+  const before = (await api("/api/v1/workspace", { cookie: admin })).body
+  assert.equal((await api(target, { method: "DELETE" })).status, 401)
+  for (const cookie of [operations, warehouse])
+    assert.equal((await api(target, { method: "DELETE", cookie })).status, 403)
+  assert.equal(
+    (
+      await api(target, {
+        method: "DELETE",
+        cookie: admin,
+        headers: { "X-TranceLogix-Request": "" },
+      })
+    ).status,
+    403,
+  )
+  assert.equal(
+    (
+      await api(target, {
+        method: "DELETE",
+        cookie: admin,
+        headers: { Origin: "https://other.example" },
+      })
+    ).status,
+    403,
+  )
+  assert.equal(
+    (await api("/api/v1/users/usr-admin", { method: "DELETE", cookie: admin }))
+      .status,
+    409,
+  )
+  const removed = await api(target, { method: "DELETE", cookie: admin })
+  assert.equal(removed.status, 200)
+  assert.deepEqual(removed.body, { ok: true, deletedUserId: "usr-warehouse" })
+  assert.equal(
+    (await api("/api/auth/session", { cookie: warehouse })).body.user,
+    null,
+  )
+  assert.equal(
+    (await api("/api/v1/workspace", { cookie: warehouse })).status,
+    401,
+  )
+  assert.equal(
+    (
+      await api("/api/auth/login", {
+        method: "POST",
+        body: {
+          email: "warehouse@trancelogix.local",
+          password: "TranceLogixDemo!2026",
+        },
+      })
+    ).status,
+    401,
+  )
+  assert.equal(
+    (await api(target, { method: "DELETE", cookie: admin })).status,
+    404,
+  )
+  const after = (await api("/api/v1/workspace", { cookie: admin })).body
+  assert(!after.users.some((user) => user.id === "usr-warehouse"))
+  assert.deepEqual(after.orders, before.orders)
+  assert.deepEqual(after.shipments, before.shipments)
+  assert.deepEqual(after.inventory, before.inventory)
+  assert.deepEqual(
+    after.activity.filter((event) =>
+      before.activity.some((previous) => previous.id === event.id),
+    ),
+    before.activity,
+  )
+  assert.equal(
+    after.activity.filter((event) => event.title === "User deleted").length,
+    1,
+  )
+  assert.match(after.activity[0].message, /Juan Dela Cruz/)
+  assert.equal(after.user.role, "Administrator")
+})
+
+test("concurrent administrator deletions retain one authorized administrator", async (t) => {
+  const { api, login } = await fixture(t)
+  const first = await login("admin")
+  const created = await api("/api/v1/users", {
+    method: "POST",
+    cookie: first,
+    body: {
+      name: "Second Administrator",
+      email: "second-admin@example.com",
+      password: "SecondAdminTest!2026",
+      role: "Administrator",
+    },
+  })
+  assert.equal(created.status, 201)
+  const id = created.body.user.id
+  const signedIn = await api("/api/auth/login", {
+    method: "POST",
+    body: {
+      email: "second-admin@example.com",
+      password: "SecondAdminTest!2026",
+    },
+  })
+  assert.equal(signedIn.status, 200)
+  const second = signedIn.cookie.split(";")[0]
+  const results = await Promise.all([
+    api(`/api/v1/users/${id}`, { method: "DELETE", cookie: first }),
+    api("/api/v1/users/usr-admin", { method: "DELETE", cookie: second }),
+  ])
+  assert.equal(results.filter((result) => result.status === 200).length, 1)
+  assert(results.some((result) => [401, 403].includes(result.status)))
+  const winner = results[0].status === 200 ? first : second
+  const remaining = (await api("/api/v1/workspace", { cookie: winner })).body
+  assert.equal(
+    remaining.users.filter((user) => user.role === "Administrator").length,
+    1,
+  )
+  assert.equal(
+    (
+      await api(`/api/v1/users/${remaining.user.id}`, {
+        method: "DELETE",
+        cookie: winner,
+      })
+    ).status,
+    409,
+  )
 })
 
 test("validated orders, preparation prerequisites, durable shipments, idempotency, tracking and safe OMS retry", async (t) => {

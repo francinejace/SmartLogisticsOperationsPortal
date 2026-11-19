@@ -210,7 +210,7 @@ export async function createBackend(options: BackendOptions) {
     url: URL,
   ) {
     const method = req.method || "GET"
-    if (!["GET", "POST", "PUT", "PATCH"].includes(method))
+    if (!["GET", "POST", "PUT", "PATCH", "DELETE"].includes(method))
       throw new HttpError(405, "Method not allowed.")
     if (req.headers.origin) {
       let origin: URL
@@ -803,6 +803,50 @@ export async function createBackend(options: BackendOptions) {
       return json(res, 201, {
         user: userView((await one("SELECT * FROM users WHERE id = ?", id))!),
       })
+    }
+    const userMatch = path.match(/^\/api\/v1\/users\/([^/]+)$/)
+    if (userMatch && method === "DELETE") {
+      authorize(user, ["Administrator"])
+      const id = decodeURIComponent(userMatch[1])
+      if (id === user.id)
+        throw new HttpError(
+          409,
+          "You cannot delete the account you are signed in with.",
+        )
+      await transaction(db, async () => {
+        // Recheck access and safeguards under the shared write lock so two
+        // administrators cannot remove each other's accounts concurrently.
+        const actor = await one("SELECT role FROM users WHERE id = ?", user.id)
+        if (!actor || actor.role !== "Administrator")
+          throw new HttpError(
+            403,
+            "Your account no longer has permission for this action.",
+            "forbidden",
+          )
+        const target = await one(
+          "SELECT id, name, role FROM users WHERE id = ?",
+          id,
+        )
+        if (!target) throw new HttpError(404, "User not found.", "not_found")
+        if (target.role === "Administrator") {
+          const administrators = await one(
+            "SELECT COUNT(*) AS count FROM users WHERE role = 'Administrator'",
+          )
+          if (Number(administrators?.count) <= 1)
+            throw new HttpError(409, "The workspace must retain an administrator.")
+        }
+        await db.prepare("DELETE FROM sessions WHERE user_id = ?").run(id)
+        await db.prepare("DELETE FROM rate_limits WHERE key = ?").run(`chat:${id}`)
+        await db.prepare("DELETE FROM users WHERE id = ?").run(id)
+        await record(
+          user,
+          "User deleted",
+          id,
+          `${String(target.name)} (${String(target.role)}) removed from the workspace. Previous sessions revoked.`,
+          "warning",
+        )
+      })
+      return json(res, 200, { ok: true, deletedUserId: id })
     }
     const roleMatch = path.match(/^\/api\/v1\/users\/([^/]+)\/role$/)
     if (roleMatch && method === "PATCH") {

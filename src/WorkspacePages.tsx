@@ -9,6 +9,7 @@ import type {
 import type { Navigate, Role } from "./types"
 import { useWorkspace } from "./WorkspaceData"
 import useFocusLayer from "./useFocusLayer"
+import DeleteUserDialog from "./components/DeleteUserDialog"
 import Card, {
   Badge,
   Button,
@@ -2418,6 +2419,8 @@ export function Settings({ go }: PageProps) {
   const [newUserPassword, setNewUserPassword] = useState("")
   const [newRole, setNewRole] = useState<Role>("Operations staff")
   const [roles, setRoles] = useState<Record<string, string>>({})
+  const [deleteTarget, setDeleteTarget] = useState<User | null>(null)
+  const [deletionMessage, setDeletionMessage] = useState("")
   const [assistantStatus, setAssistantStatus] = useState<boolean | null>(null)
   const action = useAction()
   const admin = data.user.role === "Administrator"
@@ -2578,16 +2581,24 @@ export function Settings({ go }: PageProps) {
           <Card>
             <div className="card-head">
               <div>
-                <h2>Users and roles</h2>
+                <h2 tabIndex={-1} data-user-management-heading>
+                  Users and roles
+                </h2>
                 <p>
-                  Server-enforced access · Role changes sign out the affected
-                  account
+                  Manage access for your team. Role changes and account deletion
+                  sign out the affected user.
                 </p>
               </div>
               <Button icon="plus" onClick={() => setCreating(!creating)}>
                 {creating ? "Close account form" : "Create user"}
               </Button>
             </div>
+            {deletionMessage && (
+              <div className="toast-inline" role="status">
+                <Icon name="check" />
+                {deletionMessage}
+              </div>
+            )}
             {creating && (
               <form
                 className="account-create-form"
@@ -2711,25 +2722,39 @@ export function Settings({ go }: PageProps) {
                         {user.id === data.user.id ? (
                           <small>Your account</small>
                         ) : (
-                          <Button
-                            kind="secondary"
-                            disabled={
-                              action.busy ||
-                              !roles[user.id] ||
-                              roles[user.id] === user.role
-                            }
-                            onClick={() =>
-                              void action.run(async () => {
-                                await mutate(
-                                  `v1/users/${encodeURIComponent(user.id)}/role`,
-                                  { role: roles[user.id] },
-                                  "PATCH",
-                                )
-                              }, "Role saved. Previous sessions revoked.")
-                            }
-                          >
-                            Save role
-                          </Button>
+                          <div className="user-management-actions">
+                            <Button
+                              kind="secondary"
+                              disabled={
+                                action.busy ||
+                                !roles[user.id] ||
+                                roles[user.id] === user.role
+                              }
+                              onClick={() =>
+                                void action.run(async () => {
+                                  await mutate(
+                                    `v1/users/${encodeURIComponent(user.id)}/role`,
+                                    { role: roles[user.id] },
+                                    "PATCH",
+                                  )
+                                }, "Role saved. Previous sessions revoked.")
+                              }
+                            >
+                              Save role
+                            </Button>
+                            <button
+                              type="button"
+                              className="button secondary user-delete-action"
+                              aria-label={`Delete user ${user.name}`}
+                              disabled={action.busy}
+                              onClick={() => {
+                                setDeletionMessage("")
+                                setDeleteTarget(user)
+                              }}
+                            >
+                              Delete user
+                            </button>
+                          </div>
                         )}
                       </td>
                     </tr>
@@ -2803,6 +2828,29 @@ export function Settings({ go }: PageProps) {
           </div>
         )}
       </div>
+      {deleteTarget && admin && (
+        <DeleteUserDialog
+          key={deleteTarget.id}
+          user={deleteTarget}
+          onClose={() => setDeleteTarget(null)}
+          onConfirm={async () => {
+            await mutate(
+              `v1/users/${encodeURIComponent(deleteTarget.id)}`,
+              undefined,
+              "DELETE",
+            )
+            setRoles((previous) => {
+              const next = { ...previous }
+              delete next[deleteTarget.id]
+              return next
+            })
+            setDeletionMessage(
+              `${deleteTarget.name}'s account was deleted. All sessions signed out.`,
+            )
+            setDeleteTarget(null)
+          }}
+        />
+      )}
     </>
   )
 }
