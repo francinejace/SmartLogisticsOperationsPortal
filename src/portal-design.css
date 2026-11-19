@@ -54,6 +54,27 @@
   .app .attention-card > .card-head:first-child { background: var(--surface-sage); }
   .app .toolbar { padding: 16px; background: var(--surface-inset); border: 1px solid var(--border); border-radius: 12px; gap: 12px; }
   .app .toolbar .search-field { background: var(--surface); }
+  .app :is(.search-field, .select-label select, .form-grid input, .form-grid select, .settings-form input, .settings-form select) { border-radius: var(--radius-control); }
+  .app :is(.form-grid input, .form-grid select, .settings-form input, .settings-form select) { min-height: 48px; }
+  .app .demo-strip { border-style: solid; background: var(--surface); }
+  .app .badge { border-radius: 999px; padding-inline: 9px; }
+  .app .stepper { padding: 22px; background: var(--surface); border-radius: 16px; }
+  .app .stepper .active span { background: var(--brand-highlight); border-color: var(--brand-highlight); color: var(--brand-ink); }
+  .app :is(.form-footer, .card-actions, .footer-actions) { gap: 12px; }
+  .app :is(.form-grid label > span, .settings-form label > span) { font-size: 14px; }
+  .app :is(.next-action p, .side-note p, .side-note li, .card-head p, .help-topic-card > p) { font-size: 13px; line-height: 1.8; }
+  .app .tracking-number { background: var(--surface-sage); color: var(--heading); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .app .tracking-number small { color: var(--muted); }
+  .app .tracking-number button { background: var(--surface); color: var(--accent); border-color: var(--border-strong); border-radius: 999px; }
+  .app .tracking-number button:is(:hover, :focus-visible) { background: var(--pale); border-color: var(--accent); }
+  .app .lookup-card .button { border-radius: 999px; }
+  .app .popover { border-radius: 16px; box-shadow: var(--shadow-float); }
+  .app .profile-menu > button { min-height: 44px; border-radius: 8px; }
+  .app .drawer { border-left: 1px solid var(--border); padding: 32px; box-shadow: var(--shadow-float); }
+  .app .drawer-head { border-bottom-style: solid; }
+  .app .drawer-head h2 { font-size: 24px; font-weight: 700; letter-spacing: -.7px; line-height: 1.4; }
+  .app .drawer section { border-top-style: solid; }
+  .app .drawer section p { font-size: 14px; line-height: 1.8; }
   .app .list-context { padding: 0 3px 16px; }
   .app table th { font-size: 11px; letter-spacing: .55px; text-transform: uppercase; padding-block: 14px; }
   .app table tbody tr:nth-child(even) { background: var(--surface-inset); }
@@ -182,5 +203,7 @@
     .app .page-head-feature .page-heading-photo { width: 100%; opacity: .08; border-radius: 18px; }
     .app .page-actions { gap: 10px; }
     .app .page-head-feature .updated { text-align: left; font-size: 10px; }
+    .app .stepper { padding: 16px 12px; }
+    .app .drawer { padding: 24px 20px; }
   }
 }

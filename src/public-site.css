@@ -137,6 +137,7 @@
   .login-demo-note p { font-size: 12px; margin: 0; line-height: 1.8; }
   .login-demo-note strong { display: block; color: var(--text); font-weight: 600; margin-bottom: 5px; }
   @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
     .hero-background img { transition: opacity 220ms ease; }
     .hero-caption-enter { animation: hero-caption-in 180ms ease-out both; }
     .carousel-selectors button > span { transition: width 180ms ease, background-color 140ms ease; }
