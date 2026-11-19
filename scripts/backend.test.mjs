@@ -743,6 +743,34 @@ test("chat uses the Responses API with trusted context and never returns credent
   assert(!JSON.stringify(reply.body).includes("credential"))
 })
 
+test("authenticated city maps are read-only, cached and available to all workspace roles", async (t) => {
+  let calls = 0
+  const { api, login } = await fixture(t, {
+    fetchImpl: async (url) => {
+      calls++
+      assert.equal(url.hostname, "geocoding-api.open-meteo.com")
+      return Response.json({ results: [{
+        id: 1684138, name: "Tarlac City", latitude: 15.488, longitude: 120.598,
+        country_code: "PH", country: "Philippines", admin1: "Central Luzon", feature_code: "PPLA2",
+      }] })
+    },
+  })
+  assert.equal((await api("/api/v1/locations?city=Tarlac")).status, 401)
+  assert.equal(calls, 0)
+  for (const role of ["admin", "operations", "warehouse"]) {
+    const cookie = await login(role)
+    const before = await api("/api/v1/workspace", { cookie })
+    const response = await api("/api/v1/locations?city=Tarlac", { cookie })
+    assert.equal(response.status, 200)
+    assert.equal(response.body.locations[0].name, "Tarlac City")
+    const after = await api("/api/v1/workspace", { cookie })
+    assert.deepEqual(after.body.orders, before.body.orders)
+    assert.deepEqual(after.body.shipments, before.body.shipments)
+    assert.equal((await api("/api/v1/locations?city=x", { cookie })).status, 400)
+  }
+  assert.equal(calls, 1)
+})
+
 test("administrator connection checks send a fixed diagnostic without workspace data", async (t) => {
   const requests = []
   const fixtureOptions = {

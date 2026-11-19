@@ -13,6 +13,7 @@
     "start": "node --experimental-strip-types server/start.ts",
     "format": "oxfmt",
     "test:theme": "node --experimental-strip-types --test scripts/theme.test.mjs",
+    "test:locations": "node --experimental-strip-types --test scripts/locations.test.mjs",
     "test:backend": "node --experimental-strip-types --test scripts/backend.test.mjs",
     "test:postgres": "node --experimental-strip-types --test scripts/postgres.test.mjs",
     "test:netlify": "node --experimental-strip-types --test scripts/netlify.test.mjs"

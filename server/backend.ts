@@ -17,6 +17,7 @@ import {
 import type { DatabaseOptions } from "./database.ts"
 import { answerChat, checkChatConnection } from "./chat.ts"
 import { LEGACY_BRAND_KEY } from "../src/brand.ts"
+import createLocationSearch from "./locations.ts"
 interface BackendOptions extends DatabaseOptions {
   apiKey?: string
   model?: string
@@ -52,6 +53,7 @@ const digest = (value: string) =>
   createHash("sha256").update(value).digest("hex")
 export async function createBackend(options: BackendOptions) {
   const db = await openDatabase(options)
+  const findLocations = createLocationSearch({ fetchImpl: options.fetchImpl })
   let activeChat = 0
   // Use the same work factor for an unknown account and a wrong password.
   const dummyPassword = hashPassword(randomBytes(32).toString("hex"))
@@ -319,6 +321,10 @@ export async function createBackend(options: BackendOptions) {
     }
     if (path === "/api/v1/workspace" && method === "GET")
       return json(res, 200, await snapshot(user))
+    if (path === "/api/v1/locations" && method === "GET") {
+      await rateLimit(db, "locations:" + user.id, 30, 60000)
+      return json(res, 200, await findLocations(url.searchParams.get("city")))
+    }
     if (path === "/api/v1/orders" && method === "GET")
       return json(res, 200, { orders: await orders() })
     if (path === "/api/v1/orders" && method === "POST") {

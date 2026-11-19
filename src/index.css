@@ -1,10 +1,12 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap");
 @import "tailwindcss";
+@import "leaflet/dist/leaflet.css" layer(components);
 @import "./public-site.css";
 @import "./portal-interactions.css";
 @import "./portal-design.css";
 @import "./fullstack.css";
 @import "./chat-assistant.css";
+@import "./location-map.css";
 
 :root {
   color-scheme: light;
@@ -152,7 +154,7 @@
 .global-search { margin-left: auto; width: min(290px, 25vw); height: 44px; display: flex; align-items: center; gap: 8px; padding: 0 10px; border: 1px solid var(--border); border-radius: 8px; color: var(--muted); background: var(--surface-soft); }
 .global-search input { border: 0; outline: 0; background: transparent; width: 100%; min-width: 0; font-size: 13px; }
 .top-actions { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
-.theme-toggle { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 44px; min-height: 44px; padding: 0 13px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); font-size: 13px; font-weight: 500; flex-shrink: 0; }
+.theme-toggle { display: inline-flex; align-items: center; justify-content: center; width: 44px; min-width: 44px; min-height: 44px; padding: 0; border: 1px solid var(--border); border-radius: 50%; background: var(--surface); color: var(--text); flex-shrink: 0; }
 .theme-toggle:hover { background: var(--pale); border-color: var(--border-strong); }
 .theme-toggle[aria-pressed="true"] { color: var(--accent); background: var(--pale); }
 .environment { display: none; }

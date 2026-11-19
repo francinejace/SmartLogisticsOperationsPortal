@@ -11,6 +11,8 @@ import { useWorkspace } from "./WorkspaceData"
 import useFocusLayer from "./useFocusLayer"
 import DeleteUserDialog from "./components/DeleteUserDialog"
 import AssistantConnection from "./components/AssistantConnection"
+import DestinationMap from "./components/DestinationMap"
+import LocationButton from "./components/LocationButton"
 import Card, {
   Badge,
   Button,
@@ -162,7 +164,7 @@ function OrderTable({ rows, go }: OrderTableProps) {
                 <strong className="cell-main">{order.customer}</strong>
                 <small>{order.customerId}</small>
               </td>
-              <td>{order.destination}</td>
+              <td><LocationButton destination={order.destination} /></td>
               <td>{order.items.reduce((sum, item) => sum + item.qty, 0)}</td>
               <td>
                 <Badge tone={tone(order.inventory)}>{order.inventory}</Badge>
@@ -1076,6 +1078,7 @@ export function OrderDetail({ go }: PageProps) {
               </p>
             </div>
           )}
+          <DestinationMap destination={order.destination} />
         </aside>
       </div>
     </>
@@ -1178,7 +1181,7 @@ export function Warehouse({ go, initialSearch = "" }: SearchPageProps) {
                     <td>
                       <strong>{order.id}</strong>
                     </td>
-                    <td>{order.destination}</td>
+                    <td><LocationButton destination={order.destination} /></td>
                     <td>
                       <Badge tone={tone(order.inventory)}>
                         {order.inventory}
@@ -1495,6 +1498,7 @@ export function Preparation({ go }: PageProps) {
               </p>
             )}
           </Card>
+          <DestinationMap destination={order.destination} />
         </aside>
       </div>
     </>
@@ -1740,6 +1744,7 @@ export function CreateShipment({ go }: PageProps) {
               synchronization only.
             </p>
           </Card>
+          <DestinationMap destination={order.destination} />
         </aside>
       </div>
     </>
@@ -1830,7 +1835,7 @@ export function Shipments({ go, initialSearch = "" }: SearchPageProps) {
                     <td>{row.orderId}</td>
                     <td>{row.carrier}</td>
                     <td>{row.tracking}</td>
-                    <td>{row.destination}</td>
+                    <td><LocationButton destination={row.destination} /></td>
                     <td>{row.fee}</td>
                     <td>
                       <Badge tone={tone(row.status)}>{row.status}</Badge>
@@ -1968,6 +1973,7 @@ export function ShipmentDetail({ go }: PageProps) {
               shipment.
             </p>
           </Card>
+          <DestinationMap destination={shipment.destination} />
         </aside>
       </div>
     </>
@@ -2083,7 +2089,7 @@ export function Tracking({
             <div className="summary-grid">
               <div>
                 <small>Destination</small>
-                <strong>{result.shipment.destination}</strong>
+                <LocationButton destination={result.shipment.destination} />
               </div>
               <div>
                 <small>Saved update</small>
@@ -2102,6 +2108,9 @@ export function Tracking({
               </Button>
             </div>
           </Card>
+          <div className="tracking-destination-map">
+            <DestinationMap key={result.shipment.id} destination={result.shipment.destination} />
+          </div>
           <Card>
             <div className="card-head">
               <div>

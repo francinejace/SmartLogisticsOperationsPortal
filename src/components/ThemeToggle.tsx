@@ -35,7 +35,6 @@ export default function ThemeToggle({ theme, onToggle }: ThemeToggleProps) {
           </>
         )}
       </svg>
-      <span>{theme === "dark" ? "Dark" : "Light"}</span>
     </button>
   )
 }

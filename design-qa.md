@@ -87,3 +87,19 @@ The long-reference and settings-spacing fixes received additional focused browse
 Browser verification used local Chrome. Hosted Netlify configuration and live external-provider availability were outside this UI iteration. Tests used a separate local database and simulated logistics adapters.
 
 Repeated automated sign-ins initially exhausted the preview's shared login allowance. The isolated preview counter was cleared, and subsequent checks reused saved local test sessions. The application's login-rate-limit implementation remains intact.
+
+## Follow-up: destination maps, assistant diagnostics and header controls
+
+The user requested interactive city maps, a working OpenAI connection, and an icon-only theme control placed after Notifications. These updates retain the existing business workflows and green visual language.
+
+- Leaflet renders OpenStreetMap tiles from an authenticated, cached Open-Meteo/GeoNames city lookup. City links open a map drawer; order, preparation, shipment and tracking views include map cards. Maps show approximate city centers and never imply a live shipment position.
+- Map code loads on demand. Panning requires Explore map, with zoom, recenter, alternate matches and external map links available. Typing in city search sends no request until submission. Saved destination data remains unchanged.
+- OpenAI reads a private, Git-ignored server configuration. A real connection diagnostic returned HTTP 200 using a fixed test message. This diagnostic includes no workspace records, user identity or conversation. Record-aware assistant behavior remains covered by mocked backend regression tests.
+- Administrators can refresh setup and test the connection in Settings → Integrations. Credential, model and billing failures receive actionable, sanitized messages.
+- The theme toggle shows only its icon, retains its accessible label and tooltip, and follows Notifications in the portal header.
+
+Verification passed: TypeScript, production build, 14 SQLite tests, 14 PostgreSQL tests, 6 Netlify adapter tests, 6 city-service tests and 8 theme tests (48 total). Browser checks covered real city/tile loading, marker labels, attribution/referrer policy, drawer focus and Escape, pan/zoom/recenter, repeated-location caching, mobile/dark layouts, and existing detail-page navigation. Mocked UI checks covered tile failure/retry, alternate matches, explicit search, no match, provider failure/retry and unchanged saved order/shipment data. No browser runtime errors were observed.
+
+A narrow, vertically wrapped marker label found during screenshot review was fixed with an intrinsic tooltip width. The corrected mobile and desktop captures were inspected. Evidence: `/tmp/trancelogix-map-drawer-desktop.png`, `/tmp/trancelogix-map-drawer-mobile.png`, `/tmp/trancelogix-map-drawer-dark.png`, `/tmp/trancelogix-map-tracking.png`, `/tmp/trancelogix-map-assistant-settings.png` and `/tmp/trancelogix-map-header-icons.png`.
+
+Follow-up final result: passed

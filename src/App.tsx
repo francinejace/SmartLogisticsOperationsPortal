@@ -512,7 +512,6 @@ function Workspace({ theme, onToggleTheme, onSignOut }: WorkspaceProps) {
             )}
           </form>
           <div className="top-actions">
-            <ThemeToggle theme={theme} onToggle={onToggleTheme} />
             <span className="environment">
               <i />
               Simulation adapters
@@ -532,6 +531,7 @@ function Workspace({ theme, onToggleTheme, onSignOut }: WorkspaceProps) {
                 <i>{alerts.length}</i>
               )}
             </button>
+            <ThemeToggle theme={theme} onToggle={onToggleTheme} />
             <button
               className="top-user"
               data-layer-trigger

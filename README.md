@@ -39,7 +39,17 @@ OPENAI_MODEL=gpt-6-luna
 
 Edit that file locally, then restart `pnpm dev`. Use a newly generated key if a key was shared in a chat or other document. The actual key belongs only in `.env.local` or a server secret manager. Never give it a `VITE_` prefix, put it in a React component, or commit it. The repository includes no real API credentials.
 
+As an administrator, open **Settings → Integrations → Refresh setup → Test connection**. A configured key and a verified connection have separate labels. The connection test sends only a fixed, short diagnostic message to OpenAI; it includes no workspace records, user identity or conversation. Billing, model-access and credential errors receive actionable messages. Hosted sites need the key in their server environment variables and a redeploy; local `.env.local` files are not uploaded to Netlify.
+
 The server calls the [OpenAI Responses API](https://developers.openai.com/api/docs/guides/text) using `store: false`. Chat messages, the current page, the signed-in role, and relevant referenced order/shipment/product summaries are sent to OpenAI. Local chat history stays in browser memory and clears on sign-out or reload. This setting does not change OpenAI's other applicable data retention policies. The assistant can explain saved records and workflows; it cannot perform business actions. Without a configured key the website still works, and chat shows an unavailable state.
+
+## Destination maps
+
+Select a city name in Orders, the warehouse preparation queue or Shipments to open its map drawer. Maps also appear alongside order, preparation and shipment details and within Tracking. **Explore map** enables panning; zoom controls, recentering and an external map link remain available. The marker represents an approximate city center, with no live vehicle position, route or delivery ETA implied.
+
+[Leaflet](https://leafletjs.com/) displays [OpenStreetMap](https://www.openstreetmap.org/copyright) tiles, with visible attribution. The authenticated API resolves city names through [Open-Meteo / GeoNames](https://open-meteo.com/en/docs/geocoding-api). City searches occur on opening a visible map or submitting a search, and are cached; typing alone sends no search request. Alternative matches can be selected without changing saved destinations. No map API key is needed for the current non-commercial project setup. Internet access is required for city lookup and tiles; provider failures leave the rest of the workflow available.
+
+The public tile and geocoding services have usage policies; a commercial or higher-volume deployment should configure suitable provider access. Tile requests retain attribution, normal browser caching and a valid referrer. There is no bulk download or offline tile prefetch.
 
 ## Backend and integrations
 
@@ -54,9 +64,10 @@ The application API runs on the same origin as the frontend. Passwords are hashe
 | Shipments | `GET/POST /api/v1/shipments`, `POST /api/v1/shipments/:id/sync` |
 | Recovery | `POST /api/v1/carrier/check` |
 | Tracking | `GET /api/v1/tracking?reference=...` |
+| Destination maps | `GET /api/v1/locations?city=...` (signed-in accounts) |
 | Account | `PATCH /api/v1/profile`, `PATCH /api/v1/password` |
 | Administration | `POST /api/v1/users`, `PATCH /api/v1/users/:id/role`, `DELETE /api/v1/users/:id` |
-| Assistant | `GET /api/chat/status`, `POST /api/chat` |
+| Assistant | `GET /api/chat/status`, `POST /api/chat`, `POST /api/chat/check` (administrator diagnostic) |
 | Health | `GET /api/health` |
 
 Orders accept `items: [{ sku, quantity }]`. The server validates required fields, known SKUs, positive integer quantities, and duplicate IDs. Creation returns 201, invalid input 400, and an existing order ID 409.
@@ -74,6 +85,7 @@ pnpm test:backend
 pnpm test:postgres
 pnpm test:netlify
 pnpm test:theme
+pnpm test:locations
 pnpm exec tsc --noEmit
 pnpm build
 ```
