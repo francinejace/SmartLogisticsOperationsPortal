@@ -6,6 +6,7 @@ import ThemeToggle from "./components/ThemeToggle"
 import BrandMark from "./components/BrandMark"
 import PhotoCarousel from "./components/PhotoCarousel"
 import useEntranceMotion from "./useEntranceMotion"
+import logisticsPhotos from "./data/logisticsPhotos"
 
 interface PublicSiteProps {
   view: "home" | "login"
@@ -106,6 +107,7 @@ function LoginScreen({ onLogin }: { onLogin: (user: User) => void }) {
   return (
     <main className="public-main login-main" id="public-content">
       <section className="login-story">
+        <img className="login-story-photo" src={logisticsPhotos[0].src} alt="" />
         <div>
           <span className="public-eyebrow">YOUR NEXT SHIFT, CONNECTED</span>
           <h2>
@@ -446,18 +448,21 @@ export default function PublicSite({
                   {
                     icon: "box",
                     label: "01 / ORDERS",
+                    photo: logisticsPhotos[1],
                     title: "Start with the right details",
                     text: "Create and review customer orders with clear validation and inventory status.",
                   },
                   {
                     icon: "warehouse",
                     label: "02 / PREPARATION",
+                    photo: logisticsPhotos[0],
                     title: "Make every handoff count",
                     text: "Work through picking, packing, and package details before creating a shipment.",
                   },
                   {
                     icon: "truck",
                     label: "03 / SHIPMENTS",
+                    photo: logisticsPhotos[2],
                     title: "Keep the next step in sight",
                     text: "Review carrier confirmations, tracking updates, and synchronization exceptions.",
                   },
@@ -467,23 +472,32 @@ export default function PublicSite({
                     key={feature.title}
                     data-enter
                   >
-                    <div className="public-feature-top">
-                      <span className="public-icon-tile">
+                    <div className="public-feature-photo">
+                      <img
+                        src={feature.photo.src}
+                        alt={feature.photo.alt}
+                        width={feature.photo.width}
+                        height={feature.photo.height}
+                        loading="lazy"
+                      />
+                    </div>
+                    <div className="public-feature-content">
+                      <div className="public-feature-top">
                         <PublicIcon
                           name={feature.icon as PublicIconProps["name"]}
                         />
-                      </span>
-                      <small>{feature.label}</small>
+                        <small>{feature.label}</small>
+                      </div>
+                      <h3>{feature.title}</h3>
+                      <p>{feature.text}</p>
+                      <button
+                        className="text-button"
+                        onClick={() => onNavigate("login")}
+                      >
+                        Explore in the workspace
+                        <PublicIcon name="arrow" size={18} />
+                      </button>
                     </div>
-                    <h3>{feature.title}</h3>
-                    <p>{feature.text}</p>
-                    <button
-                      className="text-button"
-                      onClick={() => onNavigate("login")}
-                    >
-                      Explore in the workspace
-                      <PublicIcon name="arrow" size={16} />
-                    </button>
                   </article>
                 ))}
               </div>

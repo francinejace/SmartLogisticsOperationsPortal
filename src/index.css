@@ -649,7 +649,6 @@ tr[tabindex]:focus-visible { outline-offset: -3px; }
   .public-nav a:is(:hover, :focus-visible)::after { transform: scaleX(1); }
   .public-site .text-button:is(:hover, :focus-visible) { text-decoration: underline; text-underline-offset: 4px; }
   .public-feature-card:focus-within { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
-  .public-feature-card:first-child:focus-within { border-color: #b9d5b6; box-shadow: 0 0 0 1px #b9d5b6; }
 
   @media (prefers-reduced-motion: no-preference) {
     .button, .icon-button, .theme-toggle, .text-button { transition: background-color var(--motion-fast) ease, border-color var(--motion-fast) ease, color var(--motion-fast) ease, transform var(--motion-fast) var(--motion-ease); }
@@ -660,7 +659,7 @@ tr[tabindex]:focus-visible { outline-offset: -3px; }
     .motion-enter { animation: interface-enter var(--motion-enter) var(--motion-ease) backwards; }
     .public-feature-card:nth-child(2).motion-enter { animation-delay: 40ms; }
     .public-feature-card:nth-child(3).motion-enter { animation-delay: 80ms; }
-    .login-main, .page-transition { animation: interface-enter 180ms var(--motion-ease) backwards; }
+    .login-main { animation: interface-enter 180ms var(--motion-ease) backwards; }
     @media (hover: hover) and (pointer: fine) {
       .public-site :is(.button, .text-button):hover svg[data-icon="arrow"] { transform: translateX(3px); }
     }
