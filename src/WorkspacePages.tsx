@@ -10,6 +10,7 @@ import type { Navigate, Role } from "./types"
 import { useWorkspace } from "./WorkspaceData"
 import useFocusLayer from "./useFocusLayer"
 import DeleteUserDialog from "./components/DeleteUserDialog"
+import AssistantConnection from "./components/AssistantConnection"
 import Card, {
   Badge,
   Button,
@@ -2421,15 +2422,8 @@ export function Settings({ go }: PageProps) {
   const [roles, setRoles] = useState<Record<string, string>>({})
   const [deleteTarget, setDeleteTarget] = useState<User | null>(null)
   const [deletionMessage, setDeletionMessage] = useState("")
-  const [assistantStatus, setAssistantStatus] = useState<boolean | null>(null)
   const action = useAction()
   const admin = data.user.role === "Administrator"
-  useEffect(() => {
-    if (tab === "Integrations" && admin)
-      api<{ configured: boolean }>("chat/status")
-        .then((value) => setAssistantStatus(value.configured))
-        .catch(() => setAssistantStatus(null))
-  }, [tab, admin])
   return (
     <>
       <PageHead
@@ -2789,42 +2783,7 @@ export function Settings({ go }: PageProps) {
                 and activity are saved by the server.
               </p>
             </Card>
-            <Card>
-              <div className="card-head">
-                <div>
-                  <h2>OpenAI assistant</h2>
-                  <p>Connection configured privately on the server</p>
-                </div>
-                <Badge tone={assistantStatus ? "success" : "warning"}>
-                  {assistantStatus === null
-                    ? "Status unavailable"
-                    : assistantStatus
-                      ? "Configured"
-                      : "Setup needed"}
-                </Badge>
-              </div>
-              <p>
-                {assistantStatus
-                  ? "The server has an assistant credential configured. Availability also depends on the provider account and network."
-                  : "Ask the project administrator to complete the private server configuration described in the project README."}
-              </p>
-              <div className="card-actions">
-                <Button
-                  kind="secondary"
-                  disabled={action.busy}
-                  onClick={() =>
-                    void action.run(async () => {
-                      const result = await api<{ configured: boolean }>(
-                        "chat/status",
-                      )
-                      setAssistantStatus(result.configured)
-                    })
-                  }
-                >
-                  Check configuration
-                </Button>
-              </div>
-            </Card>
+            <AssistantConnection />
           </div>
         )}
       </div>

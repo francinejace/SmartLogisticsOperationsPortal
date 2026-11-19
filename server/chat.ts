@@ -1,13 +1,16 @@
 import type { User, WorkspaceSnapshot } from "../src/api-types.ts"
 
-interface ChatOptions {
+interface ConnectionOptions {
   apiKey?: string
   model?: string
-  user: User
-  snapshot: WorkspaceSnapshot
   fetchImpl?: typeof fetch
   signal: AbortSignal
   timeoutMs?: number
+}
+
+interface ChatOptions extends ConnectionOptions {
+  user: User
+  snapshot: WorkspaceSnapshot
 }
 
 class ChatError extends Error {
@@ -117,6 +120,29 @@ export async function answerChat(
       references.includes(row.sku),
     ),
   }
+  return requestReply({
+    instructions: `${guide}\nTrusted server context: ${JSON.stringify({ role: options.user.role, page: requestedPage, snapshotAt: new Date().toISOString(), records })}`,
+    input: messages,
+    max_output_tokens: 1000,
+  }, options)
+}
+
+export async function checkChatConnection(options: ConnectionOptions) {
+  // This diagnostic sends no workspace snapshot, user identity or conversation.
+  await requestReply({
+    instructions: "This is a connection check. Reply only with OK.",
+    input: "Connection check",
+    max_output_tokens: 16,
+  }, options)
+  return { ok: true, model: options.model || "gpt-6-luna" }
+}
+
+async function requestReply(
+  payload: { instructions: string; input: unknown; max_output_tokens: number },
+  options: ConnectionOptions,
+) {
+  if (!options.apiKey?.trim())
+    throw new ChatError(503, "Add a private OpenAI key to connect the assistant.", "assistant_not_configured")
   const timeout = AbortSignal.timeout(options.timeoutMs || 30000)
   try {
     const upstream = await (options.fetchImpl || fetch)(
@@ -130,9 +156,7 @@ export async function answerChat(
         signal: AbortSignal.any([options.signal, timeout]),
         body: JSON.stringify({
           model: options.model || "gpt-6-luna",
-          instructions: `${guide}\nTrusted server context: ${JSON.stringify({ role: options.user.role, page: requestedPage, snapshotAt: new Date().toISOString(), records })}`,
-          input: messages,
-          max_output_tokens: 1000,
+          ...payload,
           reasoning: { effort: "none" },
           store: false,
         }),
@@ -140,6 +164,13 @@ export async function answerChat(
     )
     if (!upstream.ok) {
       // Never forward upstream response bodies; they can contain sensitive request details.
+      const details = await upstream.json().catch(() => null) as { error?: { code?: unknown } } | null
+      if (upstream.status === 429 && details?.error?.code === "insufficient_quota")
+        throw new ChatError(
+          503,
+          "The OpenAI API project has no available credit. Ask its administrator to check API billing and usage limits.",
+          "assistant_quota_exceeded",
+        )
       if (upstream.status === 429)
         throw new ChatError(
           429,
@@ -152,6 +183,8 @@ export async function answerChat(
           "The assistant connection needs attention. Please contact your project administrator.",
           "assistant_configuration_error",
         )
+      if (upstream.status === 404)
+        throw new ChatError(503, "The selected assistant model is unavailable. Ask the administrator to check OPENAI_MODEL and model access.", "assistant_model_unavailable")
       throw new ChatError(
         502,
         "The assistant is temporarily unavailable. Please try again.",

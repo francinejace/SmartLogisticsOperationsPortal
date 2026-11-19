@@ -417,7 +417,9 @@ code { font-size: 12px; color: var(--text); background: var(--surface-soft); pad
 .stage-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 6px; }
 .expand-button { min-height: 44px; align-items: center; border: 0; background: none; width: 100%; padding: 0; display: flex; justify-content: space-between; color: var(--accent); font-size: 13px; font-weight: 600; }
 .technical { background: var(--surface-soft); border-radius: 6px; padding: 10px; margin-top: 10px; }.technical div { margin-bottom: 8px; }.technical small { display: block; color: var(--muted); font-size: 12px; margin-bottom: 3px; }
-.activity-list > div { min-height: 58px; border-bottom: 1px solid var(--border); display: grid; grid-template-columns: auto 90px 1fr auto 90px; gap: 12px; align-items: center; font-size: 12px; }
+.activity-list > div { min-height: 58px; border-bottom: 1px solid var(--border); display: grid; grid-template-columns: auto 90px minmax(0, 1fr) auto 90px; gap: 12px; align-items: center; font-size: 12px; }
+.activity-copy { min-width: 0; overflow-wrap: anywhere; }
+.activity-list .text-button { min-width: 0; white-space: normal; overflow-wrap: anywhere; text-align: left; }
 .activity-dot { width: 27px; height: 27px; display: grid; place-items: center; border-radius: 50%; color: var(--accent); background: var(--pale); }.activity-dot.error { color: var(--red); background: var(--red-bg); }
 .activity-time small, .activity-copy small { display: block; color: var(--muted); font-size: 12px; margin-top: 3px; }
 .settings-card { padding: 0; }.settings-section { display: grid; grid-template-columns: minmax(200px, .7fr) minmax(0, 2fr); }.settings-section > div { padding: 22px; }.settings-section > div:first-child { background: var(--surface-inset); border-right: 1px solid var(--border); }.settings-section h2 { font-size: 16px; }.settings-section p { color: var(--muted); font-size: 12px; line-height: 1.6; }
@@ -626,7 +628,7 @@ tr[tabindex]:focus-visible { outline-offset: -3px; }
   .tracking-number strong { font-size: 20px; }
   .tracking-number { gap: 8px; }
   .activity-list > div { grid-template-columns: auto 58px minmax(0, 1fr); padding: 16px 0; gap: 10px; }
-  .activity-list .badge, .activity-list .text-button { grid-column: 3; width: fit-content; }
+  .activity-list .badge, .activity-list .text-button, .activity-list .record-reference { grid-column: 3; width: fit-content; }
   .integration-form { grid-template-columns: minmax(0, 1fr); }
   .success-panel { margin: 10px auto; padding: 24px 18px; }
   .popover { position: fixed; top: 74px; left: 12px; right: 12px; width: auto; max-height: calc(100dvh - 90px); }

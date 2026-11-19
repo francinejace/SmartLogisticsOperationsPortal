@@ -15,7 +15,7 @@ import {
   transaction,
 } from "./database.ts"
 import type { DatabaseOptions } from "./database.ts"
-import { answerChat } from "./chat.ts"
+import { answerChat, checkChatConnection } from "./chat.ts"
 import { LEGACY_BRAND_KEY } from "../src/brand.ts"
 interface BackendOptions extends DatabaseOptions {
   apiKey?: string
@@ -233,9 +233,9 @@ export async function createBackend(options: BackendOptions) {
         database: "connected",
         integrations: "simulation",
       })
-    if (path === "/api/chat/status" && method === "GET")
-      return json(res, 200, { configured: Boolean(options.apiKey?.trim()) })
     const user = await sessionUser(req)
+    if (path === "/api/chat/status" && method === "GET")
+      return json(res, 200, { configured: Boolean(options.apiKey?.trim()), canManage: user?.role === "Administrator" })
     if (path === "/api/auth/session" && method === "GET")
       return json(res, 200, { user })
     if (path === "/api/auth/login" && method === "POST") {
@@ -300,6 +300,23 @@ export async function createBackend(options: BackendOptions) {
         "Sign in to continue.",
         "authentication_required",
       )
+    if (path === "/api/chat/check" && method === "POST") {
+      authorize(user, ["Administrator"])
+      await readJson(req)
+      await rateLimit(db, "chat-check:" + user.id, 3, 60000)
+      const controller = new AbortController()
+      const cancel = () => { if (!res.writableEnded) controller.abort() }
+      res.on("close", cancel)
+      try {
+        return json(res, 200, await checkChatConnection({
+          apiKey: options.apiKey,
+          model: options.model,
+          fetchImpl: options.fetchImpl,
+          timeoutMs: options.chatTimeoutMs,
+          signal: controller.signal,
+        }))
+      } finally { res.removeListener("close", cancel) }
+    }
     if (path === "/api/v1/workspace" && method === "GET")
       return json(res, 200, await snapshot(user))
     if (path === "/api/v1/orders" && method === "GET")

@@ -97,6 +97,7 @@
   .app .next-action p { line-height: 1.8; }
   .app .settings-section > .settings-intro { background: var(--surface-sage); }
   .app .settings-card { overflow: hidden; }
+  .app .settings-card + .card { margin-top: 24px; }
   .app .settings-intro-icon { display: grid; place-items: center; width: 52px; height: 52px; margin-bottom: 24px; background: var(--surface); border: 1px solid var(--border-strong); border-radius: 13px; color: var(--accent); }
   .app .section-overline { display: block; font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; font-weight: 600; }
   .app .settings-intro h2 { font-size: 20px; line-height: 1.4; letter-spacing: -.4px; }

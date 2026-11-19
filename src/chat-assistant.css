@@ -1,4 +1,11 @@
 @layer components {
+  .assistant-setup { margin-block: 20px; padding: 20px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-sage); }
+  .assistant-setup > strong { display: flex; align-items: center; gap: 9px; color: var(--heading); font-size: 15px; }
+  .assistant-setup ol { margin: 16px 0; padding-left: 22px; list-style: decimal; }
+  .assistant-setup li { padding: 5px 0 5px 4px; color: var(--text); font-size: 14px; line-height: 1.8; }
+  .assistant-setup p { font-size: 12px; color: var(--muted); line-height: 1.8; }
+  .assistant-setup a, .assistant-connection .alert a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+  .assistant-connection > p { color: var(--muted); font-size: 14px; line-height: 1.8; }
   .assistant-launcher { position: fixed; z-index: 24; right: 24px; bottom: max(24px, env(safe-area-inset-bottom)); display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 12px 20px; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--action); color: var(--action-text); box-shadow: var(--shadow-float); font-size: 14px; font-weight: 600; }
   .assistant-launcher:hover { background: var(--action-hover); }
   .assistant-panel { position: fixed; inset: auto 24px 24px auto; width: min(430px, calc(100vw - 32px)); max-width: none; height: min(730px, calc(100dvh - 48px)); max-height: none; margin: 0; padding: 0; border: 1px solid var(--border-strong); border-radius: 18px; background: var(--surface); color: var(--text); box-shadow: 0 24px 80px #061c2240; overflow: hidden; }

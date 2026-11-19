@@ -15,6 +15,7 @@ export default function ChatAssistant({ page }: { page: string }) {
   const [status, setStatus] =
     useState<"checking" | "ready" | "setup" | "offline">("checking")
   const [draft, setDraft] = useState("")
+  const [canManage, setCanManage] = useState(false)
   const [turns, setTurns] = useState<Turn[]>([])
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState("")
@@ -30,10 +31,13 @@ export default function ChatAssistant({ page }: { page: string }) {
   const check = async (signal?: AbortSignal) => {
     setStatus("checking")
     try {
-      const result = await api<{ configured: boolean }>("chat/status", {
+      const result = await api<{ configured: boolean; canManage?: boolean }>("chat/status", {
         signal,
       })
-      if (!signal?.aborted) setStatus(result.configured ? "ready" : "setup")
+      if (!signal?.aborted) {
+        setStatus(result.configured ? "ready" : "setup")
+        setCanManage(Boolean(result.canManage))
+      }
     } catch {
       if (!signal?.aborted) setStatus("offline")
     }
@@ -296,7 +300,9 @@ export default function ChatAssistant({ page }: { page: string }) {
                 {status === "checking"
                   ? "Checking assistant availability…"
                   : status === "setup"
-                    ? "The assistant is not connected yet. Ask your project administrator to finish setup."
+                    ? canManage
+                      ? "Connect a private OpenAI key, then verify it in Settings → Integrations."
+                      : "An administrator needs to connect OpenAI in Settings → Integrations."
                     : "The assistant could not be reached. Check your connection and try again."}
               </p>
               {status !== "checking" && (

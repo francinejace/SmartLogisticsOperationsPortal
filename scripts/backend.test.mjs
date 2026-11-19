@@ -743,6 +743,52 @@ test("chat uses the Responses API with trusted context and never returns credent
   assert(!JSON.stringify(reply.body).includes("credential"))
 })
 
+test("administrator connection checks send a fixed diagnostic without workspace data", async (t) => {
+  const requests = []
+  const fixtureOptions = {
+    apiKey: "private-test-credential",
+    fetchImpl: async (_url, init) => {
+      requests.push(JSON.parse(init.body))
+      return Response.json({ output: [{ type: "message", content: [{ type: "output_text", text: "OK" }] }] })
+    },
+  }
+  const { api, login } = await fixture(t, fixtureOptions)
+  assert.equal((await api("/api/chat/check", { method: "POST", body: {} })).status, 401)
+  const staff = await login("operations")
+  assert.equal((await api("/api/chat/check", { method: "POST", body: {}, cookie: staff })).status, 403)
+  assert.equal(requests.length, 0)
+  const admin = await login("admin")
+  const status = await api("/api/chat/status", { cookie: admin })
+  assert.equal(status.body.configured, true)
+  assert.equal(status.body.canManage, true)
+  const result = await api("/api/chat/check", {
+    method: "POST", cookie: admin,
+    body: { messages: [{ role: "user", content: "private message" }], orderId: "ORD-1001" },
+  })
+  assert.equal(result.status, 200)
+  assert.equal(result.body.ok, true)
+  assert.equal(requests[0].input, "Connection check")
+  assert.equal(requests[0].store, false)
+  assert.equal(requests[0].max_output_tokens, 16)
+  assert(!JSON.stringify(requests[0]).includes("ORD-1001"))
+  assert(!JSON.stringify(requests[0]).includes("private message"))
+  assert(!JSON.stringify(requests[0]).includes("Trusted server context"))
+  assert(!JSON.stringify(result.body).includes(fixtureOptions.apiKey))
+  await api("/api/chat/check", { method: "POST", body: {}, cookie: admin })
+  await api("/api/chat/check", { method: "POST", body: {}, cookie: admin })
+  assert.equal((await api("/api/chat/check", { method: "POST", body: {}, cookie: admin })).status, 429)
+  assert.equal(requests.length, 3)
+
+  const quota = await fixture(t, {
+    apiKey: "private-test-credential",
+    fetchImpl: async () => Response.json({ error: { code: "insufficient_quota", message: "private provider detail" } }, { status: 429 }),
+  })
+  const quotaCookie = await quota.login("admin")
+  const failed = await quota.api("/api/chat/check", { method: "POST", body: {}, cookie: quotaCookie })
+  assert.equal(failed.body.error.code, "assistant_quota_exceeded")
+  assert(!JSON.stringify(failed.body).includes("private provider detail"))
+})
+
 test("chat configuration, provider errors and timeouts are actionable and sanitized", async (t) => {
   const { api, login } = await fixture(t)
   const cookie = await login()
