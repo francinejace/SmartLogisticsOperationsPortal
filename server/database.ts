@@ -2,6 +2,7 @@ import Storage from "./storage.ts"
 import type pg from "pg"
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto"
 import { LEGACY_BRAND_KEY } from "../src/brand.ts"
+import addSampleData from "./sample-data.ts"
 
 export function hashPassword(password: string) {
   const salt = randomBytes(16).toString("hex")
@@ -146,6 +147,9 @@ export async function openDatabase(options: DatabaseOptions) {
           .prepare("INSERT INTO metadata VALUES ('simulation', 'true')")
           .run()
       }
+      // Backfill local demo workspaces once, without resetting saved progress.
+      // Hosted adapters keep demo=false and require an administrator to import.
+      if (options.demo) await addSampleData(db)
     })
     return db
   } catch (error) {

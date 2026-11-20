@@ -29,6 +29,128 @@ test("production bootstrap accepts a normal email and creates only its administr
   assert.equal(snapshot.body.orders.length, 0)
 })
 
+test("sample data is administrator-only, additive, and safe to import concurrently", async (t) => {
+  const { api, login } = await fixture(t, {
+    demo: false,
+    adminEmail: "admin@trancelogix.local",
+    adminPassword: "TranceLogixDemo!2026",
+  })
+  const path = "/api/v1/sample-data"
+  assert.equal((await api(path, { method: "POST", body: {} })).status, 401)
+  const cookie = await login("admin")
+  for (const [account, role] of [
+    ["operations", "Operations staff"],
+    ["warehouse", "Warehouse staff"],
+  ]) {
+    assert.equal(
+      (
+        await api("/api/v1/users", {
+          method: "POST",
+          cookie,
+          body: {
+            name: `Test ${account}`,
+            email: `${account}@trancelogix.local`,
+            password: "TranceLogixDemo!2026",
+            role,
+          },
+        })
+      ).status,
+      201,
+    )
+    assert.equal(
+      (
+        await api(path, {
+          method: "POST",
+          cookie: await login(account),
+          body: {},
+        })
+      ).status,
+      403,
+    )
+  }
+  await api("/api/v1/orders", {
+    method: "POST",
+    cookie,
+    body: {
+      orderId: "ORD-KEEP-001",
+      customerId: "CUS-KEEP",
+      customer: "Existing customer",
+      destination: "Manila",
+      items: [{ sku: "BOX-001", quantity: 1 }],
+    },
+  })
+  const before = (await api("/api/v1/workspace", { cookie })).body
+  const imports = await Promise.all(
+    [1, 2].map(() => api(path, { method: "POST", cookie, body: {} })),
+  )
+  assert.deepEqual(imports.map((row) => row.status).sort(), [200, 201])
+  const added = imports.find((row) => row.status === 201).body
+  assert.equal(added.ordersAdded, 20)
+  assert.equal(added.shipmentsAdded, 9)
+  assert(added.activityAdded > 50)
+  const after = (await api("/api/v1/workspace", { cookie })).body
+  assert.equal(after.orders.length, 21)
+  assert.equal(after.shipments.length, 9)
+  assert.deepEqual(
+    after.orders.find((row) => row.id === "ORD-KEEP-001"),
+    before.orders[0],
+  )
+  assert.deepEqual(after.users, before.users)
+  assert.deepEqual(after.inventory, before.inventory)
+  assert(after.orders.every((row) => Date.parse(row.createdAt) <= Date.now()))
+  assert(
+    after.orders.some(
+      (row) => row.inventory === "Unavailable" && row.preparation.shortage,
+    ),
+  )
+  assert(
+    after.orders.some(
+      (row) =>
+        row.carrierOutcome === "unknown" &&
+        row.shipment === "Confirmation required",
+    ),
+  )
+  assert(after.shipments.some((row) => row.sync === "Pending"))
+  assert(after.shipments.some((row) => row.status === "Delivered"))
+  assert.equal(
+    after.activity.filter((row) => row.title === "Sample data added").length,
+    1,
+  )
+  for (const shipment of after.shipments) {
+    const order = after.orders.find((row) => row.id === shipment.orderId)
+    assert(
+      order.preparation.picked &&
+        order.preparation.packed &&
+        order.preparation.weight > 0,
+    )
+    assert.equal(order.carrierOutcome, "confirmed")
+    assert(shipment.tracking.includes("DEMO"))
+  }
+  await api("/api/v1/orders/ORD-DEMO-2005/preparation", {
+    method: "PUT",
+    cookie,
+    body: {
+      picked: true,
+      packed: false,
+      shortage: false,
+      weight: 2,
+      notes: "Keep my saved preparation",
+    },
+  })
+  const replay = await api(path, { method: "POST", cookie, body: {} })
+  assert.equal(replay.status, 200)
+  assert.equal(replay.body.alreadyLoaded, true)
+  const final = (await api("/api/v1/workspace", { cookie })).body
+  assert.equal(final.orders.length, after.orders.length)
+  assert.equal(final.shipments.length, after.shipments.length)
+  assert.equal(final.activity.length, after.activity.length + 1)
+  const preparation = final.orders.find(
+    (row) => row.id === "ORD-DEMO-2005",
+  ).preparation
+  assert.equal(preparation.packed, false)
+  assert.equal(preparation.notes, "Keep my saved preparation")
+})
+
 test("brand rename preserves saved records, custom passwords and previous sessions", async (t) => {
   const directory = mkdtempSync(join(tmpdir(), "trancelogix-rename-"))
   const filename = join(directory, ".data", `${LEGACY_BRAND_KEY}.sqlite`)
@@ -53,7 +175,7 @@ test("brand rename preserves saved records, custom passwords and previous sessio
   const session = await second.api("/api/auth/session", { cookie: oldCookie })
   assert.equal(session.body.user.email, "admin@trancelogix.local")
   const snapshot = await second.api("/api/v1/workspace", { cookie: oldCookie })
-  assert.equal(snapshot.body.orders.length, 9)
+  assert.equal(snapshot.body.orders.length, 29)
   for (const email of [
     "admin@trancelogix.local",
     `admin@${LEGACY_BRAND_KEY}.local`,

@@ -79,3 +79,11 @@ export interface WorkspaceSnapshot {
   users: User[]
   simulation: boolean
 }
+
+export interface SampleDataResult {
+  alreadyLoaded: boolean
+  ordersAdded: number
+  shipmentsAdded: number
+  activityAdded: number
+  skipped: number
+}

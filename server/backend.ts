@@ -18,6 +18,7 @@ import type { DatabaseOptions } from "./database.ts"
 import { answerChat, checkChatConnection } from "./chat.ts"
 import { LEGACY_BRAND_KEY } from "../src/brand.ts"
 import createLocationSearch from "./locations.ts"
+import addSampleData from "./sample-data.ts"
 interface BackendOptions extends DatabaseOptions {
   apiKey?: string
   model?: string
@@ -321,6 +322,34 @@ export async function createBackend(options: BackendOptions) {
     }
     if (path === "/api/v1/workspace" && method === "GET")
       return json(res, 200, await snapshot(user))
+    if (path === "/api/v1/sample-data" && method === "POST") {
+      authorize(user, ["Administrator"])
+      await readJson(req)
+      const result = await transaction(db, async () => {
+        const current = await one(
+          "SELECT role FROM users WHERE id = ?",
+          user.id,
+        )
+        if (current?.role !== "Administrator")
+          throw new HttpError(
+            403,
+            "Only administrators can add sample data.",
+            "forbidden",
+          )
+        const added = await addSampleData(db)
+        if (!added.alreadyLoaded)
+          await record(
+            user,
+            "Sample data added",
+            "sample-workspace",
+            `${added.ordersAdded} fictional orders and ${added.shipmentsAdded} sample shipments added. Existing records were preserved.`,
+            "success",
+            { ...added, sampleData: true },
+          )
+        return added
+      })
+      return json(res, result.alreadyLoaded ? 200 : 201, result)
+    }
     if (path === "/api/v1/locations" && method === "GET") {
       await rateLimit(db, "locations:" + user.id, 30, 60000)
       return json(res, 200, await findLocations(url.searchParams.get("city")))

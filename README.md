@@ -28,6 +28,12 @@ Existing databases keep their passwords and records during the rename. The three
 
 The SQLite file persists orders, preparation, shipments, users, profiles, sessions, and activity across browser reloads and server restarts. `.data/` is ignored by Git. Keep a backup of this directory if its contents matter; cloning the repository creates a separate database on each computer.
 
+## Sample workspace data
+
+Local demo mode adds 20 fictional customer orders and 9 sample shipments alongside the original examples, once per database. The records use `ORD-DEMO-` / `SHP-DEMO-` IDs, recent dates, Philippine city destinations and the existing warehouse products. They cover unchecked inventory, picking, packing, shortages, unknown carrier outcomes, delivery examples and pending OMS synchronization. Sample history is explicitly attributed to **Sample workspace**.
+
+On Netlify or another hosted workspace, sign in as an administrator and open **Settings → Integrations → Sample workspace → Add sample data**. This imports the same examples into the connected database without creating demo login accounts. Existing orders, preparation, users, credentials and stock levels are preserved. Concurrent or repeated imports do not duplicate the dataset or reset progress. No real carrier booking or delivery occurs, and no external API is called by the import. `POST /api/v1/sample-data` is administrator-only and uses the normal JSON, session and same-origin controls.
+
 ## Connect the assistant
 
 Create a private `.env.local` using the variable names in [.env.example](.env.example):

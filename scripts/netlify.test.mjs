@@ -236,6 +236,26 @@ test("Netlify login, secure cookies, PostgreSQL records, origin checks and logou
     (await api("/api/auth/session", { cookie: staffCookie })).body.user,
     null,
   )
+  const samples = await api("/api/v1/sample-data", {
+    method: "POST",
+    cookie,
+    body: {},
+  })
+  assert.equal(samples.status, 201)
+  assert.equal(samples.body.ordersAdded, 20)
+  assert.equal(samples.body.shipmentsAdded, 9)
+  const populated = (await api("/api/v1/workspace", { cookie })).body
+  assert.equal(populated.orders.length, 21)
+  assert.equal(
+    populated.users.length,
+    1,
+    "sample records never create public login accounts",
+  )
+  assert.equal(
+    (await api("/api/v1/sample-data", { method: "POST", cookie, body: {} }))
+      .body.alreadyLoaded,
+    true,
+  )
   assert.equal(
     (await api("/api/v1/workspace", { cookie })).body.orders[0].id,
     "ORD-NETLIFY-001",

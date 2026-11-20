@@ -11,6 +11,7 @@ import { useWorkspace } from "./WorkspaceData"
 import useFocusLayer from "./useFocusLayer"
 import DeleteUserDialog from "./components/DeleteUserDialog"
 import AssistantConnection from "./components/AssistantConnection"
+import SampleWorkspace from "./components/SampleWorkspace"
 import DestinationMap from "./components/DestinationMap"
 import LocationButton from "./components/LocationButton"
 import Card, {
@@ -2793,6 +2794,7 @@ export function Settings({ go }: PageProps) {
               </p>
             </Card>
             <AssistantConnection />
+            <SampleWorkspace />
           </div>
         )}
       </div>
