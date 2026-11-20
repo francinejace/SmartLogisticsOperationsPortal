@@ -11,10 +11,16 @@ vite.config.*.timestamp-*
 *-debug.log*
 logs/
 *.log
-# Reviewed submission evidence; runtime and debug logs stay ignored.
-!evidence/build.log
-!evidence/typecheck.log
-!evidence/regression-tests.log
+
+# Local final-project reports, diagrams and generated validation evidence.
+/docs/TranceLogix-Final-Integration-Artifact.docx
+/docs/final-project-report.md
+/docs/defense-study-guide.md
+/docs/risk-closure.csv
+/docs/figures/as-built-context.*
+/docs/figures/shipment-recovery.*
+/evidence/
+
 .claude-replay.*
 .tmp-*
 /.figma/design-context/
