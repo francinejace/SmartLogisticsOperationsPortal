@@ -104,3 +104,9 @@ For **TranceLogix on Netlify**, follow [the Netlify setup guide](docs/netlify-se
 The [Vercel setup guide](docs/vercel-setup.md) remains available for that host. Both hosted adapters require PostgreSQL and secure cookies and disable local demo seeding. These local build commands do not deploy the site or change cloud settings.
 
 For a standalone Node server, use a persistent database volume or `DATABASE_URL`, HTTPS with `COOKIE_SECURE=true`, and `SEED_DEMO_DATA=false`. For an empty database also set `BOOTSTRAP_ADMIN_EMAIL` and `BOOTSTRAP_ADMIN_PASSWORD` (at least 12 characters). Bootstrap variables only create the initial account; use Settings to change an existing password.
+
+## Final integration artifact
+
+The [as-built report](docs/final-project-report.md) covers Parts A–F, actual integration contracts, measured load/failure behavior, security controls, term-artifact divergences, case studies and AI disclosure. The [Word copy](docs/TranceLogix-Final-Integration-Artifact.docx) includes the report and the [16-question evidence study guide](docs/defense-study-guide.md). The [risk closure register](docs/risk-closure.csv) retains all 22 original Module 7 risk IDs. Review the explicit implementation and evidence gaps before submission.
+
+Reproduce the isolated measurements with `pnpm validate:integration`; it uses synthetic data, a temporary server and injected providers, without touching your workspace database. `pnpm verify:live` is optional: it uses your private OpenAI configuration for one fixed diagnostic and performs one public city lookup. It sends no workspace records and may incur a small API charge. The [evidence manifest](evidence/validation-manifest.json) identifies saved results, commands, limitations and source hashes. These commands do not deploy the application.

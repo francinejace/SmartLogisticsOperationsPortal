@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="885" viewBox="0 0 1100 885">
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#52645b"/></marker><style>text{font-family:Arial,sans-serif;font-size:18px;fill:#20392c}.label{font-size:16px}.edge{stroke:#52645b;stroke-width:2;marker-end:url(#a)}.return{stroke-dasharray:6 4}.head{fill:#f0f5f2;stroke:#668772;stroke-width:2}</style></defs>
+  <rect width="1100" height="885" fill="white"/>
+  <text x="28" y="36" font-size="24" font-weight="bold">Shipment recovery: implemented local workflow</text>
+  <rect x="55" y="65" width="200" height="55" rx="7" class="head"/><text x="155" y="99" text-anchor="middle">Browser / operator</text>
+  <rect x="440" y="65" width="200" height="55" rx="7" class="head"/><text x="540" y="99" text-anchor="middle">Node middleware</text>
+  <rect x="825" y="65" width="220" height="55" rx="7" class="head"/><text x="935" y="99" text-anchor="middle">Workspace database</text>
+  <path d="M155 120V830M540 120V830M935 120V830" stroke="#b8c9be" stroke-dasharray="5 5"/>
+  <line x1="155" y1="163" x2="540" y2="163" class="edge"/><text x="175" y="151" class="label">POST orders + session / validation</text>
+  <line x1="540" y1="210" x2="935" y2="210" class="edge"/><text x="560" y="198" class="label">Save order + preparation + activity</text>
+  <line x1="540" y1="253" x2="155" y2="253" class="edge return"/><text x="175" y="241" class="label">201: accepted order</text>
+  <line x1="155" y1="302" x2="540" y2="302" class="edge"/><text x="175" y="290" class="label">Check stock; complete preparation</text>
+  <line x1="540" y1="345" x2="935" y2="345" class="edge"/><text x="560" y="333" class="label">Read example stock; save progress</text>
+  <rect x="28" y="374" width="1030" height="210" rx="7" fill="#fffbf1" stroke="#b89c55"/>
+  <text x="45" y="400" font-weight="bold">Unknown-outcome simulation</text>
+  <line x1="155" y1="438" x2="540" y2="438" class="edge"/><text x="175" y="426" class="label">POST shipment: simulation=timeout</text>
+  <line x1="540" y1="477" x2="935" y2="477" class="edge"/><text x="560" y="465" class="label">Persist unknown outcome + retained key</text>
+  <line x1="540" y1="518" x2="155" y2="518" class="edge return"/><text x="175" y="506" class="label">409: confirmation required; blind retry blocked</text>
+  <line x1="155" y1="563" x2="540" y2="563" class="edge"/><text x="175" y="551" class="label">Explicit carrier/check before creation retry</text>
+  <rect x="28" y="603" width="1030" height="220" rx="7" fill="#f2f8f4" stroke="#6b9879"/>
+  <text x="45" y="630" font-weight="bold">Confirmed shipment with simulated OMS synchronization failure</text>
+  <line x1="155" y1="669" x2="540" y2="669" class="edge"/><text x="175" y="657" class="label">Create: simulation=sync_failure</text>
+  <line x1="540" y1="709" x2="935" y2="709" class="edge"/><text x="560" y="697" class="label">Retain shipment; sync=Pending</text>
+  <line x1="155" y1="753" x2="540" y2="753" class="edge"/><text x="175" y="741" class="label">POST shipments/:id/sync</text>
+  <line x1="540" y1="794" x2="155" y2="794" class="edge return"/><text x="175" y="782" class="label">200: same shipment; Synchronized</text>
+  <text x="30" y="863" class="label">One local shipment per order. External carrier acceptance and provider-side idempotency remain unverified.</text>
+</svg>

@@ -1,0 +1,58 @@
+[
+  {
+    "id": "proposal",
+    "filename": "Abad-Bachiller-Dela-Cruz-Quintos_20260923_154657_0000 (3).pdf",
+    "sha256": "5613cb7184baaa3d90d3477d7dc97a97280e461cf0599c72b5722852525bbce2",
+    "pages": 19,
+    "characters": 12787
+  },
+  {
+    "id": "final_brief",
+    "filename": "IT0129_FE_FINAL_Final_Project_Artifact_and_Defense_31345935.docx",
+    "sha256": "49f7a19b4baf173e8b16d087e03e30cac4c5fbc393a5a3e783ec3978a2ddfa4f",
+    "pages": null,
+    "characters": 13936
+  },
+  {
+    "id": "technical2_brief",
+    "filename": "IT0129_M4T1_Technical_2_Software_Construction_Testing_and_Integration (1).docx",
+    "sha256": "9f444ac34769f61bf4c3ad2938d1a4a788889f181244390bc6fd7e10dcd11771",
+    "pages": null,
+    "characters": 8713
+  },
+  {
+    "id": "group_review",
+    "filename": "Team-Sync-Group-Review (1).pdf",
+    "sha256": "08afb65e92885c932be41dab2e5e1a79ca770584aca0b18724061910a2f00962",
+    "pages": 9,
+    "characters": 19874
+  },
+  {
+    "id": "groupwork3",
+    "filename": "TEAM-SYNC-GW3_GROUPWORK.pdf",
+    "sha256": "97da36700c1b810cb9ec3b5122fcb817761530cb14f81f41f0b2b1a4293b9298",
+    "pages": 35,
+    "characters": 53960
+  },
+  {
+    "id": "technical4",
+    "filename": "TEAM-SYNC-TECHNICAL-4.pdf",
+    "sha256": "d4320d1b0d2ec62784d30dd884adecf3ca0a61852d80b5de7f2ba4d427e2fbfb",
+    "pages": 21,
+    "characters": 34735
+  },
+  {
+    "id": "technical2",
+    "filename": "TeamSync_TECH2 (1).pdf",
+    "sha256": "4ffda1621a01b65e9dc259545820fcfad0ec0b70ee2b6d4dc0312bdc4ef7dbff",
+    "pages": 24,
+    "characters": 39713
+  },
+  {
+    "id": "technical3",
+    "filename": "TeamSync_TECH3 (1).pdf",
+    "sha256": "1b90d404fec2337e9f58b28ff4fa906511118be97ae91a05a96daa9f7e384b90",
+    "pages": 19,
+    "characters": 31953
+  }
+]

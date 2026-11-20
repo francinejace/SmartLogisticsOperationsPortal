@@ -11,6 +11,10 @@ vite.config.*.timestamp-*
 *-debug.log*
 logs/
 *.log
+# Reviewed submission evidence; runtime and debug logs stay ignored.
+!evidence/build.log
+!evidence/typecheck.log
+!evidence/regression-tests.log
 .claude-replay.*
 .tmp-*
 /.figma/design-context/

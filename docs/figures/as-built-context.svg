@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="730" viewBox="0 0 1120 730">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#52645b"/></marker>
+    <style>text{font-family:Arial,sans-serif;fill:#20392c;font-size:18px}.title{font-size:24px;font-weight:bold}.small{font-size:15px;fill:#52645b}.box{fill:white;stroke:#99b3a2;stroke-width:2}.external{fill:#f0f5f2;stroke:#668772;stroke-width:2}.edge{fill:none;stroke:#52645b;stroke-width:2;marker-end:url(#a)}</style>
+  </defs>
+  <rect width="1120" height="730" fill="white"/>
+  <text x="30" y="36" class="title">TranceLogix: actual deployment and service boundaries</text>
+  <rect x="230" y="70" width="480" height="495" rx="12" fill="#f7faf8" stroke="#004717" stroke-width="2" stroke-dasharray="8 5"/>
+  <text x="250" y="102" font-weight="bold">One Node backend deployment</text>
+  <rect x="30" y="285" width="155" height="98" rx="8" class="box"/>
+  <text x="107" y="320" text-anchor="middle">React browser</text><text x="107" y="348" text-anchor="middle">Three roles</text>
+  <rect x="265" y="130" width="410" height="70" rx="8" class="box"/>
+  <text x="470" y="160" text-anchor="middle">Session / role checks</text><text x="470" y="184" text-anchor="middle">HTTP JSON API routes</text>
+  <rect x="265" y="245" width="185" height="65" rx="8" class="box"/>
+  <text x="357" y="273" text-anchor="middle">OpenAI adapter</text><text x="357" y="296" text-anchor="middle" class="small">30 s deadline</text>
+  <rect x="490" y="245" width="185" height="65" rx="8" class="box"/>
+  <text x="582" y="273" text-anchor="middle">City adapter</text><text x="582" y="296" text-anchor="middle" class="small">7 s deadline</text>
+  <rect x="265" y="355" width="410" height="72" rx="8" class="box"/>
+  <text x="470" y="384" text-anchor="middle">Orders and warehouse preparation</text><text x="470" y="411" text-anchor="middle">Local WMS / carrier / OMS simulations</text>
+  <rect x="265" y="470" width="410" height="65" rx="8" class="box"/>
+  <text x="470" y="498" text-anchor="middle">Storage Adapter</text><text x="470" y="522" text-anchor="middle" class="small">SQLite locally / PostgreSQL when hosted</text>
+  <rect x="825" y="155" width="265" height="75" rx="8" class="external"/>
+  <text x="957" y="185" text-anchor="middle">OpenAI Responses API</text><text x="957" y="211" text-anchor="middle" class="small">HTTPS JSON / server bearer key</text>
+  <rect x="825" y="280" width="265" height="75" rx="8" class="external"/>
+  <text x="957" y="310" text-anchor="middle">Open-Meteo geocoding</text><text x="957" y="336" text-anchor="middle" class="small">HTTPS JSON / public endpoint</text>
+  <rect x="825" y="490" width="265" height="65" rx="8" class="external"/>
+  <text x="957" y="517" text-anchor="middle">OpenStreetMap tiles</text><text x="957" y="542" text-anchor="middle" class="small">Browser HTTPS PNG / Leaflet</text>
+  <rect x="825" y="610" width="265" height="65" rx="8" class="external"/>
+  <text x="957" y="637" text-anchor="middle">Google Fonts</text><text x="957" y="662" text-anchor="middle" class="small">Browser HTTPS CSS / fonts</text>
+  <path class="edge" d="M185 315H208V166H265"/>
+  <text x="32" y="245" class="small">Same-origin JSON</text><text x="32" y="266" class="small">HTTPS when hosted</text>
+  <path class="edge" d="M357 200V245"/><path class="edge" d="M582 200V245"/>
+  <path class="edge" d="M450 277H468V218H770V192H825"/>
+  <path class="edge" d="M675 277H767V318H825"/>
+  <path class="edge" d="M265 184H244V390H265"/>
+  <path class="edge" d="M470 427V470"/>
+  <path class="edge" d="M90 383V584H770V522H825"/>
+  <path class="edge" d="M90 584V643H825"/>
+  <text x="265" y="607" class="small">Direct anonymous browser resource requests</text>
+  <text x="30" y="711" class="small">No outbound WMS/carrier request or inbound carrier webhook is implemented.</text>
+</svg>
