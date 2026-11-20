@@ -14,6 +14,8 @@
     "format": "oxfmt",
     "test:theme": "node --experimental-strip-types --test scripts/theme.test.mjs",
     "test:locations": "node --experimental-strip-types --test scripts/locations.test.mjs",
+    "validate:integration": "node --experimental-strip-types scripts/integration-validation.mjs",
+    "verify:live": "node --experimental-strip-types scripts/verify-live-services.mjs",
     "test:backend": "node --experimental-strip-types --test scripts/backend.test.mjs",
     "test:postgres": "node --experimental-strip-types --test scripts/postgres.test.mjs",
     "test:netlify": "node --experimental-strip-types --test scripts/netlify.test.mjs"

@@ -1,0 +1,365 @@
+{
+  "recordedAt": "2026-11-20T06:01:50.539Z",
+  "clientDate": "2026-11-20",
+  "commit": "ec58659241302b46a3e6c846faaf0a98614c4e2b",
+  "environment": {
+    "node": "v24.21.0",
+    "platform": "darwin",
+    "osRelease": "21.6.0",
+    "arch": "x64",
+    "cpu": "Intel(R) Core(TM) i5-5350U CPU @ 1.80GHz",
+    "logicalCpus": 4,
+    "ramGiB": 8,
+    "database": "in-memory SQLite, seeded synthetic records",
+    "topology": "separate load-generator and server processes on one host, loopback HTTP",
+    "externalRequests": 0,
+    "records": {
+      "orders": 9,
+      "shipments": 4,
+      "users": 3
+    }
+  },
+  "methodology": {
+    "endpoint": "GET /api/v1/workspace as Administrator",
+    "client": "node:http with keep-alive, 200 sockets maximum",
+    "variable": "closed-loop concurrent clients",
+    "durationPerStageMs": 5000,
+    "requestDeadlineMs": 2000,
+    "degradationCriterion": "p95 > 500 ms OR failed requests > 1%; validation threshold, not a production SLA",
+    "providerTimeoutsMs": {
+      "openai": 30000,
+      "geocoding": 7000
+    },
+    "limitations": [
+      "Small seeded dataset",
+      "No TLS or WAN latency in loopback test",
+      "Load generator shares host resources",
+      "Not a hosted PostgreSQL capacity measurement",
+      "External providers are injected fixtures, not load tested"
+    ]
+  },
+  "load": [
+    {
+      "concurrency": 1,
+      "requests": 730,
+      "success": 730,
+      "failed": 0,
+      "errorPct": 0,
+      "elapsedMs": 5011.41,
+      "successfulRps": 145.67,
+      "p50Ms": 5.87,
+      "p95Ms": 10.34,
+      "p99Ms": 17.6,
+      "statuses": {
+        "200": 730
+      },
+      "failures": {},
+      "networkCodes": {},
+      "serverCpuOneCorePct": 75.34,
+      "serverRssMiB": 259.7,
+      "degraded": false
+    },
+    {
+      "concurrency": 5,
+      "requests": 773,
+      "success": 773,
+      "failed": 0,
+      "errorPct": 0,
+      "elapsedMs": 5022.91,
+      "successfulRps": 153.89,
+      "p50Ms": 25.19,
+      "p95Ms": 62.87,
+      "p99Ms": 128.95,
+      "statuses": {
+        "200": 773
+      },
+      "failures": {},
+      "networkCodes": {},
+      "serverCpuOneCorePct": 70.08,
+      "serverRssMiB": 404.34,
+      "degraded": false
+    },
+    {
+      "concurrency": 10,
+      "requests": 760,
+      "success": 760,
+      "failed": 0,
+      "errorPct": 0,
+      "elapsedMs": 5041.15,
+      "successfulRps": 150.76,
+      "p50Ms": 49.51,
+      "p95Ms": 111.31,
+      "p99Ms": 657.37,
+      "statuses": {
+        "200": 760
+      },
+      "failures": {},
+      "networkCodes": {},
+      "serverCpuOneCorePct": 78.83,
+      "serverRssMiB": 397.15,
+      "degraded": false
+    },
+    {
+      "concurrency": 25,
+      "requests": 941,
+      "success": 941,
+      "failed": 0,
+      "errorPct": 0,
+      "elapsedMs": 5133.4,
+      "successfulRps": 183.31,
+      "p50Ms": 124.94,
+      "p95Ms": 175.95,
+      "p99Ms": 559.85,
+      "statuses": {
+        "200": 941
+      },
+      "failures": {},
+      "networkCodes": {},
+      "serverCpuOneCorePct": 78.5,
+      "serverRssMiB": 497.04,
+      "degraded": false
+    },
+    {
+      "concurrency": 50,
+      "requests": 655,
+      "success": 623,
+      "failed": 32,
+      "errorPct": 4.89,
+      "elapsedMs": 5462.6,
+      "successfulRps": 114.05,
+      "p50Ms": 219.63,
+      "p95Ms": 1809.62,
+      "p99Ms": 2011.41,
+      "statuses": {
+        "200": 623
+      },
+      "failures": {
+        "client_deadline": 32
+      },
+      "networkCodes": {},
+      "serverCpuOneCorePct": 63.12,
+      "serverRssMiB": 585.23,
+      "degraded": true
+    },
+    {
+      "concurrency": 100,
+      "requests": 961,
+      "success": 823,
+      "failed": 138,
+      "errorPct": 14.36,
+      "elapsedMs": 6111.72,
+      "successfulRps": 134.66,
+      "p50Ms": 294.47,
+      "p95Ms": 2004.5,
+      "p99Ms": 2092.36,
+      "statuses": {
+        "200": 823
+      },
+      "failures": {
+        "client_deadline": 138
+      },
+      "networkCodes": {},
+      "serverCpuOneCorePct": 70.31,
+      "serverRssMiB": 478.93,
+      "degraded": true
+    },
+    {
+      "concurrency": 200,
+      "requests": 1235,
+      "success": 786,
+      "failed": 449,
+      "errorPct": 36.36,
+      "elapsedMs": 6143.28,
+      "successfulRps": 127.94,
+      "p50Ms": 445.71,
+      "p95Ms": 2028.3,
+      "p99Ms": 2046.65,
+      "statuses": {
+        "200": 786
+      },
+      "failures": {
+        "client_network": 44,
+        "client_deadline": 405
+      },
+      "networkCodes": {
+        "ECONNRESET": 44
+      },
+      "serverCpuOneCorePct": 70.37,
+      "serverRssMiB": 474.23,
+      "degraded": true
+    }
+  ],
+  "reliability": [
+    {
+      "service": "openai",
+      "fault": "timeout",
+      "failureStatus": 504,
+      "errorCode": "assistant_timeout",
+      "failureElapsedMs": 30029.48,
+      "workspaceDuringFaultRequestStatus": 200,
+      "workspaceDuringFaultRequestMs": 8.24,
+      "workspaceWhileProviderFaultedStatus": 200,
+      "workspaceElapsedMs": 7.33,
+      "recoveryStatus": 200,
+      "recoveryElapsedMs": 16.43,
+      "recoveryMode": "next explicit request after fixture restored; no background retry",
+      "dataPreserved": true
+    },
+    {
+      "service": "openai",
+      "fault": "http_error",
+      "failureStatus": 502,
+      "errorCode": "upstream_error",
+      "failureElapsedMs": 6.38,
+      "workspaceDuringFaultRequestStatus": 200,
+      "workspaceDuringFaultRequestMs": 6.15,
+      "workspaceWhileProviderFaultedStatus": 200,
+      "workspaceElapsedMs": 5.11,
+      "recoveryStatus": 200,
+      "recoveryElapsedMs": 7.97,
+      "recoveryMode": "next explicit request after fixture restored; no background retry",
+      "dataPreserved": true
+    },
+    {
+      "service": "openai",
+      "fault": "invalid_json",
+      "failureStatus": 502,
+      "errorCode": "connection_error",
+      "failureElapsedMs": 8.13,
+      "workspaceDuringFaultRequestStatus": 200,
+      "workspaceDuringFaultRequestMs": 6.31,
+      "workspaceWhileProviderFaultedStatus": 200,
+      "workspaceElapsedMs": 5.71,
+      "recoveryStatus": 200,
+      "recoveryElapsedMs": 6.29,
+      "recoveryMode": "next explicit request after fixture restored; no background retry",
+      "dataPreserved": true
+    },
+    {
+      "service": "openai",
+      "fault": "malformed_shape",
+      "failureStatus": 502,
+      "errorCode": "connection_error",
+      "failureElapsedMs": 9.54,
+      "workspaceDuringFaultRequestStatus": 200,
+      "workspaceDuringFaultRequestMs": 6.58,
+      "workspaceWhileProviderFaultedStatus": 200,
+      "workspaceElapsedMs": 5.75,
+      "recoveryStatus": 200,
+      "recoveryElapsedMs": 6.18,
+      "recoveryMode": "next explicit request after fixture restored; no background retry",
+      "dataPreserved": true
+    },
+    {
+      "service": "geocoding",
+      "fault": "timeout",
+      "failureStatus": 504,
+      "errorCode": "location_timeout",
+      "failureElapsedMs": 7009.47,
+      "workspaceDuringFaultRequestStatus": 200,
+      "workspaceDuringFaultRequestMs": 4.99,
+      "workspaceWhileProviderFaultedStatus": 200,
+      "workspaceElapsedMs": 5.21,
+      "recoveryStatus": 200,
+      "recoveryElapsedMs": 2.09,
+      "recoveryMode": "next explicit request after fixture restored; no background retry",
+      "dataPreserved": true
+    },
+    {
+      "service": "geocoding",
+      "fault": "http_error",
+      "failureStatus": 502,
+      "errorCode": "location_provider_unavailable",
+      "failureElapsedMs": 4.88,
+      "workspaceDuringFaultRequestStatus": 200,
+      "workspaceDuringFaultRequestMs": 5.74,
+      "workspaceWhileProviderFaultedStatus": 200,
+      "workspaceElapsedMs": 5.69,
+      "recoveryStatus": 200,
+      "recoveryElapsedMs": 2.34,
+      "recoveryMode": "next explicit request after fixture restored; no background retry",
+      "dataPreserved": true
+    },
+    {
+      "service": "geocoding",
+      "fault": "invalid_json",
+      "failureStatus": 502,
+      "errorCode": "location_connection_error",
+      "failureElapsedMs": 3.09,
+      "workspaceDuringFaultRequestStatus": 200,
+      "workspaceDuringFaultRequestMs": 6.52,
+      "workspaceWhileProviderFaultedStatus": 200,
+      "workspaceElapsedMs": 5.72,
+      "recoveryStatus": 200,
+      "recoveryElapsedMs": 7.7,
+      "recoveryMode": "next explicit request after fixture restored; no background retry",
+      "dataPreserved": true
+    },
+    {
+      "service": "geocoding",
+      "fault": "malformed_shape",
+      "failureStatus": 502,
+      "errorCode": "location_connection_error",
+      "failureElapsedMs": 2.39,
+      "workspaceDuringFaultRequestStatus": 200,
+      "workspaceDuringFaultRequestMs": 6.98,
+      "workspaceWhileProviderFaultedStatus": 200,
+      "workspaceElapsedMs": 4.65,
+      "recoveryStatus": 200,
+      "recoveryElapsedMs": 2.23,
+      "recoveryMode": "next explicit request after fixture restored; no background retry",
+      "dataPreserved": true
+    }
+  ],
+  "workflow": [
+    {
+      "operation": "simulated carrier timeout",
+      "status": 409,
+      "elapsedMs": 9.43,
+      "persistedOutcome": "unknown",
+      "realNetworkTimeout": false
+    },
+    {
+      "operation": "unsafe replay blocked",
+      "status": 409,
+      "elapsedMs": 6.34
+    },
+    {
+      "operation": "explicit carrier status check",
+      "status": 200,
+      "elapsedMs": 6.92
+    },
+    {
+      "operation": "carrier confirmed, simulated OMS failure",
+      "status": 201,
+      "elapsedMs": 7.5,
+      "sync": "Pending"
+    },
+    {
+      "operation": "idempotent shipment replay",
+      "status": 200,
+      "elapsedMs": 6.03,
+      "sameShipment": true
+    },
+    {
+      "operation": "OMS-only recovery",
+      "status": 200,
+      "elapsedMs": 5.72,
+      "sameShipment": true,
+      "sync": "Synchronized",
+      "shipmentsForOrder": 1
+    }
+  ],
+  "assertions": [
+    "Provider failures are sanitized",
+    "Workspace GET remains available with provider failure injected",
+    "External-provider failures do not mutate orders or shipments",
+    "Restored providers recover on the next explicit request",
+    "Unknown carrier outcome blocks blind retry",
+    "Replay returns the same shipment",
+    "OMS-only recovery preserves exactly one shipment"
+  ],
+  "firstDegradation": 50,
+  "firstDeadlineFailure": 50,
+  "result": "passed"
+}
